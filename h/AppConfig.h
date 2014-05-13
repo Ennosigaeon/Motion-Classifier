@@ -4,7 +4,6 @@
 
 #include <string>
 
-
 /**
   * This class handles the application configuration. It is implemented as a
   * Singleton. To instantiate the instance you have to call

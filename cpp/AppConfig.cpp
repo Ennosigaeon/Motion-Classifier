@@ -7,6 +7,7 @@
 #include <boost/algorithm/string.hpp>
 
 #include "../h/AppConfig.h"
+#include "../h/Exception.h"
 
 //sets the initial value of instance to NULL, due to forbidden 'in-class initialization'.
 AppConfig* AppConfig::instance = NULL;
@@ -38,10 +39,8 @@ void AppConfig::load(const std::string& path) {
 		instance = new AppConfig();
 
 	std::ifstream in(path);
-	if (!in.is_open()) {
-		//TODO: throw exception
-	}
-
+	if (!in.is_open())
+		throw Exception::UNABLE_TO_READ_CONFIGURATIONS;
 
 	std::string line;
 	while (!in.eof()) {

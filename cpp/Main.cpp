@@ -5,6 +5,7 @@
 #include <cmath>
 
 #include "../h/AppConfig.h"
+#include "../h/Exception.h"
 #include "../h/Interval.h"
 #include "../h/EMGFileProvider.h"
 #include "../h/Plotter.h"
@@ -35,12 +36,18 @@ int main(int argc, char *argv[]) {
 		}
 	}
 	if (configPath.empty()) {
-		std::cout << "Unable to find path to configuration file" << std::endl
+		std::cerr << "Unable to find path to configuration file" << std::endl
 			<< "Online Classificator usage: " << AppConfig::CONFIG_ARGUMENT << " <path_to_config>" << std::endl;
 		return EXIT_FAILURE;
 	}
 	BOOST_LOG_TRIVIAL(info) << "using " << configPath << " as configuration file";
-	AppConfig::load(configPath);
+	try {
+		AppConfig::load(configPath);
+	}
+	catch (int ex) {
+		if (ex == Exception::UNABLE_TO_READ_CONFIGURATIONS)
+			std::cerr << "Unable to read configurations from configuration file. Not possible to open the file." << std::endl;
+	}
 
 	//init logging system
 	initLogging();
@@ -49,7 +56,7 @@ int main(int argc, char *argv[]) {
 	std::string path = "c:\\Users\\Marc\\Dropbox\\Informatik\\Studium\\6. Semester\\Bachelor Thesis\\MARC\\data\\data8_AN";
 	EMGProvider *provider;
 	{
-		EMGFileProvider emgProvider{ path };
+		EMGFileProvider emgProvider{ "C:/Tmp/test.txt" };
 		provider = &emgProvider;
 		provider->send(Signal::START);
 

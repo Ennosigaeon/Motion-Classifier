@@ -24,18 +24,25 @@ EMGFileProvider::~EMGFileProvider() {
 
 void EMGFileProvider::send(const Signal& signal) {
 	if (signal == Signal::START) {
-		if (EMGProvider::status == RUNNING)
-			; //TODO: Notify thread
-		else {
-			thread = std::thread(&EMGFileProvider::run, this);
+		if (EMGProvider::status == NEW) {
 			EMGProvider::status = Status::RUNNING;
+			thread = std::thread(&EMGFileProvider::run, this);
+		}
+		else {
+			EMGProvider::status = Status::RUNNING;
+			std::unique_lock<std::mutex> mlock(mutex);
+			mlock.unlock();
+			condition.notify_one();
 		}
 	}
 	if (signal == Signal::STOP)
 		EMGProvider::status = Status::WAITING;
 	if (signal == Signal::SHUTDOWN) {
 		EMGProvider::status = Status::FINISHED;
-		//TOOD: Notify thread
+		std::unique_lock<std::mutex> mlock(mutex);
+		mlock.unlock();
+		condition.notify_one();
+		thread.join();
 	}
 }
 
@@ -43,14 +50,17 @@ void EMGFileProvider::send(const Signal& signal) {
 void EMGFileProvider::run() {
 	while (true) {
 		if (EMGProvider::status == Status::FINISHED) {
-			BOOST_LOG_TRIVIAL(debug) << "shuting down EMGFileProvider";
+			BOOST_LOG_TRIVIAL(info) << "shuting down EMGFileProvider";
+			//TODO: notify that no more intervals will be created
 			break;
 		}
-		if (EMGProvider::status == Status::WAITING)
-			;//TODO: Wait for change of status
+		if (EMGProvider::status == Status::WAITING) {
+			BOOST_LOG_TRIVIAL(debug) << "EMGFileProvider stops reading from file";
+			std::unique_lock<std::mutex> lk(mutex);
+			condition.wait(lk);
+		}
 		if (EMGProvider::status == Status::RUNNING) {
 			if (!EMGFileProvider::fileIn.is_open()) {
-				//TODO: replace with exception
 				BOOST_LOG_TRIVIAL(fatal) << "unable to read records from file. Stopping EMGFileProvider";
 				return;
 			}
@@ -63,8 +73,8 @@ void EMGFileProvider::run() {
 			while (x < s.getNrColumns()) {
 				math::Vector entry(x, y, 0);
 				std::string tmp;
-				//TODO: what happens when reading fails (EOF)??
 				fileIn >> tmp;
+
 				//convert string into number
 				std::istringstream converter(tmp);
 				double number;
@@ -77,6 +87,13 @@ void EMGFileProvider::run() {
 				if (y == s.getNrRows()) {
 					y = 0;
 					x++;
+				}
+
+				//stop reading when eof is reached
+				if (fileIn.eof()) {
+					BOOST_LOG_TRIVIAL(warning) << "EMGFileProvider reached end of file. No more intervals will be read";
+					status = Status::FINISHED;
+					break;
 				}
 			}
 
