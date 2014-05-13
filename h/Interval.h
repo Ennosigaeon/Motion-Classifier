@@ -7,8 +7,7 @@
 class Interval {
 private:
 	std::vector<Sample> samples;
-	//TODO: make configurable
-	int MAX_SIZE = 150;
+	int MAX_SIZE;
 
 public:
 	Interval();

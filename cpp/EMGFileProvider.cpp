@@ -4,8 +4,13 @@
 #include <boost/log/trivial.hpp>
 #include <boost/log/expressions.hpp>
 #include "../h/EMGFileProvider.h"
+#include "../h/AppConfig.h"
 
 EMGFileProvider::EMGFileProvider(const std::string path) {
+	AppConfig *conf = AppConfig::getInstance();
+	nrRows = conf->getEMGFileProviderRows();
+	nrColumns = conf->getEMGFileProviderColumns();
+
 	EMGFileProvider::fileIn.open(path, std::ios_base::in);
 	BOOST_LOG_TRIVIAL(info) << "EMGFileProvider created";
 }

@@ -4,8 +4,10 @@
 #include <boost/log/trivial.hpp>
 #include <boost/log/expressions.hpp>
 #include "../h/Interval.h"
+#include "../h/AppConfig.h"
 
 Interval::Interval() {
+	MAX_SIZE = AppConfig::getInstance()->getIntervalMaxSize();
 }
 
 bool Interval::isFull() const {

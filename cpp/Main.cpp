@@ -21,15 +21,11 @@
 #include <boost/log/utility/setup/file.hpp>
 
 void initLogging();
-void cleanUp();
 
 //It is necessary to pass an argument with the path to the configuration file.
 //The argument has to look like 'online_classificator.config <path_to_file>'
 //with a whitespace before the path
 int main(int argc, char *argv[]) {
-	initLogging();
-	BOOST_LOG_TRIVIAL(info) << "Main started";
-
 	//parses the path to the configuration file from the command line parameters
 	std::string configPath = "";
 	for (int i = 0; i < argc; i++) {
@@ -46,6 +42,9 @@ int main(int argc, char *argv[]) {
 	BOOST_LOG_TRIVIAL(info) << "using " << configPath << " as configuration file";
 	AppConfig::load(configPath);
 
+	//init logging system
+	initLogging();
+	BOOST_LOG_TRIVIAL(info) << "Main started";
 
 	std::string path = "c:\\Users\\Marc\\Dropbox\\Informatik\\Studium\\6. Semester\\Bachelor Thesis\\MARC\\data\\data8_AN";
 	EMGProvider *provider;
@@ -78,6 +77,7 @@ int main(int argc, char *argv[]) {
 
 	//closes all open resources, releases heap memory, ...
 	Plotter::release();
+	AppConfig::release();
 
 	//Only used to keep the terminal still visible, when the program is finished
 	BOOST_LOG_TRIVIAL(info) << "Please press Enter to close program... ";
@@ -90,20 +90,23 @@ void initLogging() {
 	namespace logging = boost::log;
 	namespace keywords = boost::log::keywords;
 	namespace expr = boost::log::expressions;
+	AppConfig *config = AppConfig::getInstance();
 
-	logging::core::get()->set_filter(boost::log::trivial::severity >= boost::log::trivial::debug);
+	logging::core::get()->set_filter(boost::log::trivial::severity >= config->getLoggerLevel());
 	logging::add_common_attributes();
 
-	logging::add_file_log(
-		keywords::file_name = "log/OnlineClassificator.log",
-		keywords::rotation_size = 10 * 1024 * 1024,
-		keywords::format = (
-		expr::stream
-		<< expr::format_date_time< boost::posix_time::ptime >("TimeStamp", "%H:%M:%S.%f")
-		<< ": <" << logging::trivial::severity
-		<< "> " << expr::smessage
-		)
-		);
+	if (!config->getLoggerFile().empty()) {
+		logging::add_file_log(
+			keywords::file_name = config->getLoggerFile(),
+			keywords::rotation_size = 10 * 1024 * 1024,
+			keywords::format = (
+			expr::stream
+			<< expr::format_date_time< boost::posix_time::ptime >("TimeStamp", "%H:%M:%S.%f")
+			<< ": <" << logging::trivial::severity
+			<< "> " << expr::smessage
+			)
+			);
+	}
 	logging::add_console_log(
 		std::cout,
 		keywords::format = (

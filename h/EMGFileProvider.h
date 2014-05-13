@@ -10,9 +10,8 @@ class EMGFileProvider : public EMGProvider {
 private:
 	std::ifstream fileIn;
 	void run();
-	//TODO: make configurable
-	int nrRows = 8;
-	int nrColumns = 24;
+	int nrRows;
+	int nrColumns;
 
 public:
 	EMGFileProvider(const std::string path);

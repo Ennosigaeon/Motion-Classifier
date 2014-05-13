@@ -10,6 +10,7 @@
 template<typename T>
 class BlockingQueue {
 private:
+	//TODO: add maximum size to queue
 	std::queue<T> queue;
 	std::mutex mutex;
 	std::condition_variable cond;

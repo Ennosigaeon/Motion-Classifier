@@ -5,7 +5,12 @@
 #include <iostream>
 #include <boost/log/trivial.hpp>
 #include <boost/log/expressions.hpp>
+#include "../h/AppConfig.h"
 #include "../h/Variogram.h"
+
+Variogram::Variogram() {
+	nrBins = AppConfig::getInstance()->getVariogramNrBins();
+}
 
 std::vector<math::Vector> Variogram::calculate(const Sample& sample) const {
 	std::vector<math::Vector> result;

@@ -11,14 +11,12 @@
 class Plotter {
 private:
 	static Plotter *instance;
-
-	//TODO: make configurable
-	std::string path = "\"C:/Program Files (x86)/gnuplot/bin/gnuplot.exe\"";
-
+	std::string path = "";
 	Gnuplot* gp;
 
 	Plotter() {
 		gp = new Gnuplot(path);
+		path = AppConfig::getInstance()->getGnuPlotPath();
 	}
 
 	~Plotter() {

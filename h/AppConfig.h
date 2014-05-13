@@ -21,6 +21,9 @@ private:
 	std::string gnuPlotPath;
 	int emgFileProviderRows;
 	int emgFileProviderColumns;
+	int variogramNrBins;
+	int loggerLevel;
+	std::string loggerFile;
 
 public:
 	static const std::string CONFIG_ARGUMENT;
@@ -49,6 +52,9 @@ public:
 	std::string getGnuPlotPath() const;
 	int getEMGFileProviderRows() const;
 	int getEMGFileProviderColumns() const;
+	int getVariogramNrBins() const;
+	int getLoggerLevel() const;
+	std::string getLoggerFile() const;
 };
 
 #endif

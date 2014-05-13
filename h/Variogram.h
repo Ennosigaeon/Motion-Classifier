@@ -10,10 +10,11 @@
 class Variogram {
 private:
 	std::map<double, double> findPairs(std::vector<math::Vector>& values, const math::Vector& h, const int maxDist) const;
-	//TODO: What is that? Make configurable
-	int nrBins = 20;
+	int nrBins;
 
 public:
+	Variogram();
+
 	//returns all positions with the corresponding values for the given Sample and all math::Angles.
 	std::vector<math::Vector> calculate(const Sample& sample) const;
 };
