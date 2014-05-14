@@ -7,7 +7,7 @@
 #include "../h/AppConfig.h"
 
 Interval::Interval() {
-	MAX_SIZE = AppConfig::getInstance()->getIntervalMaxSize();
+	MAX_SIZE = AppConfig::getInstance()->getIntervalNrSamples();
 }
 
 bool Interval::isFull() const {

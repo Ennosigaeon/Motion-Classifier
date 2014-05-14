@@ -8,8 +8,8 @@
 
 EMGFileProvider::EMGFileProvider(const std::string path) {
 	AppConfig *conf = AppConfig::getInstance();
-	nrRows = conf->getEMGFileProviderRows();
-	nrColumns = conf->getEMGFileProviderColumns();
+	nrRows = conf->getSampleRows();
+	nrColumns = conf->getSampleColumns();
 
 	EMGFileProvider::fileIn.open(path, std::ios_base::in);
 	BOOST_LOG_TRIVIAL(info) << "EMGFileProvider created";

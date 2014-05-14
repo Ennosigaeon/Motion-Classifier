@@ -16,10 +16,10 @@ private:
 	static AppConfig *instance;
 	AppConfig();
 
-	int intervalMaxSize;
+	int intervalNrSamples;
 	std::string gnuPlotPath;
-	int emgFileProviderRows;
-	int emgFileProviderColumns;
+	int sampleRows;
+	int sampleColumns;
 	int variogramNrBins;
 	int loggerLevel;
 	std::string loggerFile;
@@ -47,10 +47,10 @@ public:
 	  */
 	static void release();
 
-	int getIntervalMaxSize() const;
+	int getIntervalNrSamples() const;
 	std::string getGnuPlotPath() const;
-	int getEMGFileProviderRows() const;
-	int getEMGFileProviderColumns() const;
+	int getSampleRows() const;
+	int getSampleColumns() const;
 	int getVariogramNrBins() const;
 	int getLoggerLevel() const;
 	std::string getLoggerFile() const;
