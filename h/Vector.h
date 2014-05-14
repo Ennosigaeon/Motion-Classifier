@@ -7,49 +7,94 @@
 
 namespace math {
 
+	/**
+	  * This class represents a threedimensional vector.
+	  */
 	class Vector {
 	private:
-		int size = 3;
 		bool marked = false;
 		double values[3];
 
 	public:
+
+		/**
+		  * Creates a new Vector at the given point in a three dimensional
+		  * space. The default point is (0, 0, 0).
+		  */
 		Vector(double x = 0, double y = 0, double z = 0);
 
-		//returns a precalculated vector with lenght 1 with the given angle
+		/**
+		  * Returns a precalculated vector with length 1 and the given angle
+		  * relative to the x-axis. The Vector has a z-value of 0.
+		  */
 		static math::Vector getVector(const math::Angle& angle);
 
-		//calculates the distance between the two Vectors in the given number of dimensions. 
-		static double distance(const Vector& vector1, const Vector& vector2, int nrDimensions);
+		/**
+		  * Calculates the distance between the two given Vectors. If you want to you can limit
+		  * the number of dimensions that are considured for the distance calculation. The
+		  * default number of dimensions is three.
+		  */
+		static double distance(const Vector& vector1, const Vector& vector2, int nrDimensions = 3);
 
-		//stores the given value in the given dimension
+		/**
+		  * Stores the given value in the given dimension.
+		  */
 		void set(const int index, const double value);
 
-		//returns the stored value in the given dimension
+		/**
+		  * Returns the stored value in the given dimension.
+		  */
 		double get(const int index) const;
 
+		/**
+		  * Sets the x-value to the given value.
+		  */
 		void setX(const double x);
 
+		/**
+		  * Sets the y-value to the given value.
+		  */
 		void setY(const double y);
 
+		/**
+		  * Sets the z-value to the given value.
+		  */
 		void setZ(const double z);
 
+		/**
+		  * Returns the x-value.
+		  */
 		double getX() const;
 
+		/**
+		  * Returns the y-value.
+		  */
 		double getY() const;
 
+		/**
+		  * Returns the z-value.
+		  */
 		double getZ() const;
 
-		//changes the x and y value, so that the lenght of this vector is equal to the given length
+		/**
+		  * Changes the Vector so, that its length is equal to the given lenght. The values in
+		  * all dimensions will be changed.
+		  */
 		void setLength(const double length);
 
-		//returns the lenght of the vector
+		/**
+		  * Calculates the length of the given Vector.
+		  */
 		double getLength() const;
 
-		//marks the vector
+		/**
+		  * Tests whether this Vector is marked or not.
+		  */
 		bool isMarked() const;
 
-		//test whether this vector is marked
+		/**
+		  * Marks this Vector. Once a Vector was marked it is impossible to unmark it again.
+		  */
 		void mark();
 
 		//operators

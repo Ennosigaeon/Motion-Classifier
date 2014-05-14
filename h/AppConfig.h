@@ -28,17 +28,17 @@ public:
 	static const std::string CONFIG_ARGUMENT;
 
 	/**
+	* Get an instance of AppConfig. You have to call load(const std::string&)
+	* beforehand, otherwise the returned instance points to NULL.
+	*/
+	static AppConfig* getInstance();
+
+	/**
 	  * Loads all configurations from the given file and stores them in
 	  * the AppConfig instance. It is crucial to call release() after this
 	  * function has been called once. Otherwise you have a memory leak.
 	  */
 	static void load(const std::string& path);
-
-	/**
-	  * Get an instance of AppConfig. You have to call load(const std::string&)
-	  * beforehand, otherwise the returned instance points to NULL.
-	  */
-	static AppConfig* getInstance();
 
 	/**
 	  * Deletes the AppConfig instance and frees the allocated memory again. It

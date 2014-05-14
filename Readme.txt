@@ -46,7 +46,7 @@ The configuration file has to have to following format: key = value \n. The requ
 4.5 variogram.nrBins (int)
 	Defines the number of bins in the variogram. A higher value results in less pairs.
 4.5 logger.level (int)
-	Defines the the log level. 1 means 'trace' and 5 means 'fatal'.
+	Defines the the log level. 0 means 'trace' and 5 means 'fatal'.
 4.6 logger.file
 	Defines a path to a file. All messages will be logged in this file. This property is optional.
 		

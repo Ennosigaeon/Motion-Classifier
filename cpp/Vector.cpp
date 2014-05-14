@@ -69,13 +69,13 @@ void math::Vector::set(const int index, const double value) {
 
 void math::Vector::setLength(const double length) {
 	double l = getLength();
-	for (int i = 0; i < size; i++)
+	for (int i = 0; i < 3; i++)
 		values[i] = values[i] * length / l;
 }
 
 double math::Vector::getLength() const {
 	double value = 0;
-	for (int i = 0; i < size; i++)
+	for (int i = 0; i < 3; i++)
 		value += values[i] * values[i];
 	return sqrt(value);
 }
