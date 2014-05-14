@@ -1,0 +1,8 @@
+
+Possible Extensions
+
+1. Use acceleration and orientation of arm
+	Extend the classifier to use acceleration and orientation of the arm as an additional criteria for movement classification.
+
+2. Add an realtime feedback
+	Adjust the length of an interval. The classification takes a small variable time (calculation of RMS sample) and a big fixed time (calculation of Variogram and classification via SVM). The goal is it to adjust the interval length, so that there is always only one interval cached. When more intervals are cached the interval length has to be increased. This will lower the resolution but still provide realtime classification. When no interval is available to the interval length has to be reduced to provide intervals in a higher resolution.
