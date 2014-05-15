@@ -1,5 +1,5 @@
 
-Online-Classifier
+Motion-Classifier
 written by Marc Zöller <mazoeller@gmail.com>
 
 
@@ -32,7 +32,7 @@ The second important class is <CLASSIFIER>. This class gets an EMGProvider as a 
 	
 4. Configuration
 
-To be able to use the classifier you have to provide a path to a configuration file. This path is passed by the command line parameter "online_classifier.config" (this parameter can maybe change, see AppConfig.h/AppConfig.cpp documentation for the latest path).
+To be able to use the classifier you have to provide a path to a configuration file. This path is passed by the command line parameter "motion_classifier.config" (this parameter can maybe change, see AppConfig.h/AppConfig.cpp documentation for the latest path).
 The configuration file has to have to following format: key = value \n. The required keys are:
 
 4.1 sample.rows (int)

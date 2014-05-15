@@ -12,8 +12,8 @@
 //sets the initial value of instance to NULL, due to forbidden 'in-class initialization'.
 AppConfig* AppConfig::instance = NULL;
 
-//sets the value of CONFIG_ARGUMENT to "online_classifier.config"
-const std::string AppConfig::CONFIG_ARGUMENT = "online_classifier.config";
+//sets the value of CONFIG_ARGUMENT to "motion_classifier.config"
+const std::string AppConfig::CONFIG_ARGUMENT = "motion_classifier.config";
 
 AppConfig::AppConfig() {
 	intervalNrSamples = 0;

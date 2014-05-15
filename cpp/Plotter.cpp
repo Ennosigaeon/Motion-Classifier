@@ -29,7 +29,7 @@ void Plotter::addToBatch(const std::string& command) {
 	(*gp) << command << std::endl;
 }
 
-void Plotter::execute(const std::string& command, int windowNr = 0) {
+void Plotter::execute(const std::string& command, int windowNr) {
 	setWindowNr(windowNr);
 	(*gp) << command << std::endl;
 	commit();
