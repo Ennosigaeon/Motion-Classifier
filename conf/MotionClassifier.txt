@@ -1,0 +1,11 @@
+
+sample.rows = 8
+sample.columns = 24
+interval.maxSize = 150
+gnuPlot.path = "C:/Program Files (x86)/gnuplot/bin/gnuplot.exe"
+variogram.nrBins = 20
+
+#properties for the logger
+#allowed values are 0 - 5 with 0 == trace and 5 == fatal
+logger.level = 1
+logger.file = log/OnlineClassificator.log
