@@ -43,11 +43,15 @@ The configuration file has to have to following format: key = value \n. The requ
 	Defines the number of samples a single interval contains.
 4.4 gnuPlot.path (std::string)
 	Defines the path to the gnuplot executable. This property is optional. When it is not set, plotting will be deactivated.
-4.5 variogram.nrBins (int)
+4.5 plot.rms (int/bool)
+	Defines whether the RMS sample should be plotted or not.
+4.6 plot.variogram (int/bool)
+	Defines whether the Variogram should be plotted or not.
+4.7 variogram.nrBins (int)
 	Defines the number of bins in the variogram. A higher value results in less pairs.
-4.5 logger.level (int)
+4.8 logger.level (int)
 	Defines the the log level. 0 means 'trace' and 5 means 'fatal'.
-4.6 logger.file
+4.9 logger.file
 	Defines a path to a file. All messages will be logged in this file. This property is optional.
 		
 5. Trouble Shooting
