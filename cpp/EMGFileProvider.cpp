@@ -51,7 +51,6 @@ void EMGFileProvider::run() {
 	while (true) {
 		if (EMGProvider::status == Status::FINISHED) {
 			BOOST_LOG_TRIVIAL(info) << "shuting down EMGFileProvider";
-			//TODO: notify that no more intervals will be created
 			break;
 		}
 		if (EMGProvider::status == Status::WAITING) {

@@ -1,6 +1,7 @@
 
 #include <fstream>
 #include <iostream>
+#include <limits>
 #include <vector>
 
 #include <boost/lexical_cast.hpp>
@@ -21,6 +22,7 @@ AppConfig::AppConfig() {
 	sampleRows = 0;
 	variogramNrBins = 1;
 	gnuPlotPath = "";
+	blockingQueueMaxWaitTime = -1;
 	loggerLevel = 0;
 	loggerFile = "";
 	plotRMS = false;
@@ -91,6 +93,8 @@ void AppConfig::load(const std::string& path) {
 			instance->plotVariogram = boost::lexical_cast<bool>(values.at(1));
 		if (values.at(0) == "variogram.nrBins")
 			instance->variogramNrBins = boost::lexical_cast<int>(values.at(1));
+		if (values.at(0) == "blockingQueue.maxWaitTime")
+			instance->blockingQueueMaxWaitTime = boost::lexical_cast<int>(values.at(1));
 		if (values.at(0) == "logger.level")
 			instance->loggerLevel = boost::lexical_cast<int>(values.at(1));
 		if (values.at(0) == "logger.file")
@@ -134,4 +138,8 @@ bool AppConfig::isPlotRMS() const {
 bool AppConfig::isPlotVariogram() const {
 	//no plotting possible, when no path to gnuplot is provided
 	return plotVariogram && !gnuPlotPath.empty();
+}
+
+int AppConfig::getBlockingQueueMaxWaitTime() const {
+	return blockingQueueMaxWaitTime;
 }

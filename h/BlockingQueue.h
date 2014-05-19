@@ -2,6 +2,7 @@
 #ifndef BLOCKING_QUEUE_H
 #define BLOCKING_QUEUE_H
 
+#include <chrono>
 #include <condition_variable>
 #include <limits>
 #include <mutex>
@@ -21,26 +22,40 @@ private:
 	std::mutex mutex;
 	std::condition_variable cond;
 	int maxSize;
+	int maxWaitTime;
 public:
 
 	/**
 	  * Creates a new BlockingQueue with the given maximal size. The default value
 	  * is the maximal value for an Integer.
+	  * It is also possible to specify the maximum wait time in milliseconds for
+	  * the pop() operation. When the timeout is reached NULL will be returned.
+	  * The default value is -1. When this parameter is set to an other value T
+	  * has to be a pointer.
 	  */
-	BlockingQueue(int maxSize = std::numeric_limits<int>::max()) {
+	BlockingQueue(int maxSize = std::numeric_limits<int>::max(), int maxWaitTime = -1) {
 		BlockingQueue::maxSize = maxSize;
+		BlockingQueue::maxWaitTime = maxWaitTime;
 	}
 
 	/**
 	  * Pops the first element from the queue. If the queue is empty, the calling
 	  * thread will be blocked until at least one element is again stored in the
 	  * queue.
-	  * TODO: it should be possible to define a maximum waiting time
+	  * When a maximum waiting time was specified in the constructor the calling
+	  * thread will be notified when the timeout is reached. Then pop() returns
+	  * NULL.
 	  */
 	T pop() {
 		std::unique_lock<std::mutex> mlock(mutex);
-		while (queue.empty())
+		if (maxWaitTime != -1) {
+			cond.wait_for(mlock, std::chrono::milliseconds(maxWaitTime));
+			if (queue.empty())
+				return NULL;
+		}
+		else
 			cond.wait(mlock);
+		
 		auto item = queue.front();
 		queue.pop();
 		return item;

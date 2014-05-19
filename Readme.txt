@@ -49,9 +49,11 @@ The configuration file has to have to following format: key = value \n. The requ
 	Defines whether the Variogram should be plotted or not.
 4.7 variogram.nrBins (int)
 	Defines the number of bins in the variogram. A higher value results in less pairs.
-4.8 logger.level (int)
+4.8	blockingQueue.maxWaitTime (int)
+	Defines the maximum wait time for the BlockingQueue in milliseconds. The default value is -1. It is recommended to change this value, otherwise you can get a deadlock!
+4.9 logger.level (int)
 	Defines the the log level. 0 means 'trace' and 5 means 'fatal'.
-4.9 logger.file
+4.10 logger.file
 	Defines a path to a file. All messages will be logged in this file. This property is optional.
 		
 5. Trouble Shooting

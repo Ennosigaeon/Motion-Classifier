@@ -3,6 +3,7 @@
 #define EMGPROVIDER_H
 
 #include <thread>
+#include "AppConfig.h"
 #include "BlockingQueue.h"
 #include "Communication.h"
 #include "Interval.h"
@@ -20,7 +21,7 @@ protected:
 	std::thread thread;
 
 	Status status = NEW;
-	BlockingQueue<Interval*> intervals;
+	BlockingQueue<Interval*> intervals{1000, AppConfig::getInstance()->getBlockingQueueMaxWaitTime()};
 	Interval *lastInterval = NULL;
 	void addInterval(Interval* const interval);
 
@@ -32,6 +33,8 @@ public:
 	  * several intervals are available the oldest is returned. When
 	  * no Interval is available the calling thread will be blocked
 	  * until an Interval is available.
+	  * When a maximum wait time for the BlockingQueue is defined, it
+	  * is possible that this function returns NULL.
 	  * It is necessary to delete the Interval.
 	  */
 	Interval* getInterval();

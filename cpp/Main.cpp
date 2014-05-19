@@ -5,6 +5,7 @@
 #include <cmath>
 
 #include "../h/AppConfig.h"
+#include "../h/Classifier.h"
 #include "../h/Exception.h"
 #include "../h/Interval.h"
 #include "../h/EMGFileProvider.h"
@@ -27,26 +28,16 @@ void initLogging();
 //The argument has to look like 'online_classificator.config <path_to_file>'
 //with a whitespace before the path
 int main(int argc, char *argv[]) {
-	//parses the path to the configuration file from the command line parameters
-	std::string configPath = "";
-	for (int i = 0; i < argc; i++) {
-		if (argv[i] == AppConfig::CONFIG_ARGUMENT && i < argc - 1) {
-			configPath = argv[i + 1];
-			break;
-		}
-	}
-	if (configPath.empty()) {
-		std::cerr << "Unable to find path to configuration file" << std::endl
-			<< "Online Classificator usage: " << AppConfig::CONFIG_ARGUMENT << " <path_to_config>" << std::endl;
-		return EXIT_FAILURE;
-	}
-	BOOST_LOG_TRIVIAL(info) << "using " << configPath << " as configuration file";
 	try {
-		AppConfig::load(configPath);
+		AppConfig::load(argc, argv);
 	}
 	catch (int ex) {
+		if (ex == Exception::NO_CONFIGURATIONS_DEFINED)
+			std::cerr << "Unable to find path to configuration file" << std::endl
+			<< "Online Classificator usage: " << AppConfig::CONFIG_ARGUMENT << " <path_to_config>" << std::endl;
 		if (ex == Exception::UNABLE_TO_READ_CONFIGURATIONS)
 			std::cerr << "Unable to read configurations from configuration file. Not possible to open the file." << std::endl;
+		return EXIT_FAILURE;
 	}
 
 	//init logging system
@@ -54,32 +45,15 @@ int main(int argc, char *argv[]) {
 	BOOST_LOG_TRIVIAL(info) << "Main started";
 
 	std::string path = "c:\\Users\\Marc\\Dropbox\\Informatik\\Studium\\6. Semester\\Bachelor Thesis\\MARC\\data\\data8_AN";
-	EMGProvider *provider;
+
 	{
-		EMGFileProvider emgProvider{ "C:/Tmp/test.txt" };
-		provider = &emgProvider;
-		provider->send(Signal::START);
+		EMGFileProvider emgProvider{ path };
+		Classifier classifier(&emgProvider);
 
-		for (int i = 0; i < 10; i++) {
-			Interval *intv = provider->getInterval();
-			Sample sample = intv->getRMSSample();
-
-			std::ofstream sampleStream;
-			sampleStream.open(std::string("C:/Tmp/plot/") + boost::lexical_cast<std::string>(i)+".txt");
-			sampleStream << sample;
-			sampleStream.close();
-
-			Variogram var;
-			std::vector<math::Vector> values = var.calculate(sample);
-
-			sampleStream.open(std::string("C:/Tmp/plot/") + boost::lexical_cast<std::string>(i)+"-result.txt");
-			for (std::vector<math::Vector>::iterator it = values.begin(); it != values.end(); it++)
-				sampleStream << it->getX() << "\t" << it->getY() << "\t" << it->getZ() << std::endl;
-			sampleStream.close();
-
-			delete intv;
-		}
-		provider->send(Signal::SHUTDOWN);
+		classifier.send(Signal::START);
+		Sleep(10000);
+		BOOST_LOG_TRIVIAL(info) << "stopping";
+		classifier.send(Signal::SHUTDOWN);
 	}
 
 	//closes all open resources, releases heap memory, ...

@@ -1,11 +1,14 @@
 
 sample.rows = 8
 sample.columns = 24
-interval.maxSize = 150
+interval.nrSamples = 150
 gnuPlot.path = "C:/Program Files (x86)/gnuplot/bin/gnuplot.exe"
+plot.rms = 0
+plot.variogram = 0
 variogram.nrBins = 20
+blockingQueue.maxWaitTime = 10000
 
 #properties for the logger
 #allowed values are 0 - 5 with 0 == trace and 5 == fatal
-logger.level = 1
+logger.level = 2
 logger.file = log/OnlineClassificator.log

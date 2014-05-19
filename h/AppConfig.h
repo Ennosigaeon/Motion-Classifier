@@ -23,6 +23,7 @@ private:
 	int sampleRows;
 	int sampleColumns;
 	int variogramNrBins;
+	int blockingQueueMaxWaitTime;
 	int loggerLevel;
 	std::string loggerFile;
 
@@ -65,6 +66,7 @@ public:
 	int getSampleRows() const;
 	int getSampleColumns() const;
 	int getVariogramNrBins() const;
+	int getBlockingQueueMaxWaitTime() const;
 	int getLoggerLevel() const;
 	std::string getLoggerFile() const;
 	bool isPlotRMS() const;
