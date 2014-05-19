@@ -16,15 +16,14 @@ EMGFileProvider::EMGFileProvider(const std::string path) {
 }
 
 EMGFileProvider::~EMGFileProvider() {
-	if (thread.joinable())
-		thread.join();
+	send(Signal::SHUTDOWN);
 	EMGFileProvider::fileIn.close();
 	BOOST_LOG_TRIVIAL(info) << "EMGFileProvider destroyed";
 }
 
 void EMGFileProvider::send(const Signal& signal) {
 	if (signal == Signal::START) {
-		if (EMGProvider::status == NEW) {
+		if (EMGProvider::status == Status::NEW) {
 			EMGProvider::status = Status::RUNNING;
 			thread = std::thread(&EMGFileProvider::run, this);
 		}
@@ -42,7 +41,8 @@ void EMGFileProvider::send(const Signal& signal) {
 		std::unique_lock<std::mutex> mlock(mutex);
 		mlock.unlock();
 		condition.notify_one();
-		thread.join();
+		if (thread.joinable())
+			thread.join();
 	}
 }
 

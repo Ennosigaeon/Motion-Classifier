@@ -1,17 +1,17 @@
 
-#ifndef MUSCLE_MOVEMENT_H
-#define MUSCLE_MOVEMENT_H
+#ifndef MUSCLE_MOTION_H
+#define MUSCLE_MOTION_H
 
 /**
-  * This enum defines all possible movements of the arm. The result
-  * of the classification will be an MuscleMovement.
+  * This enum defines all possible motions of the arm. The result
+  * of the classification will be an MuscleMotion.
   */
-enum MuscleMovement {
+enum MuscleMotion {
 
-	//Not possible to determine muscle movement
+	//Not possible to determine muscle motion
 	UNKNOWN,
 
-	//arm is in the rest position, no active movement
+	//arm is in the rest position, no active motion
 	REST_POSITION,
 
 	//Subject rolls hand down in direction of the innerside of the forarm

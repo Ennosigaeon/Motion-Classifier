@@ -12,7 +12,6 @@
   * This class handles all plotting commands. It uses gnuplot-iostream to send all plotting
   * commands to gnuplot.
   */
-//TODO: Plotter is never used
 class Plotter {
 private:
 	static Plotter *instance;

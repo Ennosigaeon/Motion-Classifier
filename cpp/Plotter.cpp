@@ -6,8 +6,9 @@
 Plotter* Plotter::instance = NULL;
 
 Plotter::Plotter() {
-	gp = new Gnuplot(path);
 	path = AppConfig::getInstance()->getGnuPlotPath();
+	if (!path.empty())
+		gp = new Gnuplot(path);
 }
 
 Plotter::~Plotter() {
@@ -26,17 +27,21 @@ void Plotter::release() {
 }
 
 void Plotter::addToBatch(const std::string& command) {
-	(*gp) << command << std::endl;
+	if (gp != NULL)
+		(*gp) << command << std::endl;
 }
 
 void Plotter::execute(const std::string& command, int windowNr) {
-	setWindowNr(windowNr);
-	(*gp) << command << std::endl;
-	commit();
+	if (gp != NULL) {
+		setWindowNr(windowNr);
+		(*gp) << command << std::endl;
+		commit();
+	}
 }
 
 void Plotter::commit() {
-	(*gp) << std::flush;
+	if (gp != NULL)
+		(*gp) << std::flush;
 }
 
 void Plotter::setWindowNr(int windowNr) {

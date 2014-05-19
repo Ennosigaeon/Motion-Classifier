@@ -14,6 +14,7 @@ class Variogram {
 private:
 	std::map<double, double> findPairs(std::vector<math::Vector>& values, const math::Vector& h, const int maxDist) const;
 	int nrBins;
+	bool plot;
 
 public:
 	Variogram();

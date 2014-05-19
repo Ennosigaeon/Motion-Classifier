@@ -10,6 +10,7 @@
 
 Variogram::Variogram() {
 	nrBins = AppConfig::getInstance()->getVariogramNrBins();
+	plot = AppConfig::getInstance()->isPlotVariogram();
 }
 
 std::vector<math::Vector> Variogram::calculate(const Sample& sample) const {
@@ -40,6 +41,18 @@ std::vector<math::Vector> Variogram::calculate(const Sample& sample) const {
 	}
 	t = clock() - t;
 	BOOST_LOG_TRIVIAL(info) << "Variogram calculation took " << ((double)t) / CLOCKS_PER_SEC * 1000 << " ms";
+
+	if (plot) {
+		//TODO: implement
+		/*
+		set xrange [-15 : 15]
+		set yrange [0 : 10]
+		set title 'Variogram'
+		set xlabel 'x gap'
+		set ylabel 'y gap'
+		%plot points with splot
+		*/
+	}
 
 	return result;
 }

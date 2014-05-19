@@ -8,6 +8,7 @@
 
 Interval::Interval() {
 	MAX_SIZE = AppConfig::getInstance()->getIntervalNrSamples();
+	plotRMS = AppConfig::getInstance()->isPlotRMS();
 }
 
 bool Interval::isFull() const {
@@ -56,6 +57,18 @@ Sample Interval::getRMSSample() {
 
 	t = clock() - t;
 	BOOST_LOG_TRIVIAL(info) << "RMS calculation took " << ((double)t) / CLOCKS_PER_SEC * 1000 << " ms";
+
+	if (plotRMS) {
+		//TODO: implement
+		/*
+		set xrange [0 : 24]
+		set yrange [0 : 8]
+		set title 'RMS value'
+		set xlable 'x-axis'
+		set ylabel 'y-axis'
+		%plot points with splot
+		*/
+	}
 
 	return result;
 }

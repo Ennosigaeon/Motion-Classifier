@@ -4,7 +4,8 @@
 
 //TODO: is this enum really necessary?
 enum  Exception {
-	UNABLE_TO_READ_CONFIGURATIONS
+	UNABLE_TO_READ_CONFIGURATIONS,
+	NO_CONFIGURATIONS_DEFINED
 };
 
 #endif

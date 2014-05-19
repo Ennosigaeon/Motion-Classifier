@@ -4,29 +4,8 @@
 
 #include <thread>
 #include "BlockingQueue.h"
+#include "Communication.h"
 #include "Interval.h"
-
-/**
-  * Defines the current status of the EMGProvider. NEW means the
-  * EMGProvider was created, but never started. RUNNING means the
-  * EMGProvider is currently reading values. WAITING means the 
-  * EMGProvider is currently stoped, but it is possible to start
-  * it again. FINISHED means that the EMGProvider has read all
-  * values or was shutdown. It is not possible to start it again.
-  */
-enum Status {
-	NEW, RUNNING, WAITING, FINISHED
-};
-
-/**
-  * Defines the signals, that can be send to the EMGProvider.
-  * START starts the EMGProvider and STOP stops it. It is
-  * possible to send this two signals alternating. SHUTDOWN
-  * stops the EMGProvider. It is not possible to start it again.
-  */
-enum Signal {
-	START, STOP, SHUTDOWN
-};
 
 /**
   * The EMGProvider defines an abstract class that is responsible
@@ -64,8 +43,8 @@ public:
 	void clearBuffer();
 
 	/**
-	  * Sends a signal to the reading thread. See Signal for more
-	  * information.
+	  * Sends a signal to the reading thread. See Signal (in
+	  * Communication.h) for more information.
 	  */
 	virtual void send(const Signal& signal) = NULL;
 };
