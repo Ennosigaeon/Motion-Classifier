@@ -16,13 +16,15 @@ AppConfig* AppConfig::instance = NULL;
 const std::string AppConfig::CONFIG_ARGUMENT = "motion_classifier.config";
 
 AppConfig::AppConfig() {
-	intervalNrSamples = 0;
+	intervalNrSamples = 1;
 	sampleColumns = 0;
 	sampleRows = 0;
 	variogramNrBins = 1;
 	gnuPlotPath = "";
 	loggerLevel = 0;
 	loggerFile = "";
+	plotRMS = false;
+	plotVariogram = false;
 }
 
 AppConfig* AppConfig::getInstance() {
@@ -32,6 +34,21 @@ AppConfig* AppConfig::getInstance() {
 void AppConfig::release() {
 	if (instance != NULL)
 		delete instance;
+}
+
+void AppConfig::load(int argc, char *argv[]) {
+	//parses the path to the configuration file from the command line parameters
+	std::string configPath = "";
+	for (int i = 0; i < argc; i++) {
+		if (argv[i] == AppConfig::CONFIG_ARGUMENT && i < argc - 1) {
+			configPath = argv[i + 1];
+			break;
+		}
+	}
+	if (configPath.empty())
+		throw NO_CONFIGURATIONS_DEFINED;
+	std::cout << "using " << configPath << " as configuration file" << std::endl;
+	AppConfig::load(configPath);
 }
 
 void AppConfig::load(const std::string& path) {
@@ -68,6 +85,10 @@ void AppConfig::load(const std::string& path) {
 			instance->intervalNrSamples = boost::lexical_cast<int>(values.at(1));
 		if (values.at(0) == "gnuPlot.path")
 			instance->gnuPlotPath = values.at(1);
+		if (values.at(0) == "plot.rms")
+			instance->plotRMS = boost::lexical_cast<bool>(values.at(1));
+		if (values.at(0) == "plot.variogram")
+			instance->plotVariogram = boost::lexical_cast<bool>(values.at(1));
 		if (values.at(0) == "variogram.nrBins")
 			instance->variogramNrBins = boost::lexical_cast<int>(values.at(1));
 		if (values.at(0) == "logger.level")
@@ -103,4 +124,14 @@ int AppConfig::getLoggerLevel() const {
 
 std::string AppConfig::getLoggerFile() const {
 	return loggerFile;
+}
+
+bool AppConfig::isPlotRMS() const {
+	//no plotting possible, when no path to gnuplot is provided
+	return plotRMS & !gnuPlotPath.empty();
+}
+
+bool AppConfig::isPlotVariogram() const {
+	//no plotting possible, when no path to gnuplot is provided
+	return plotVariogram && !gnuPlotPath.empty();
 }
