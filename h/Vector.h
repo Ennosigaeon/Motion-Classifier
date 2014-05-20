@@ -12,7 +12,7 @@ namespace math {
 	  */
 	class Vector {
 	private:
-		bool marked = false;
+		int group = -1;
 		double values[3];
 
 	public:
@@ -88,14 +88,14 @@ namespace math {
 		double getLength() const;
 
 		/**
-		  * Tests whether this Vector is marked or not.
+		  * Sets, that this Vector belongs to the given group number.
 		  */
-		bool isMarked() const;
+		void setGroup(int group);
 
 		/**
-		  * Marks this Vector. Once a Vector was marked it is impossible to unmark it again.
+		  * Returns the group number of this Vector.
 		  */
-		void mark();
+		int getGroup() const;
 
 		//operators
 		math::Vector operator+(const math::Vector& vector);

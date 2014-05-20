@@ -80,12 +80,12 @@ double math::Vector::getLength() const {
 	return sqrt(value);
 }
 
-bool math::Vector::isMarked() const {
-	return marked;
+int math::Vector::getGroup() const {
+	return group;
 }
 
-void math::Vector::mark() {
-	marked = true;
+void math::Vector::setGroup(int group) {
+	Vector::group = group;
 }
 
 math::Vector math::Vector::operator+(const math::Vector& vector) {
