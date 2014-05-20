@@ -18,7 +18,6 @@ class Interval {
 private:
 	std::vector<Sample> samples;
 	int MAX_SIZE;
-	bool plotRMS;
 
 public:
 	Interval();

@@ -17,11 +17,15 @@
   * the reading thread via the send(const Signal&) member function.
   */
 class EMGProvider {
+private:
+	//Logs a warning when too much Intervals are cached.
+	static int bufferWarnSize;
+
 protected:
 	std::thread thread;
 
 	Status status = NEW;
-	BlockingQueue<Interval*> intervals{1000, AppConfig::getInstance()->getBlockingQueueMaxWaitTime()};
+	BlockingQueue<Interval*> intervals{ 1000, AppConfig::getInstance()->getBlockingQueueMaxWaitTime() };
 	Interval *lastInterval = NULL;
 	void addInterval(Interval* const interval);
 

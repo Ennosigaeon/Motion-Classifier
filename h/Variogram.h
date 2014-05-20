@@ -14,7 +14,6 @@ class Variogram {
 private:
 	std::map<double, double> findPairs(std::vector<math::Vector>& values, const math::Vector& h, const int maxDist) const;
 	int nrBins;
-	bool plot;
 
 public:
 	Variogram();
@@ -25,6 +24,7 @@ public:
 	  * a two dimensional vector (the actual gap, consisting out of angle and
 	  * length) and the measured value at this position.
 	  */
+	//TODO: can be optimized by the follwing header: std::map<int, double> calculate(const Sample& sample, const math::Angle& angle) const;
 	std::vector<math::Vector> calculate(const Sample& sample) const;
 };
 

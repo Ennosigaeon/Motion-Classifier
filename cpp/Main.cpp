@@ -49,11 +49,10 @@ int main(int argc, char *argv[]) {
 	{
 		EMGFileProvider emgProvider{ path };
 		Classifier classifier(&emgProvider);
-
 		classifier.send(Signal::START);
-		Sleep(10000);
-		BOOST_LOG_TRIVIAL(info) << "stopping";
+		Sleep(60000);
 		classifier.send(Signal::SHUTDOWN);
+		//TODO: Shutdown takes way more time, then it is supposed to do
 	}
 
 	//closes all open resources, releases heap memory, ...

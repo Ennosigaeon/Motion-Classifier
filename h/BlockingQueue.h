@@ -55,7 +55,7 @@ public:
 		}
 		else
 			cond.wait(mlock);
-		
+
 		auto item = queue.front();
 		queue.pop();
 		return item;
@@ -84,6 +84,13 @@ public:
 	  */
 	bool empty() const {
 		return queue.empty();
+	}
+
+	/**
+	  * Returns the current number of stored elements.
+	  */
+	int size() const {
+		return queue.size();
 	}
 };
 

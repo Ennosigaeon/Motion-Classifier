@@ -1,4 +1,5 @@
 
+//#include "../h/Plotter.h"
 #include <algorithm>
 #include <cmath>
 #include <ctime>
@@ -10,7 +11,6 @@
 
 Variogram::Variogram() {
 	nrBins = AppConfig::getInstance()->getVariogramNrBins();
-	plot = AppConfig::getInstance()->isPlotVariogram();
 }
 
 std::vector<math::Vector> Variogram::calculate(const Sample& sample) const {
@@ -33,6 +33,7 @@ std::vector<math::Vector> Variogram::calculate(const Sample& sample) const {
 				for (std::map<double, double>::iterator it = pairs.begin(); it != pairs.end(); it++)
 					value += pow(it->first - it->second, 2);
 				math::Vector tmp = h;
+				tmp.setGroup(angle);
 				tmp.setZ(value / (2 * pairs.size()));
 				result.push_back(tmp);
 			}
@@ -40,19 +41,7 @@ std::vector<math::Vector> Variogram::calculate(const Sample& sample) const {
 		}
 	}
 	t = clock() - t;
-	BOOST_LOG_TRIVIAL(info) << "Variogram calculation took " << ((double)t) / CLOCKS_PER_SEC * 1000 << " ms";
-
-	if (plot) {
-		//TODO: implement
-		/*
-		set xrange [-15 : 15]
-		set yrange [0 : 10]
-		set title 'Variogram'
-		set xlabel 'x gap'
-		set ylabel 'y gap'
-		%plot points with splot
-		*/
-	}
+	BOOST_LOG_TRIVIAL(debug) << "Variogram calculation took " << ((double)t) / CLOCKS_PER_SEC * 1000 << " ms";
 
 	return result;
 }
@@ -62,7 +51,7 @@ std::map<double, double> Variogram::findPairs(std::vector<math::Vector>& values,
 	double precision = maxDist * 1.0 / nrBins;
 
 	for (std::vector<math::Vector>::iterator it = values.begin(); it != values.end(); it++) {
-		if (it->isMarked())
+		if (it->getGroup() != -1)
 			continue;
 		math::Vector point(it->getX() + h.getX(), it->getY() + h.getY(), 0);
 		for (std::vector<math::Vector>::iterator it2 = values.begin(); it2 != values.end(); it2++) {
@@ -70,10 +59,10 @@ std::map<double, double> Variogram::findPairs(std::vector<math::Vector>& values,
 			if (it->getX() == it2->getX() && it->getY() == it2->getY())
 				continue;
 			//Entry is not added yet, Entry contains a valid value and distance is small enough
-			if (!it2->isMarked() && it2->getZ() != NAN &&
+			if (it2->getGroup() == -1 && it2->getZ() != NAN &&
 				math::Vector::distance(*it2, point, 2) < precision) {
-				it2->mark();
-				it->mark();
+				it2->setGroup(0);
+				it->setGroup(0);
 				result.insert(std::make_pair(it->getZ(), it2->getZ()));
 				BOOST_LOG_TRIVIAL(trace) << "connected " << *it << " with " << *it2;
 				break;

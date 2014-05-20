@@ -50,8 +50,8 @@ void EMGFileProvider::send(const Signal& signal) {
 void EMGFileProvider::run() {
 	while (true) {
 		if (EMGProvider::status == Status::FINISHED) {
-			BOOST_LOG_TRIVIAL(info) << "shuting down EMGFileProvider";
-			break;
+			BOOST_LOG_TRIVIAL(info) << "shuting down EMGFileProvider worker";
+			return;
 		}
 		if (EMGProvider::status == Status::WAITING) {
 			BOOST_LOG_TRIVIAL(debug) << "EMGFileProvider stops reading from file";

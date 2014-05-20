@@ -3,12 +3,12 @@
 #include <ctime>
 #include <boost/log/trivial.hpp>
 #include <boost/log/expressions.hpp>
-#include "../h/Interval.h"
 #include "../h/AppConfig.h"
+#include "../h/Interval.h"
+#include "../h/Plotter.h"
 
 Interval::Interval() {
 	MAX_SIZE = AppConfig::getInstance()->getIntervalNrSamples();
-	plotRMS = AppConfig::getInstance()->isPlotRMS();
 }
 
 bool Interval::isFull() const {
@@ -56,19 +56,7 @@ Sample Interval::getRMSSample() {
 	delete[] count;
 
 	t = clock() - t;
-	BOOST_LOG_TRIVIAL(info) << "RMS calculation took " << ((double)t) / CLOCKS_PER_SEC * 1000 << " ms";
-
-	if (plotRMS) {
-		//TODO: implement
-		/*
-		set xrange [0 : 24]
-		set yrange [0 : 8]
-		set title 'RMS value'
-		set xlable 'x-axis'
-		set ylabel 'y-axis'
-		%plot points with splot
-		*/
-	}
+	BOOST_LOG_TRIVIAL(debug) << "RMS calculation took " << ((double)t) / CLOCKS_PER_SEC * 1000 << " ms";
 
 	return result;
 }

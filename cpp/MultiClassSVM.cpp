@@ -13,7 +13,7 @@ MuscleMotion MultiClassSVM::classify(const std::vector<math::Vector>& values) {
 	//TODO: implement, this is just dummy code
 	MuscleMotion motion = MuscleMotion::UNKNOWN;
 	t = clock() - t;
-	BOOST_LOG_TRIVIAL(info) << "Variogram calculation took " << ((double)t) / CLOCKS_PER_SEC * 1000 << " ms";
+	BOOST_LOG_TRIVIAL(debug) << "classification took " << ((double)t) / CLOCKS_PER_SEC * 1000 << " ms";
 
 	return motion;
 }

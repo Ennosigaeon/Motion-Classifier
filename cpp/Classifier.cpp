@@ -1,4 +1,5 @@
 
+#include <ctime>
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -8,6 +9,7 @@
 #include "../h/Classifier.h"
 
 Classifier::Classifier(EMGProvider* emgProvider) {
+	config = AppConfig::getInstance();
 	Classifier::emgProvider = emgProvider;
 	BOOST_LOG_TRIVIAL(info) << "Classifier created";
 }
@@ -31,8 +33,6 @@ MuscleMotion Classifier::getMuscleMotion() {
 }
 
 void Classifier::run() {
-	//TODO: remove
-	int i = 0;
 	while (true) {
 		if (status == Status::RUNNING) {
 			BOOST_LOG_TRIVIAL(debug) << "waiting for new Interval";
@@ -40,6 +40,7 @@ void Classifier::run() {
 			if (interval == NULL)
 				continue;
 
+			clock_t t = clock();
 			BOOST_LOG_TRIVIAL(debug) << "calculationg RMS sample";
 			Sample rms = interval->getRMSSample();
 
@@ -49,21 +50,19 @@ void Classifier::run() {
 			BOOST_LOG_TRIVIAL(debug) << "classifying values";
 			MuscleMotion motion = svm.classify(values);
 
-			//TODO: remove
-			std::ofstream sampleStream;
-			sampleStream.open(std::string("C:/Tmp/plot/") + boost::lexical_cast<std::string>(i)+".txt");
-			sampleStream << rms;
-			sampleStream.close();
-
-			sampleStream.open(std::string("C:/Tmp/plot/") + boost::lexical_cast<std::string>(i)+"-result.txt");
-			for (std::vector<math::Vector>::iterator it = values.begin(); it != values.end(); it++)
-				sampleStream << it->getX() << "\t" << it->getY() << "\t" << it->getZ() << std::endl;
-			sampleStream.close();
-			i++;
+			if (config->isPlotRMS())
+				plotRMS(rms);
+			if (config->isPlotVariogramGraph())
+				plotVariogramGraph(values);
+			if (config->isPlotVariogramSurface())
+				plotVariogramSurface(values);
+			nr++;
 
 			//overrides the last stored value
 			lastMuscleMotion.push(&motion);
-			BOOST_LOG_TRIVIAL(info) << "classified new Interval";
+			t = clock() - t;
+			BOOST_LOG_TRIVIAL(info) << "classified new Interval in " << ((double)t) / CLOCKS_PER_SEC * 1000 << " ms";
+
 			delete interval;
 		}
 		if (status == Status::WAITING) {
@@ -72,8 +71,8 @@ void Classifier::run() {
 			condition.wait(lk);
 		}
 		if (status == Status::FINISHED) {
-			BOOST_LOG_TRIVIAL(info) << "shuting down Classifier";
-			break;
+			BOOST_LOG_TRIVIAL(info) << "shuting down Classifier worker";
+			return;
 		}
 	}
 }
@@ -111,4 +110,27 @@ void Classifier::send(const Signal& signal) {
 		//stop the EMGProvider
 		emgProvider->send(Signal::SHUTDOWN);
 	}
+}
+
+void Classifier::plotRMS(const Sample& sample) {
+	std::ofstream sampleStream;
+	sampleStream.open(std::string("C:/Tmp/plot/") + boost::lexical_cast<std::string>(nr)+"-rms.txt");
+	sampleStream << sample;
+	sampleStream.close();
+}
+
+void Classifier::plotVariogramSurface(std::vector<math::Vector> values) {
+	std::ofstream sampleStream;
+	sampleStream.open(std::string("C:/Tmp/plot/") + boost::lexical_cast<std::string>(nr)+"-surface.txt");
+	for (std::vector<math::Vector>::iterator it = values.begin(); it != values.end(); it++)
+		sampleStream << it->getX() << "\t" << it->getY() << "\t" << it->getZ() << std::endl;
+	sampleStream.close();
+}
+
+void Classifier::plotVariogramGraph(std::vector<math::Vector> values) {
+	std::ofstream sampleStream;
+	sampleStream.open(std::string("C:/Tmp/plot/") + boost::lexical_cast<std::string>(nr)+"-graph.txt");
+	for (std::vector<math::Vector>::iterator it = values.begin(); it != values.end(); it++)
+		sampleStream << it->getGroup() << "\t" << it->getLength() << "\t" << it->getZ() << std::endl;
+	sampleStream.close();
 }

@@ -3,6 +3,7 @@
 #define CLASSIFIER_H
 
 #include <condition_variable>
+#include <map>
 #include <mutex>
 #include <thread>
 #include <vector>
@@ -26,12 +27,17 @@ private:
 	std::mutex mutex;
 	std::condition_variable condition;
 	void run();
+	void plotRMS(const Sample& sample);
+	void plotVariogramSurface(std::vector<math::Vector> values);
+	void plotVariogramGraph(std::vector<math::Vector> values);
 
 	BlockingQueue<MuscleMotion*> lastMuscleMotion{1, AppConfig::getInstance()->getBlockingQueueMaxWaitTime()};
 	MultiClassSVM svm;
 	Variogram variogram;
 	EMGProvider *emgProvider;
+	AppConfig *config;
 	Status status = NEW;
+	int nr = 0;
 
 public:
 
