@@ -1,7 +1,6 @@
-
 #include <ctime>
-#include <iostream>
 #include <fstream>
+#include <iostream>
 #include <string>
 #include <boost/lexical_cast.hpp>
 #include <boost/log/expressions.hpp>
@@ -23,7 +22,6 @@ void Classifier::train(const MuscleMotion& motion, std::vector<math::Vector>& da
 	svm.train(motion, data);
 }
 
-
 MuscleMotion Classifier::getMuscleMotion() {
 	MuscleMotion *motion = lastMuscleMotion.pop();
 	if (motion == NULL)
@@ -41,7 +39,7 @@ void Classifier::run() {
 				continue;
 
 			clock_t t = clock();
-			BOOST_LOG_TRIVIAL(debug) << "calculationg RMS sample";
+			BOOST_LOG_TRIVIAL(debug) << "calculating RMS sample";
 			Sample rms = interval->getRMSSample();
 
 			BOOST_LOG_TRIVIAL(debug) << "calculation Variogram";
@@ -50,13 +48,8 @@ void Classifier::run() {
 			BOOST_LOG_TRIVIAL(debug) << "classifying values";
 			MuscleMotion motion = svm.classify(values);
 
-			if (config->isPlotRMS())
-				plotRMS(rms);
-			if (config->isPlotVariogramGraph())
-				plotVariogramGraph(values);
-			if (config->isPlotVariogramSurface())
-				plotVariogramSurface(values);
-			nr++;
+			//plots the calculated values
+			plot(rms, values);
 
 			//overrides the last stored value
 			lastMuscleMotion.push(&motion);
@@ -80,10 +73,10 @@ void Classifier::run() {
 void Classifier::send(const Signal& signal) {
 	if (signal == Signal::START) {
 		if (status == Status::NEW) {
-			//starts EMGProvider
+			//start EMGProvider
 			emgProvider->send(Signal::START);
 
-			//starts worker thread
+			//start worker thread
 			status = Status::RUNNING;
 			worker = std::thread(&Classifier::run, this);
 		}
@@ -112,25 +105,27 @@ void Classifier::send(const Signal& signal) {
 	}
 }
 
-void Classifier::plotRMS(const Sample& sample) {
-	std::ofstream sampleStream;
-	sampleStream.open(std::string("C:/Tmp/plot/") + boost::lexical_cast<std::string>(nr)+"-rms.txt");
-	sampleStream << sample;
-	sampleStream.close();
-}
-
-void Classifier::plotVariogramSurface(std::vector<math::Vector> values) {
-	std::ofstream sampleStream;
-	sampleStream.open(std::string("C:/Tmp/plot/") + boost::lexical_cast<std::string>(nr)+"-surface.txt");
-	for (std::vector<math::Vector>::iterator it = values.begin(); it != values.end(); it++)
-		sampleStream << it->getX() << "\t" << it->getY() << "\t" << it->getZ() << std::endl;
-	sampleStream.close();
-}
-
-void Classifier::plotVariogramGraph(std::vector<math::Vector> values) {
-	std::ofstream sampleStream;
-	sampleStream.open(std::string("C:/Tmp/plot/") + boost::lexical_cast<std::string>(nr)+"-graph.txt");
-	for (std::vector<math::Vector>::iterator it = values.begin(); it != values.end(); it++)
-		sampleStream << it->getGroup() << "\t" << it->getLength() << "\t" << it->getZ() << std::endl;
-	sampleStream.close();
+//TODO: no real-time plotting. Change this!
+void Classifier::plot(const Sample& sample, std::vector<math::Vector>& values) {
+	if (config->isPlotRMS()) {
+		std::ofstream sampleStream;
+		sampleStream.open(std::string("C:/Tmp/plot/") + boost::lexical_cast<std::string>(nr)+"-rms.txt");
+		sampleStream << sample;
+		sampleStream.close();
+	}
+	if (config->isPlotVariogramGraph()) {
+		std::ofstream sampleStream;
+		sampleStream.open(std::string("C:/Tmp/plot/") + boost::lexical_cast<std::string>(nr)+"-graph.txt");
+		for (std::vector<math::Vector>::iterator it = values.begin(); it != values.end(); it++)
+			sampleStream << it->getGroup() << "\t" << it->getLength() << "\t" << it->getZ() << std::endl;
+		sampleStream.close();
+	}
+	if (config->isPlotVariogramSurface()) {
+		std::ofstream sampleStream;
+		sampleStream.open(std::string("C:/Tmp/plot/") + boost::lexical_cast<std::string>(nr)+"-surface.txt");
+		for (std::vector<math::Vector>::iterator it = values.begin(); it != values.end(); it++)
+			sampleStream << it->getX() << "\t" << it->getY() << "\t" << it->getZ() << std::endl;
+		sampleStream.close();
+	}
+	nr++;
 }

@@ -1,4 +1,3 @@
-
 #ifndef SAMPLE_H
 #define SAMPLE_H
 
@@ -49,6 +48,7 @@ public:
 	  */
 	void setEntries(const std::vector<math::Vector>& entries);
 
+	//operator
 	friend std::ostream& operator<<(std::ostream & stream, const Sample & sample);
 };
 

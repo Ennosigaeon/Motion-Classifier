@@ -1,12 +1,9 @@
-
 #include <fstream>
 #include <iostream>
 #include <limits>
 #include <vector>
-
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
-
 #include "../h/AppConfig.h"
 #include "../h/Exception.h"
 
@@ -68,7 +65,7 @@ void AppConfig::load(const std::string& path) {
 		std::getline(in, line);
 		boost::trim(line);
 
-		//this line is a comment, ignore it
+		//the line is empty or a comment, ignore it
 		if (line.empty() || line.at(0) == '#')
 			continue;
 

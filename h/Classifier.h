@@ -1,9 +1,7 @@
-
 #ifndef CLASSIFIER_H
 #define CLASSIFIER_H
 
 #include <condition_variable>
-#include <map>
 #include <mutex>
 #include <thread>
 #include <vector>
@@ -18,7 +16,7 @@
 /**
   * This class computes the MuscleMotion for EMG signals. The
   * classification process is done in an own worker Thread. To
-  * communicate with the worker use the member function 
+  * communicate with the worker use the member function
   * send(const Signal&).
   */
 class Classifier {
@@ -27,11 +25,9 @@ private:
 	std::mutex mutex;
 	std::condition_variable condition;
 	void run();
-	void plotRMS(const Sample& sample);
-	void plotVariogramSurface(std::vector<math::Vector> values);
-	void plotVariogramGraph(std::vector<math::Vector> values);
+	void plot(const Sample& sample, std::vector<math::Vector>& values);
 
-	BlockingQueue<MuscleMotion*> lastMuscleMotion{1, AppConfig::getInstance()->getBlockingQueueMaxWaitTime()};
+	BlockingQueue<MuscleMotion*> lastMuscleMotion{ 1, AppConfig::getInstance()->getBlockingQueueMaxWaitTime() };
 	MultiClassSVM svm;
 	Variogram variogram;
 	EMGProvider *emgProvider;

@@ -1,4 +1,3 @@
-
 #ifndef BLOCKING_QUEUE_H
 #define BLOCKING_QUEUE_H
 
@@ -7,7 +6,6 @@
 #include <limits>
 #include <mutex>
 #include <queue>
-#include "Interval.h"
 
 /**
   * This class can be used to pass messages/objects between threads. When the queue
@@ -23,6 +21,7 @@ private:
 	std::condition_variable cond;
 	int maxSize;
 	int maxWaitTime;
+
 public:
 
 	/**

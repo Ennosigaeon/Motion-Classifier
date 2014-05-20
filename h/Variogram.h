@@ -1,4 +1,3 @@
-
 #ifndef VARIOGRAM_H
 #define VARIOGRAM_H
 

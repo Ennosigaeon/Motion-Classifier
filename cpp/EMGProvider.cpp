@@ -1,4 +1,3 @@
-
 #include <boost/log/trivial.hpp>
 #include <boost/log/expressions.hpp>
 #include "../h/EMGProvider.h"

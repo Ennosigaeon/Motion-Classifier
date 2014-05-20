@@ -1,9 +1,7 @@
-
 #ifndef ANGLE_H
 #define ANGLE_H
 
 namespace math {
-
 	/**
 	  * This enum is used to specifiy all angles that are relevant for the calculation
 	  * of the variogram.
@@ -16,7 +14,6 @@ namespace math {
 		DEGREE_120,
 		DEGREE_150
 	};
-
 }
 
 #endif

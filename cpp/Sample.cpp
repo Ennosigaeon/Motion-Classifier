@@ -1,4 +1,3 @@
-
 #include "../h/Sample.h"
 
 Sample::Sample(int nrRows, int nrColumns) {

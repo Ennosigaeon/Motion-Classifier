@@ -1,10 +1,7 @@
-
 #ifndef PLOTTER_H
 #define PLOTTER_H
 
-#include <iostream>
 #include <string>
-
 #include <boost/lexical_cast.hpp>
 #include "../lib/gnuplot-iostream.h"
 

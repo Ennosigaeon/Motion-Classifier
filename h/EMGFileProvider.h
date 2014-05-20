@@ -1,4 +1,3 @@
-
 #ifndef EMGFILEPROVIDER_H
 #define EMGFILEPROVIDER_H
 
@@ -24,12 +23,19 @@ private:
 	std::condition_variable condition;
 
 public:
+
 	/**
 	  * Creates a new EMGFileProvider. The parameter has to
 	  * point to a valid file. In this file the measured EMG
 	  * signals are stored.
+	  * Throws: Exception::UNABLE_TO_OPEN_FILE
 	  */
 	EMGFileProvider(const std::string path);
+
+	/**
+	  * Destroys the EMGFileProvider. The underlying worker
+	  * thread will be stoped and destroyed.
+	  */
 	~EMGFileProvider();
 
 	/**

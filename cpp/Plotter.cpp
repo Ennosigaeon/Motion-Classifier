@@ -1,4 +1,3 @@
-
 #include "../h/Plotter.h"
 #include "../h/AppConfig.h"
 

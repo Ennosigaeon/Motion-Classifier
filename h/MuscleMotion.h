@@ -1,4 +1,3 @@
-
 #ifndef MUSCLE_MOTION_H
 #define MUSCLE_MOTION_H
 
@@ -7,7 +6,6 @@
   * of the classification will be an MuscleMotion.
   */
 enum MuscleMotion {
-
 	//Not possible to determine muscle motion
 	UNKNOWN,
 

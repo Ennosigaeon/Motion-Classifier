@@ -1,4 +1,3 @@
-
 #include <cmath>
 #include <ctime>
 #include <boost/log/trivial.hpp>

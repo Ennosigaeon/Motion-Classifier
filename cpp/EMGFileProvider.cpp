@@ -1,9 +1,9 @@
-
 #include <sstream>
 #include <thread>
 #include <boost/log/trivial.hpp>
 #include <boost/log/expressions.hpp>
 #include "../h/EMGFileProvider.h"
+#include "../h/Exception.h"
 #include "../h/AppConfig.h"
 
 EMGFileProvider::EMGFileProvider(const std::string path) {
@@ -11,7 +11,9 @@ EMGFileProvider::EMGFileProvider(const std::string path) {
 	nrRows = conf->getSampleRows();
 	nrColumns = conf->getSampleColumns();
 
-	EMGFileProvider::fileIn.open(path, std::ios_base::in);
+	fileIn.open(path, std::ios_base::in);
+	if (!fileIn.is_open())
+		throw Exception::UNABLE_TO_OPEN_FILE;
 	BOOST_LOG_TRIVIAL(info) << "EMGFileProvider created";
 }
 

@@ -1,4 +1,3 @@
-
 #ifndef COMMUNICATION_H
 #define COMMUNICATION_H
 
@@ -17,7 +16,6 @@ enum Signal {
 	SHUTDOWN
 };
 
-
 /**
 * Defines the current status of the EMGProvider and the Classifier.
 * NEW means the EMGProvider/Classifier was created, but never
@@ -33,6 +31,5 @@ enum Status {
 	WAITING,
 	FINISHED
 };
-
 
 #endif

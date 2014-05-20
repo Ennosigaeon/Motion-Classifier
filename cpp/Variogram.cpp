@@ -1,5 +1,3 @@
-
-//#include "../h/Plotter.h"
 #include <algorithm>
 #include <cmath>
 #include <ctime>

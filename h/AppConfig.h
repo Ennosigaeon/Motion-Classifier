@@ -1,4 +1,3 @@
-
 #ifndef APP_CONFIG_H
 #define APP_CONFIG_H
 
@@ -34,24 +33,27 @@ public:
 	static const std::string CONFIG_ARGUMENT;
 
 	/**
-	* Get an instance of AppConfig. You have to call load(const std::string&)
-	* beforehand, otherwise the returned instance points to NULL.
-	*/
+	  * Get an instance of AppConfig. You have to call load(const std::string&)
+	  * beforehand, otherwise the returned instance points to NULL.
+	  */
 	static AppConfig* getInstance();
 
 	/**
 	  * Loads all configurations from the given file and stores them in
-	  * the AppConfig instance. It is crucial to call release() after this
-	  * function has been called once. Otherwise you have a memory leak.
+	  * the AppConfig instance. When this function is called twice, the first
+	  * configurations will be overriden.
+	  * It is crucial to call release() after this function has been called
+	  * once. Otherwise you have a memory leak.
 	  * Throws Exception::UNABLE_TO_READ_CONFIGURATIONS
 	  */
 	static void load(const std::string& path);
 
 	/**
 	  * Parses the command line arguments and searches for the CONFIG_ARGUMENT.
-	  * Then all configurations are loaded from the given path. It is crucial
-	  * to class release() after this function has been called once. Otherwise
-	  * you will create a memory leak.
+	  * Then all configurations are loaded from the given path. When this
+	  * function is called twice, the first configurations will be overriden.It
+	  * is crucial to call release() after this function has been called once.
+	  * Otherwise you will create a memory leak.
 	  * Throws Exception::UNABLE_TO_READ_CONFIGURATIONS,
 	  * Exception::NO_CONFIGURATIONS_DEFINED
 	  */

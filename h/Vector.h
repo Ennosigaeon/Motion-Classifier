@@ -1,4 +1,3 @@
-
 #ifndef VECTOR_H
 #define VECTOR_H
 
@@ -6,9 +5,10 @@
 #include "Angle.h"
 
 namespace math {
-
 	/**
-	  * This class represents a threedimensional vector.
+	  * This class represents a threedimensional vector. It is
+	  * possible to assign the Vector to a certain group (represented
+	  * by an Integer).
 	  */
 	class Vector {
 	private:

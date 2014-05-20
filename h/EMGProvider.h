@@ -1,4 +1,3 @@
-
 #ifndef EMGPROVIDER_H
 #define EMGPROVIDER_H
 
