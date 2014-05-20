@@ -10,6 +10,8 @@
   * static AppConfig::load(const std::string&). You have to pass the path to
   * the configuration file as a command line argument. See AppConfig::CONFIG_ARGUMENT
   * for exact usage.
+  * As an alternative you can call AppConfig::load(int argc, char *argv[]) to parse
+  * the path automatically and load all configurations.
   */
 class AppConfig {
 private:
@@ -19,7 +21,8 @@ private:
 	int intervalNrSamples;
 	std::string gnuPlotPath;
 	bool plotRMS;
-	bool plotVariogram;
+	bool plotVariogramSurface;
+	bool plotVariogramGraph;
 	int sampleRows;
 	int sampleColumns;
 	int variogramNrBins;
@@ -70,7 +73,8 @@ public:
 	int getLoggerLevel() const;
 	std::string getLoggerFile() const;
 	bool isPlotRMS() const;
-	bool isPlotVariogram() const;
+	bool isPlotVariogramSurface() const;
+	bool isPlotVariogramGraph() const;
 };
 
 #endif

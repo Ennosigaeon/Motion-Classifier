@@ -26,7 +26,8 @@ AppConfig::AppConfig() {
 	loggerLevel = 0;
 	loggerFile = "";
 	plotRMS = false;
-	plotVariogram = false;
+	plotVariogramSurface = false;
+	plotVariogramGraph = false;
 }
 
 AppConfig* AppConfig::getInstance() {
@@ -89,8 +90,10 @@ void AppConfig::load(const std::string& path) {
 			instance->gnuPlotPath = values.at(1);
 		if (values.at(0) == "plot.rms")
 			instance->plotRMS = boost::lexical_cast<bool>(values.at(1));
-		if (values.at(0) == "plot.variogram")
-			instance->plotVariogram = boost::lexical_cast<bool>(values.at(1));
+		if (values.at(0) == "plot.variogramSurface")
+			instance->plotVariogramSurface = boost::lexical_cast<bool>(values.at(1));
+		if (values.at(0) == "plot.variogramGraph")
+			instance->plotVariogramGraph = boost::lexical_cast<bool>(values.at(1));
 		if (values.at(0) == "variogram.nrBins")
 			instance->variogramNrBins = boost::lexical_cast<int>(values.at(1));
 		if (values.at(0) == "blockingQueue.maxWaitTime")
@@ -135,9 +138,14 @@ bool AppConfig::isPlotRMS() const {
 	return plotRMS & !gnuPlotPath.empty();
 }
 
-bool AppConfig::isPlotVariogram() const {
+bool AppConfig::isPlotVariogramSurface() const {
 	//no plotting possible, when no path to gnuplot is provided
-	return plotVariogram && !gnuPlotPath.empty();
+	return plotVariogramSurface && !gnuPlotPath.empty();
+}
+
+bool AppConfig::isPlotVariogramGraph() const {
+	//no plotting possible, when no path to gnuplot is provided
+	return plotVariogramGraph && !gnuPlotPath.empty();
 }
 
 int AppConfig::getBlockingQueueMaxWaitTime() const {
