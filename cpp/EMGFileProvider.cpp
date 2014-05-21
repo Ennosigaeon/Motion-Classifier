@@ -1,7 +1,7 @@
 #include <sstream>
 #include <thread>
-#include <boost/log/trivial.hpp>
 #include <boost/log/expressions.hpp>
+#include <boost/log/trivial.hpp>
 #include "../h/EMGFileProvider.h"
 #include "../h/Exception.h"
 #include "../h/AppConfig.h"
@@ -19,7 +19,7 @@ EMGFileProvider::EMGFileProvider(const std::string path) {
 
 EMGFileProvider::~EMGFileProvider() {
 	send(Signal::SHUTDOWN);
-	EMGFileProvider::fileIn.close();
+	fileIn.close();
 	BOOST_LOG_TRIVIAL(info) << "EMGFileProvider destroyed";
 }
 

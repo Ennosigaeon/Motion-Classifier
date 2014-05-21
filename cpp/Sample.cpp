@@ -9,10 +9,6 @@ void Sample::addEntry(const math::Vector& entry) {
 	entries.push_back(entry);
 }
 
-void Sample::setEntries(const std::vector<math::Vector>& entries) {
-	Sample::entries = entries;
-}
-
 std::vector<math::Vector> Sample::getEntries() const {
 	return entries;
 }

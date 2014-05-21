@@ -42,12 +42,6 @@ public:
 	  */
 	void addEntry(const math::Vector& entry);
 
-	/**
-	  * Sets the entries of this Sample. Previous stored sensor
-	  * values will be deleted.
-	  */
-	void setEntries(const std::vector<math::Vector>& entries);
-
 	//operator
 	friend std::ostream& operator<<(std::ostream & stream, const Sample & sample);
 };

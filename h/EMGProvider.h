@@ -49,6 +49,11 @@ public:
 	void clearBuffer();
 
 	/**
+	  * Returns the number of stored Intervals.
+	  */
+	int getBufferSize() const;
+
+	/**
 	  * Sends a signal to the reading thread. See Signal (in
 	  * Communication.h) for more information.
 	  */

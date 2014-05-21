@@ -1,4 +1,6 @@
 #include <cmath>
+#include <boost/log/expressions.hpp>
+#include <boost/log/trivial.hpp>
 #include "../h/Vector.h"
 
 math::Vector::Vector(double x, double y, double z) {
@@ -22,11 +24,12 @@ math::Vector math::Vector::getVector(const Angle& angle) {
 	case DEGREE_150:
 		return math::Vector(-sqrt(3) / 2, 0.5, 0);
 	default:
-		std::cerr << "This Angle is not implemented" << std::endl;
+		BOOST_LOG_TRIVIAL(error) << "This Angle is not implemented";
 		return math::Vector();
 	}
 }
 
+//TODO: remove sqrt for better performance
 double math::Vector::distance(const math::Vector& vector1, const math::Vector& vector2, int nrDimensions) {
 	double value = 0;
 	for (int i = 0; i < nrDimensions; i++)
@@ -62,19 +65,15 @@ void math::Vector::setZ(const double value) {
 	values[2] = value;
 }
 
-void math::Vector::set(const int index, const double value) {
-	values[index] = value;
+void math::Vector::setLength(const double length, const int nrDimensions) {
+	double l = length / getLength(nrDimensions);
+	for (int i = 0; i < nrDimensions; i++)
+		values[i] = values[i] * l;
 }
 
-void math::Vector::setLength(const double length) {
-	double l = getLength();
-	for (int i = 0; i < 3; i++)
-		values[i] = values[i] * length / l;
-}
-
-double math::Vector::getLength() const {
+double math::Vector::getLength(int nrDimensions) const {
 	double value = 0;
-	for (int i = 0; i < 3; i++)
+	for (int i = 0; i < nrDimensions; i++)
 		value += values[i] * values[i];
 	return sqrt(value);
 }
@@ -89,9 +88,9 @@ void math::Vector::setGroup(int group) {
 
 math::Vector math::Vector::operator+(const math::Vector& vector) {
 	math::Vector vec;
-	//the vector has 3 dimensions
-	for (int i = 0; i < 3; i++)
-		vec.set(i, vector.get(i) + values[i]);
+	vec.setX(values[0] + vector.getX());
+	vec.setY(values[1] + vector.getY());
+	vec.setZ(values[2] + vector.getZ());
 	return vec;
 }
 

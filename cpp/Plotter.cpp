@@ -1,5 +1,5 @@
-#include "../h/Plotter.h"
 #include "../h/AppConfig.h"
+#include "../h/Plotter.h"
 
 //sets the initial value of instance to NULL, due to forbidden 'in-class initialization'.
 Plotter* Plotter::instance = NULL;

@@ -2,8 +2,15 @@
 #include <iostream>
 #include <limits>
 #include <vector>
-#include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
+#include <boost/lexical_cast.hpp>
+#include <boost/log/core.hpp>
+#include <boost/log/expressions.hpp>
+#include <boost/log/trivial.hpp>
+#include <boost/log/support/date_time.hpp>
+#include <boost/log/utility/setup/common_attributes.hpp>
+#include <boost/log/utility/setup/console.hpp>
+#include <boost/log/utility/setup/file.hpp>
 #include "../h/AppConfig.h"
 #include "../h/Exception.h"
 
@@ -57,7 +64,7 @@ void AppConfig::load(const std::string& path) {
 
 	std::ifstream in(path);
 	if (!in.is_open())
-		throw Exception::UNABLE_TO_READ_CONFIGURATIONS;
+		throw Exception::UNABLE_TO_OPEN_FILE;
 
 	std::string line;
 	while (!in.eof()) {
@@ -77,30 +84,68 @@ void AppConfig::load(const std::string& path) {
 		boost::trim(values.at(1));
 
 		//store value in correct variable (according to key)
-		if (values.at(0) == "sample.rows")
-			instance->sampleRows = boost::lexical_cast<int>(values.at(1));
-		if (values.at(0) == "sample.columns")
-			instance->sampleColumns = boost::lexical_cast<int>(values.at(1));
-		if (values.at(0) == "interval.nrSamples")
-			instance->intervalNrSamples = boost::lexical_cast<int>(values.at(1));
-		if (values.at(0) == "gnuPlot.path")
-			instance->gnuPlotPath = values.at(1);
-		if (values.at(0) == "plot.rms")
-			instance->plotRMS = boost::lexical_cast<bool>(values.at(1));
-		if (values.at(0) == "plot.variogramSurface")
-			instance->plotVariogramSurface = boost::lexical_cast<bool>(values.at(1));
-		if (values.at(0) == "plot.variogramGraph")
-			instance->plotVariogramGraph = boost::lexical_cast<bool>(values.at(1));
-		if (values.at(0) == "variogram.nrBins")
-			instance->variogramNrBins = boost::lexical_cast<int>(values.at(1));
-		if (values.at(0) == "blockingQueue.maxWaitTime")
-			instance->blockingQueueMaxWaitTime = boost::lexical_cast<int>(values.at(1));
-		if (values.at(0) == "logger.level")
-			instance->loggerLevel = boost::lexical_cast<int>(values.at(1));
-		if (values.at(0) == "logger.file")
-			instance->loggerFile = values.at(1);
+		try {
+			if (values.at(0) == "sample.rows")
+				instance->sampleRows = boost::lexical_cast<int>(values.at(1));
+			if (values.at(0) == "sample.columns")
+				instance->sampleColumns = boost::lexical_cast<int>(values.at(1));
+			if (values.at(0) == "interval.nrSamples")
+				instance->intervalNrSamples = boost::lexical_cast<int>(values.at(1));
+			if (values.at(0) == "gnuPlot.path")
+				instance->gnuPlotPath = values.at(1);
+			if (values.at(0) == "plot.rms")
+				instance->plotRMS = boost::lexical_cast<bool>(values.at(1));
+			if (values.at(0) == "plot.variogramSurface")
+				instance->plotVariogramSurface = boost::lexical_cast<bool>(values.at(1));
+			if (values.at(0) == "plot.variogramGraph")
+				instance->plotVariogramGraph = boost::lexical_cast<bool>(values.at(1));
+			if (values.at(0) == "variogram.nrBins")
+				instance->variogramNrBins = boost::lexical_cast<int>(values.at(1));
+			if (values.at(0) == "blockingQueue.maxWaitTime")
+				instance->blockingQueueMaxWaitTime = boost::lexical_cast<int>(values.at(1));
+			if (values.at(0) == "logger.level")
+				instance->loggerLevel = boost::lexical_cast<int>(values.at(1));
+			if (values.at(0) == "logger.file")
+				instance->loggerFile = values.at(1);
+		}
+		catch (boost::bad_lexical_cast &) {
+			throw Exception::UNABLE_TO_PARSE_CONFIGURATION;
+		}
 	}
 }
+
+//inits the logging system
+void AppConfig::initLogging() {
+	namespace logging = boost::log;
+	namespace keywords = boost::log::keywords;
+	namespace expr = boost::log::expressions;
+
+	logging::core::get()->set_filter(boost::log::trivial::severity >= loggerLevel);
+	logging::add_common_attributes();
+
+	if (!loggerFile.empty()) {
+		logging::add_file_log(
+			keywords::file_name = loggerFile,
+			keywords::rotation_size = 10 * 1024 * 1024,
+			keywords::format = (
+			expr::stream
+			<< expr::format_date_time< boost::posix_time::ptime >("TimeStamp", "%H:%M:%S.%f")
+			<< ": <" << logging::trivial::severity
+			<< "> " << expr::smessage
+			)
+			);
+	}
+	logging::add_console_log(
+		std::cout,
+		keywords::format = (
+		expr::stream
+		<< expr::format_date_time< boost::posix_time::ptime >("TimeStamp", "%H:%M:%S.%f")
+		<< ": <" << logging::trivial::severity
+		<< "> " << expr::smessage
+		)
+		);
+}
+
 
 int AppConfig::getSampleRows() const {
 	return sampleRows;

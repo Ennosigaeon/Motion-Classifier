@@ -24,7 +24,7 @@ public:
 	/**
 	  * Tests whether this Interval is full (maximum number of samples stored) or not.
 	  */
-	bool isFull() const;
+	inline bool isFull() const;
 
 	/**
 	  * Calculates the Root Mean Square (RMS) over all stored samples. The result

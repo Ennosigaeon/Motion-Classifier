@@ -44,7 +44,8 @@ public:
 	  * configurations will be overriden.
 	  * It is crucial to call release() after this function has been called
 	  * once. Otherwise you have a memory leak.
-	  * Throws Exception::UNABLE_TO_READ_CONFIGURATIONS
+	  * Throws Exception::UNABLE_TO_PARSE_CONFIGURATION,
+	  * Exception::UNABLE_TO_OPEN_FILE
 	  */
 	static void load(const std::string& path);
 
@@ -54,7 +55,8 @@ public:
 	  * function is called twice, the first configurations will be overriden.It
 	  * is crucial to call release() after this function has been called once.
 	  * Otherwise you will create a memory leak.
-	  * Throws Exception::UNABLE_TO_READ_CONFIGURATIONS,
+	  * Throws Exception::UNABLE_TO_PARSE_CONFIGURATION,
+	  * Exception::UNABLE_TO_OPEN_FILE,
 	  * Exception::NO_CONFIGURATIONS_DEFINED
 	  */
 	static void load(int argc, char *argv[]);
@@ -65,6 +67,13 @@ public:
 	  * has been called once.
 	  */
 	static void release();
+
+	/**
+	  * This member function initializes the Boost logging system. It sets the
+	  * log format, creates a console appender/sink and, if defined in the
+	  * configuration file, a file appender/sink.
+	  */
+	void initLogging();
 
 	int getIntervalNrSamples() const;
 	std::string getGnuPlotPath() const;

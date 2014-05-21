@@ -117,7 +117,7 @@ void Classifier::plot(const Sample& sample, std::vector<math::Vector>& values) {
 		std::ofstream sampleStream;
 		sampleStream.open(std::string("C:/Tmp/plot/") + boost::lexical_cast<std::string>(nr)+"-graph.txt");
 		for (std::vector<math::Vector>::iterator it = values.begin(); it != values.end(); it++)
-			sampleStream << it->getGroup() << "\t" << it->getLength() << "\t" << it->getZ() << std::endl;
+			sampleStream << it->getGroup() << "\t" << it->getLength(2) << "\t" << it->getZ() << std::endl;
 		sampleStream.close();
 	}
 	if (config->isPlotVariogramSurface()) {

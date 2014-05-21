@@ -11,7 +11,7 @@
   */
 class Variogram {
 private:
-	std::map<double, double> findPairs(std::vector<math::Vector>& values, const math::Vector& h, const int maxDist) const;
+	void findPairs(std::map<double, double> *result, std::vector<math::Vector>& values, const math::Vector& h, const double precision) const;
 	int nrBins;
 
 public:

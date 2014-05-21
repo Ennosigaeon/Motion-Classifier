@@ -2,8 +2,8 @@
 #include <cmath>
 #include <ctime>
 #include <iostream>
-#include <boost/log/trivial.hpp>
 #include <boost/log/expressions.hpp>
+#include <boost/log/trivial.hpp>
 #include "../h/AppConfig.h"
 #include "../h/Variogram.h"
 
@@ -16,6 +16,7 @@ std::vector<math::Vector> Variogram::calculate(const Sample& sample) const {
 
 	int maxX = sample.getNrColumns() / 2;
 	int maxY = sample.getNrRows() / 2;
+	double precision = std::max(maxX, maxY) * 1.0 / nrBins;
 	clock_t t = clock();
 	for (int i = math::Angle::DEGREE_0; i <= math::Angle::DEGREE_150; i++) {
 		math::Angle angle = static_cast<math::Angle>(i);
@@ -23,7 +24,8 @@ std::vector<math::Vector> Variogram::calculate(const Sample& sample) const {
 
 		BOOST_LOG_TRIVIAL(debug) << "using Angle " << angle;
 		while (std::abs(h.get(0)) <= maxX && std::abs(h.get(1)) <= maxY) {
-			std::map<double, double> pairs = findPairs(sample.getEntries(), h, std::max(maxX, maxY));
+			std::map<double, double> pairs;
+			findPairs(&pairs, sample.getEntries(), h, precision);
 
 			BOOST_LOG_TRIVIAL(debug) << "found " << pairs.size() << " pairs for the offset " << h;
 			if (pairs.size() != 0) {
@@ -36,6 +38,7 @@ std::vector<math::Vector> Variogram::calculate(const Sample& sample) const {
 				result.push_back(tmp);
 			}
 			h.setLength(h.getLength() + 1);
+			std::cout << h << "\t" << h.getLength() << std::endl;
 		}
 	}
 	t = clock() - t;
@@ -44,10 +47,7 @@ std::vector<math::Vector> Variogram::calculate(const Sample& sample) const {
 	return result;
 }
 
-std::map<double, double> Variogram::findPairs(std::vector<math::Vector>& values, const math::Vector& h, const int maxDist) const {
-	std::map<double, double> result;
-	double precision = maxDist * 1.0 / nrBins;
-
+void Variogram::findPairs(std::map<double, double> *result, std::vector<math::Vector>& values, const math::Vector& h, const double precision) const {
 	for (std::vector<math::Vector>::iterator it = values.begin(); it != values.end(); it++) {
 		if (it->getGroup() != -1)
 			continue;
@@ -61,11 +61,10 @@ std::map<double, double> Variogram::findPairs(std::vector<math::Vector>& values,
 				math::Vector::distance(*it2, point, 2) < precision) {
 				it2->setGroup(0);
 				it->setGroup(0);
-				result.insert(std::make_pair(it->getZ(), it2->getZ()));
+				result->insert(std::make_pair(it->getZ(), it2->getZ()));
 				BOOST_LOG_TRIVIAL(trace) << "connected " << *it << " with " << *it2;
 				break;
 			}
 		}
 	}
-	return result;
 }

@@ -37,11 +37,6 @@ namespace math {
 		static double distance(const Vector& vector1, const Vector& vector2, int nrDimensions = 3);
 
 		/**
-		  * Stores the given value in the given dimension.
-		  */
-		void set(const int index, const double value);
-
-		/**
 		  * Returns the stored value in the given dimension.
 		  */
 		double get(const int index) const;
@@ -80,12 +75,12 @@ namespace math {
 		  * Changes the Vector so, that its length is equal to the given lenght. The values in
 		  * all dimensions will be changed.
 		  */
-		void setLength(const double length);
+		void setLength(const double length, const int nrDimensions = 3);
 
 		/**
 		  * Calculates the length of the given Vector.
 		  */
-		double getLength() const;
+		double getLength(const int nrDimensions = 3) const;
 
 		/**
 		  * Sets, that this Vector belongs to the given group number.

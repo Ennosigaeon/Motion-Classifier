@@ -1,6 +1,6 @@
 #include <ctime>
-#include <boost/log/trivial.hpp>
 #include <boost/log/expressions.hpp>
+#include <boost/log/trivial.hpp>
 #include "../h/MultiClassSVM.h"
 
 void MultiClassSVM::train(const MuscleMotion& motion, const std::vector<math::Vector>& data) {
