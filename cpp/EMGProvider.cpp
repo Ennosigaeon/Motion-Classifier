@@ -6,7 +6,6 @@
 int EMGProvider::bufferWarnSize = 5;
 
 EMGProvider::~EMGProvider() {
-	BOOST_LOG_TRIVIAL(info) << "Deleting all stored Intervals. This may take some time...";
 	if (lastInterval != NULL)
 		delete lastInterval;
 	clearBuffer();
@@ -26,9 +25,10 @@ void EMGProvider::addInterval(Interval* const interval) {
 }
 
 void EMGProvider::clearBuffer() {
+	//This operation can take a lot of time (>30 seconds).
+	BOOST_LOG_TRIVIAL(info) << "Deleting all stored Intervals. This may take some time...";
 	while (!intervals.empty())
 		delete intervals.pop();
-	BOOST_LOG_TRIVIAL(info) << "Deleted all stored Intervals";
 }
 
 int EMGProvider::getBufferSize() const {

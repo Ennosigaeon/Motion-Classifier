@@ -29,14 +29,13 @@ int main(int argc, char *argv[]) {
 		return EXIT_FAILURE;
 	}
 
-	BOOST_LOG_TRIVIAL(info) << "Main started";
-
 	std::string path = "c:\\Users\\Marc\\Dropbox\\Informatik\\Studium\\6. Semester\\Bachelor Thesis\\MARC\\data\\data8_AN";
 
 	//It takes very much time to delete EMGProvider and/or Classifier.
 	//Therefor I added this block, so that both are destroyed before the end
 	//of the program is reached.
 	{
+		//TODO: This is just dummy code. Add real application here
 		EMGFileProvider emgProvider{ path };
 		Classifier classifier(&emgProvider);
 		classifier.send(Signal::START);

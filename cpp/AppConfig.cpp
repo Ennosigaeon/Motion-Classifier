@@ -144,6 +144,8 @@ void AppConfig::initLogging() {
 		<< "> " << expr::smessage
 		)
 		);
+
+	BOOST_LOG_TRIVIAL(info) << "set up logging system";
 }
 
 

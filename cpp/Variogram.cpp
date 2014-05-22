@@ -21,13 +21,14 @@ std::vector<math::Vector> Variogram::calculate(const Sample& sample) const {
 	for (int i = math::Angle::DEGREE_0; i <= math::Angle::DEGREE_150; i++) {
 		math::Angle angle = static_cast<math::Angle>(i);
 		math::Vector h = math::Vector::getVector(angle);
+		int count = 0;
 
-		BOOST_LOG_TRIVIAL(debug) << "using Angle " << angle;
 		while (std::abs(h.get(0)) <= maxX && std::abs(h.get(1)) <= maxY) {
 			std::map<double, double> pairs;
 			findPairs(&pairs, sample.getEntries(), h, precision);
+			count += pairs.size();
 
-			BOOST_LOG_TRIVIAL(debug) << "found " << pairs.size() << " pairs for the offset " << h;
+			BOOST_LOG_TRIVIAL(trace) << "found " << pairs.size() << " pairs for the offset " << h;
 			if (pairs.size() != 0) {
 				double value = 0;
 				for (std::map<double, double>::iterator it = pairs.begin(); it != pairs.end(); it++)
@@ -38,11 +39,11 @@ std::vector<math::Vector> Variogram::calculate(const Sample& sample) const {
 				result.push_back(tmp);
 			}
 			h.setLength(h.getLength() + 1);
-			std::cout << h << "\t" << h.getLength() << std::endl;
 		}
+		BOOST_LOG_TRIVIAL(debug) << "found " << count << " pairs for math::Angle " << angle;
 	}
 	t = clock() - t;
-	BOOST_LOG_TRIVIAL(debug) << "Variogram calculation took " << ((double)t) / CLOCKS_PER_SEC * 1000 << " ms";
+	BOOST_LOG_TRIVIAL(debug) << "Variogram calculation took " << ((double)t) / CLOCKS_PER_SEC * 1000 << " ms. " << result.size() << " pairs found";
 
 	return result;
 }
@@ -62,7 +63,6 @@ void Variogram::findPairs(std::map<double, double> *result, std::vector<math::Ve
 				it2->setGroup(0);
 				it->setGroup(0);
 				result->insert(std::make_pair(it->getZ(), it2->getZ()));
-				BOOST_LOG_TRIVIAL(trace) << "connected " << *it << " with " << *it2;
 				break;
 			}
 		}
