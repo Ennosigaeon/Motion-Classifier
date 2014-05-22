@@ -8,4 +8,14 @@ Known Issues - Online Classifier
 	
 2.	Shutdown takes a lot of time
 	It takes the tripple time of defined maximal waiting time of the BlockingQueue to shut down the Classifier. I do not know why this is so, but this is only a minor issue. You just have to wait some seconds longer until all threads are finally stoped.
-
+	
+3.	Unsafe function or variable
+	libsvm-3.18 uses the function some functions that are not in the C++ standard. Therefore MSVC throws the warning 'C4996'. To disable this warnign add 
+		#pragma warning(disable : 4996)
+	to the beginning of svm.h.
+	
+4.	Training the SVMs creates output
+	The svm_train() function of libsvm prints configuration information to the console. To disable/enable this, set the value of
+		#if 1
+		static void info(const char *fmt,...)
+	to '0';

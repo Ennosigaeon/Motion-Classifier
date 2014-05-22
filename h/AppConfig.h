@@ -2,6 +2,7 @@
 #define APP_CONFIG_H
 
 #include <string>
+#include "../lib/libsvm-3.18/svm.h"
 
 /**
   * This class handles the application configuration. It is implemented as a
@@ -28,6 +29,7 @@ private:
 	int blockingQueueMaxWaitTime;
 	int loggerLevel;
 	std::string loggerFile;
+	svm_parameter *param;
 
 public:
 	static const std::string CONFIG_ARGUMENT;
@@ -86,6 +88,7 @@ public:
 	bool isPlotRMS() const;
 	bool isPlotVariogramSurface() const;
 	bool isPlotVariogramGraph() const;
+	svm_parameter* getSVMParameter() const;
 };
 
 #endif

@@ -13,3 +13,10 @@ blockingQueue.maxWaitTime = 5000
 #allowed values are 0 - 5 with 0 == trace and 5 == fatal
 logger.level = 2
 logger.file = log/OnlineClassificator.log
+
+#properties for libsvm
+#C_SVC = 0, NU_SVC = 1, ONE_CLASS = 2, EPSILON_SVR = 3, NU_SVR = 4
+svm.type = 0
+#LINEAR = 0, POLY = 1, RBF = 2, SIGMOID = 3, PRECOMPUTED = 4
+svm.kernel = 0
+svm.cost = 100

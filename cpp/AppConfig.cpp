@@ -32,6 +32,24 @@ AppConfig::AppConfig() {
 	plotRMS = false;
 	plotVariogramSurface = false;
 	plotVariogramGraph = false;
+
+	param = new svm_parameter;
+	//These default values are copied from svm_train.cpp from libsvm-3.18
+	param->svm_type = C_SVC;
+	param->kernel_type = RBF;
+	param->degree = 3;
+	param->gamma = 0;
+	param->coef0 = 0;
+	param->nu = 0.5;
+	param->cache_size = 100;
+	param->C = 1;
+	param->eps = 1e-3;
+	param->p = 0.1;
+	param->shrinking = 1;
+	param->probability = 0;
+	param->nr_weight = 0;
+	param->weight_label = NULL;
+	param->weight = NULL;
 }
 
 AppConfig* AppConfig::getInstance() {
@@ -39,8 +57,10 @@ AppConfig* AppConfig::getInstance() {
 }
 
 void AppConfig::release() {
-	if (instance != NULL)
+	if (instance != NULL) {
+		delete instance->param;
 		delete instance;
+	}
 }
 
 void AppConfig::load(int argc, char *argv[]) {
@@ -107,6 +127,12 @@ void AppConfig::load(const std::string& path) {
 				instance->loggerLevel = boost::lexical_cast<int>(values.at(1));
 			if (values.at(0) == "logger.file")
 				instance->loggerFile = values.at(1);
+			if (values.at(0) == "svm.type")
+				instance->param->svm_type = boost::lexical_cast<int>(values.at(1));
+			if (values.at(0) == "svm.kernel")
+				instance->param->kernel_type = boost::lexical_cast<int>(values.at(1));
+			if (values.at(0) == "svm.cost")
+				instance->param->C = boost::lexical_cast<double>(values.at(1));
 		}
 		catch (boost::bad_lexical_cast &) {
 			throw Exception::UNABLE_TO_PARSE_CONFIGURATION;
@@ -194,4 +220,8 @@ bool AppConfig::isPlotVariogramGraph() const {
 
 int AppConfig::getBlockingQueueMaxWaitTime() const {
 	return blockingQueueMaxWaitTime;
+}
+
+svm_parameter* AppConfig::getSVMParameter() const {
+	return param;
 }

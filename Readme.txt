@@ -57,6 +57,12 @@ The configuration file has to have to following format: key = value \n. The requ
 	Defines the the log level. 0 means 'trace' and 5 means 'fatal'.
 4.11 logger.file
 	Defines a path to a file. All messages will be logged in this file. This property is optional.
+4.12  svm.type (int)
+	Defines which Support Vector Machine should be used. C_SVC = 0, NU_SVC = 1, ONE_CLASS = 2, EPSILON_SVR = 3, NU_SVR = 4. See libsvm Readme for more information.
+4.13 svm.kernel (int)
+	Defines which Kernel should be used. LINEAR = 0, POLY = 1, RBF = 2, SIGMOID = 3, PRECOMPUTED = 4. See libsvm Readme for more information.
+4.14 svm.cost (int)
+	Defines the costs for a mismatched item in the SVM training process.
 	
 		
 5. Trouble Shooting
