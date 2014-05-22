@@ -7,6 +7,9 @@
 #include "../h/EMGFileProvider.h"
 #include "../h/Plotter.h"
 
+#include "../h/MultiClassSVM.h"
+
+
 /**
   * It is necessary to pass an argument with the path to the configuration file.
   * The argument has to look like 'online_classificator.config <path_to_file>'
@@ -29,6 +32,34 @@ int main(int argc, char *argv[]) {
 		return EXIT_FAILURE;
 	}
 
+	MultiClassSVM svm;
+	{
+		for (int i = MuscleMotion::REST_POSITION; i < 4; i++) {
+			std::vector<math::Vector> vector;
+			for (int j = 0; j < 5; j++)
+				vector.push_back(math::Vector(j, i * 10 + j));
+			svm.train(static_cast<MuscleMotion>(i), vector);
+		}
+	}
+	try {
+		svm.calculateSVMs();
+	}
+	catch (int ex) {
+		if (ex == Exception::SVM_MISSING_TRAININGS_DATA)
+			BOOST_LOG_TRIVIAL(fatal) << "unable to calculate SVMs. Missing trainings data.";
+		else
+			throw ex;
+	}
+
+	for (int i = MuscleMotion::REST_POSITION; i < 4; i++) {
+		std::vector<math::Vector> list;
+		math::Vector vector(i, i * 10);
+		list.push_back(vector);
+		MuscleMotion result = svm.classify(list);
+		std::cout << static_cast<MuscleMotion>(i) << " -> " << result << std::endl;
+	}
+
+
 	std::string path = "c:\\Users\\Marc\\Dropbox\\Informatik\\Studium\\6. Semester\\Bachelor Thesis\\MARC\\data\\data8_AN";
 
 	//It takes very much time to delete EMGProvider and/or Classifier.
@@ -39,7 +70,7 @@ int main(int argc, char *argv[]) {
 		EMGFileProvider emgProvider{ path };
 		Classifier classifier(&emgProvider);
 		classifier.send(Signal::START);
-		Sleep(60000);
+		Sleep(6000);
 		classifier.send(Signal::SHUTDOWN);
 		//TODO: Shutdown takes way more time, then it is supposed to do
 	}

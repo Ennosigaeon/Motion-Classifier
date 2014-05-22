@@ -16,12 +16,12 @@ SupportVectorMachine::~SupportVectorMachine() {
 void SupportVectorMachine::addTrainData(const MuscleMotion& motion, std::vector<math::Vector>& vector) {
 	if (classA == MuscleMotion::UNKNOWN) {
 		classA = motion;
-		valuesA.swap(vector);
+		valuesA.insert(valuesA.end(), vector.begin(), vector.end());
 	}
 	else {
 		if (classB == MuscleMotion::UNKNOWN) {
 			classB = motion;
-			valuesB.swap(vector);
+			valuesB.insert(valuesB.end(), vector.begin(), vector.end());
 		}
 	}
 }
@@ -29,7 +29,7 @@ void SupportVectorMachine::addTrainData(const MuscleMotion& motion, std::vector<
 void SupportVectorMachine::calculateSVM() {
 	if (classA == MuscleMotion::UNKNOWN || classB == MuscleMotion::UNKNOWN || valuesA.empty() || valuesB.empty())
 		throw Exception::SVM_MISSING_TRAININGS_DATA;
-	BOOST_LOG_TRIVIAL(info) << "Training SVM for MuscleMotions " << classA << " (" << valuesA.size() << " values) and "
+	BOOST_LOG_TRIVIAL(debug) << "Training SVM for MuscleMotions " << classA << " (" << valuesA.size() << " values) and "
 		<< classB << " (" << valuesA.size() << " values).";
 
 	//converts the two given std::vectors in a svm_problem
