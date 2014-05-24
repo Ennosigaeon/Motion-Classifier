@@ -35,7 +35,7 @@ public:
 	/**
 	  * Returns all entries stored in this Sample.
 	  */
-	std::vector<math::Vector> getEntries() const;
+	std::vector<math::Vector>* getEntries();
 
 	/**
 	  * Adds a new Entry to this Sample.
@@ -43,7 +43,7 @@ public:
 	void addEntry(const math::Vector& entry);
 
 	//operator
-	friend std::ostream& operator<<(std::ostream & stream, const Sample & sample);
+	void print(std::ostream & stream) const;
 };
 
 #endif

@@ -110,7 +110,7 @@ void Classifier::plot(const Sample& sample, std::vector<math::Vector>& values) {
 	if (config->isPlotRMS()) {
 		std::ofstream sampleStream;
 		sampleStream.open(std::string("C:/Tmp/plot/") + boost::lexical_cast<std::string>(nr)+"-rms.txt");
-		sampleStream << sample;
+		sample.print(sampleStream);
 		sampleStream.close();
 	}
 	if (config->isPlotVariogramGraph()) {

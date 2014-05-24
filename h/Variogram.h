@@ -11,7 +11,7 @@
   */
 class Variogram {
 private:
-	void findPairs(std::map<double, double> *result, std::vector<math::Vector>& values, const math::Vector& h, const double precision) const;
+	void findPairs(std::map<double, double> *result, std::vector<math::Vector>* values, const math::Vector& h, const double precision) const;
 	int nrBins;
 
 public:
@@ -24,7 +24,7 @@ public:
 	  * length) and the measured value at this position.
 	  */
 	//TODO: can be optimized by the follwing header: std::map<int, double> calculate(const Sample& sample, const math::Angle& angle) const;
-	std::vector<math::Vector> calculate(const Sample& sample) const;
+	std::vector<math::Vector> calculate(Sample& sample) const;
 };
 
 #endif VARIOGRAM_H

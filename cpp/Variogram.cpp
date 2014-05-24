@@ -11,7 +11,7 @@ Variogram::Variogram() {
 	nrBins = AppConfig::getInstance()->getVariogramNrBins();
 }
 
-std::vector<math::Vector> Variogram::calculate(const Sample& sample) const {
+std::vector<math::Vector> Variogram::calculate(Sample& sample) const {
 	std::vector<math::Vector> result;
 
 	int maxX = sample.getNrColumns() / 2;
@@ -48,12 +48,12 @@ std::vector<math::Vector> Variogram::calculate(const Sample& sample) const {
 	return result;
 }
 
-void Variogram::findPairs(std::map<double, double> *result, std::vector<math::Vector>& values, const math::Vector& h, const double precision) const {
-	for (std::vector<math::Vector>::iterator it = values.begin(); it != values.end(); it++) {
+void Variogram::findPairs(std::map<double, double> *result, std::vector<math::Vector>* values, const math::Vector& h, const double precision) const {
+	for (std::vector<math::Vector>::iterator it = values->begin(); it != values->end(); it++) {
 		if (it->getGroup() != -1)
 			continue;
 		math::Vector point(it->getX() + h.getX(), it->getY() + h.getY(), 0);
-		for (std::vector<math::Vector>::iterator it2 = values.begin(); it2 != values.end(); it2++) {
+		for (std::vector<math::Vector>::iterator it2 = values->begin(); it2 != values->end(); it2++) {
 			//Same vector
 			if (it->getX() == it2->getX() && it->getY() == it2->getY())
 				continue;

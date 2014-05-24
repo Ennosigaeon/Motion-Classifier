@@ -3,14 +3,15 @@
 Sample::Sample(int nrRows, int nrColumns) {
 	Sample::nrRows = nrRows;
 	Sample::nrColumns = nrColumns;
+	entries.reserve(nrRows * nrColumns);
 }
 
 void Sample::addEntry(const math::Vector& entry) {
 	entries.push_back(entry);
 }
 
-std::vector<math::Vector> Sample::getEntries() const {
-	return entries;
+std::vector<math::Vector>* Sample::getEntries() {
+	return &entries;
 }
 
 int Sample::getNrRows() const {
@@ -21,9 +22,7 @@ int Sample::getNrColumns() const {
 	return nrColumns;
 }
 
-std::ostream& operator<<(std::ostream& stream, const Sample& sample) {
-	std::vector<math::Vector> entries = sample.getEntries();
-	for (std::vector<math::Vector>::iterator it = entries.begin(); it != entries.end(); it++)
+void Sample::print(std::ostream& stream) const{
+	for (std::vector<math::Vector>::const_iterator it = entries.begin(); it != entries.end(); it++)
 		stream << it->getX() << "\t" << it->getY() << "\t" << it->getZ() << std::endl;
-	return stream;
 }

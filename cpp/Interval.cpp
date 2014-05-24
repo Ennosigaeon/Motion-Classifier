@@ -39,8 +39,8 @@ Sample Interval::getRMSSample() {
 
 	for (std::vector<Sample>::iterator it = samples.begin(); it != samples.end(); it++) {
 		int i = 0;
-		std::vector<math::Vector> entries = it->getEntries();
-		for (std::vector<math::Vector>::iterator it2 = entries.begin(); it2 != entries.end(); it2++, i++) {
+		std::vector<math::Vector>* entries = it->getEntries();
+		for (std::vector<math::Vector>::iterator it2 = entries->begin(); it2 != entries->end(); it2++, i++) {
 			double n = it2->getZ();
 			if (n != NAN) {
 				value[i] += n * n;
@@ -49,8 +49,8 @@ Sample Interval::getRMSSample() {
 		}
 	}
 	int i = 0;
-	std::vector<math::Vector> entries = start.getEntries();
-	for (std::vector<math::Vector>::iterator it = entries.begin(); it != entries.end(); it++, i++)
+	std::vector<math::Vector>* entries = start.getEntries();
+	for (std::vector<math::Vector>::iterator it = entries->begin(); it != entries->end(); it++, i++)
 		result.addEntry(math::Vector(it->getX(), it->getY(), sqrt(value[i] / count[i])));
 
 	delete[] value;

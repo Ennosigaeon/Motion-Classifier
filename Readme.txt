@@ -21,7 +21,10 @@ This library offers a simple connection between a C++ program and gnuplot. Only 
 2.3 OTBioLabCppClient-develop
 This code provides a way to read EMG signals from the OT BioLab software. It is available under https://github.com/RehabEngGroup/OTBioLabCppClient.
 
-2.4 gnuplot (optional)
+2.4 libsvm
+This library provides an easy-to-use way to calculate Support Vector Machines. This library is used to do the classification task. See http://www.csie.ntu.edu.tw/~cjlin/libsvm/ for more information.
+
+2.5 gnuplot (optional)
 Gnuplot is an open source library for plotting. This library is optional. When a path to gnuplot is provided, the results will be plotted, otherwise the plotting will be ignored. See http://www.gnuplot.info/ for more information.
 	
 
