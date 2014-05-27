@@ -4,7 +4,6 @@
 #include <map>
 #include <string>
 #include <vector>
-#include "MuscleMotion.h"
 #include "SupportVectorMachine.h"
 #include "Vector.h"
 
@@ -18,7 +17,7 @@
 class MultiClassSVM {
 private:
 	std::vector<SupportVectorMachine*> svms;
-	std::map<MuscleMotion, std::vector<math::Vector>> trainingsData;
+	std::map<Motion::Muscle, std::vector<math::Vector>> trainingsData;
 
 public:
 	~MultiClassSVM();
@@ -29,7 +28,7 @@ public:
 	  * variogram results for every MuscleMotion, this will improve
 	  * the accuracy of the results.
 	  */
-	void train(const MuscleMotion& motion, const std::vector<math::Vector>& values);
+	void train(const Motion::Muscle& motion, const std::vector<math::Vector>& values);
 
 
 	/**
@@ -45,15 +44,7 @@ public:
 	  * a MuscleMotion. When the movement can not be classified, the
 	  * MuscleMotion UNKNOWN will be returned.
 	  */
-	MuscleMotion classify(std::vector<math::Vector>& values);
-
-	/**
-	  * Stores the calculated Multiclass Support Vector Machine in the
-	  * file system. So you don't have to train the Multiclass SVM in
-	  * every single run.
-	  * Throws: Exception::USER_NAME_NOT_AVAILABLE
-	  */
-	void store(std::string userName);
+	Motion::Muscle classify(std::vector<math::Vector>& values);
 
 	/**
 	  * Loads a precalculated Multiclass Support Vector Machine from
@@ -61,7 +52,7 @@ public:
 	  * again with new values.
 	  * Throws: Exception::USERNAME_NOT_FOUND
 	  */
-	void train(std::string userName);
+	void train(const std::string& folder);
 };
 
 #endif

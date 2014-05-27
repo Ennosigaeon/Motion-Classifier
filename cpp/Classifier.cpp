@@ -6,10 +6,12 @@
 #include <boost/log/expressions.hpp>
 #include <boost/log/trivial.hpp>
 #include "../h/Classifier.h"
+#include "../h/Exception.h"
 
-Classifier::Classifier(EMGProvider* emgProvider) {
+Classifier::Classifier(EMGProvider* emgProvider, MultiClassSVM *svm) {
 	config = AppConfig::getInstance();
 	Classifier::emgProvider = emgProvider;
+	Classifier::svm = svm;
 	BOOST_LOG_TRIVIAL(info) << "Classifier created";
 }
 
@@ -18,14 +20,10 @@ Classifier::~Classifier() {
 	BOOST_LOG_TRIVIAL(info) << "Classifier destroyed";
 }
 
-void Classifier::train(const MuscleMotion& motion, std::vector<math::Vector>& data) {
-	svm.train(motion, data);
-}
-
-MuscleMotion Classifier::getMuscleMotion() {
-	MuscleMotion *motion = lastMuscleMotion.pop();
+Motion::Muscle Classifier::getMuscleMotion() {
+	Motion::Muscle *motion = lastMuscleMotion.pop();
 	if (motion == NULL)
-		return MuscleMotion::UNKNOWN;
+		return Motion::Muscle::UNKNOWN;
 	else
 		return *motion;
 }
@@ -46,7 +44,7 @@ void Classifier::run() {
 			std::vector<math::Vector> values = variogram.calculate(rms);
 
 			BOOST_LOG_TRIVIAL(debug) << "classifying values";
-			MuscleMotion motion = svm.classify(values);
+			Motion::Muscle motion = svm->classify(values);
 
 			//plots the calculated values
 			plot(rms, values);
@@ -54,7 +52,7 @@ void Classifier::run() {
 			//overrides the last stored value
 			lastMuscleMotion.push(&motion);
 			t = clock() - t;
-			BOOST_LOG_TRIVIAL(info) << "classified new Interval in " << ((double)t) / CLOCKS_PER_SEC * 1000 << " ms";
+			BOOST_LOG_TRIVIAL(info) << "classified new Interval in " << ((double)t) / CLOCKS_PER_SEC * 1000 << " ms as " << motion;
 
 			delete interval;
 		}
@@ -72,7 +70,7 @@ void Classifier::run() {
 
 void Classifier::send(const Signal& signal) {
 	if (signal == Signal::START) {
-		if (status == Status::NEW) {
+		if (status == Status::NEW)  {
 			//start EMGProvider
 			emgProvider->send(Signal::START);
 
@@ -110,7 +108,7 @@ void Classifier::plot(const Sample& sample, std::vector<math::Vector>& values) {
 	if (config->isPlotRMS()) {
 		std::ofstream sampleStream;
 		sampleStream.open(std::string("C:/Tmp/plot/") + boost::lexical_cast<std::string>(nr)+"-rms.txt");
-		sample.print(sampleStream);
+		sampleStream << sample;
 		sampleStream.close();
 	}
 	if (config->isPlotVariogramGraph()) {

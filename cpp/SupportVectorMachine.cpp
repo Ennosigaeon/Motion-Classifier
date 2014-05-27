@@ -13,13 +13,13 @@ SupportVectorMachine::~SupportVectorMachine() {
 	delete svm;
 }
 
-void SupportVectorMachine::addTrainData(const MuscleMotion& motion, std::vector<math::Vector>& vector) {
-	if (classA == MuscleMotion::UNKNOWN) {
+void SupportVectorMachine::addTrainData(const Motion::Muscle& motion, std::vector<math::Vector>& vector) {
+	if (classA == Motion::Muscle::UNKNOWN) {
 		classA = motion;
 		valuesA.insert(valuesA.end(), vector.begin(), vector.end());
 	}
 	else {
-		if (classB == MuscleMotion::UNKNOWN) {
+		if (classB == Motion::Muscle::UNKNOWN) {
 			classB = motion;
 			valuesB.insert(valuesB.end(), vector.begin(), vector.end());
 		}
@@ -27,7 +27,7 @@ void SupportVectorMachine::addTrainData(const MuscleMotion& motion, std::vector<
 }
 
 void SupportVectorMachine::calculateSVM() {
-	if (classA == MuscleMotion::UNKNOWN || classB == MuscleMotion::UNKNOWN || valuesA.empty() || valuesB.empty())
+	if (classA == Motion::Muscle::UNKNOWN || classB == Motion::Muscle::UNKNOWN || valuesA.empty() || valuesB.empty())
 		throw Exception::SVM_MISSING_TRAININGS_DATA;
 	BOOST_LOG_TRIVIAL(debug) << "Training SVM for MuscleMotions " << classA << " (" << valuesA.size() << " values) and "
 		<< classB << " (" << valuesA.size() << " values).";
@@ -56,10 +56,10 @@ void SupportVectorMachine::calculateSVM() {
 
 	//creates the model for the svm
 	svm = svm_train(&problem, param);
-	BOOST_LOG_TRIVIAL(trace) << "Trained SVM for " << classA << ", " << classB;
+	BOOST_LOG_TRIVIAL(trace) << "Trained SVM for " << classA << " & " << classB;
 }
 
-MuscleMotion SupportVectorMachine::classify(std::vector<math::Vector>& vector) {
+Motion::Muscle SupportVectorMachine::classify(std::vector<math::Vector>& vector) {
 	int matchA = 0;
 	int matchB = 0;
 
@@ -79,7 +79,7 @@ MuscleMotion SupportVectorMachine::classify(std::vector<math::Vector>& vector) {
 		return classB;
 	}
 	BOOST_LOG_TRIVIAL(trace) << "unable to assign variogram";
-	return MuscleMotion::UNKNOWN;
+	return Motion::Muscle::UNKNOWN;
 }
 
 

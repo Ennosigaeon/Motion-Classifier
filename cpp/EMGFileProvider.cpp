@@ -50,6 +50,7 @@ void EMGFileProvider::send(const Signal& signal) {
 
 //TODO: kontrollieren, ob die Werte in der richtigen Reihenfolge eingelesen werden.
 void EMGFileProvider::run() {
+	long number = 0;
 	while (true) {
 		if (EMGProvider::status == Status::FINISHED) {
 			BOOST_LOG_TRIVIAL(info) << "shuting down EMGFileProvider worker";
@@ -69,36 +70,17 @@ void EMGFileProvider::run() {
 				lastInterval = new Interval();
 
 			//sensor array of 8 rows and 24 columns, in total 192 values
-			Sample s{ nrRows, nrColumns };
-			double x = 0, y = 0;
-			while (x < s.getNrColumns()) {
-				math::Vector entry(x, y, 0);
-				std::string tmp;
-				fileIn >> tmp;
-
-				//convert string into number
-				std::istringstream converter(tmp);
-				double number;
-				if (!(converter >> number))
-					entry.setZ(NAN);
-				else
-					entry.setZ(number);
-				s.addEntry(entry);
-				y++;
-				if (y == s.getNrRows()) {
-					y = 0;
-					x++;
-				}
-
-				//stop reading when eof is reached
-				if (fileIn.eof()) {
-					BOOST_LOG_TRIVIAL(warning) << "EMGFileProvider reached end of file. No more intervals will be read";
-					status = Status::FINISHED;
-					break;
-				}
+			Sample s{ nrRows, nrColumns, number };
+			try {
+				fileIn >> s;
+				lastInterval->addSample(s);
 			}
-
-			lastInterval->addSample(s);
+			catch (int ex) {
+				BOOST_LOG_TRIVIAL(warning) << "EMGFileProvider reached end of file. No more intervals will be read";
+				status = Status::FINISHED;
+			}
+			number++;
+			
 			if (lastInterval->isFull()) {
 				BOOST_LOG_TRIVIAL(debug) << "created new Interval";
 				EMGProvider::addInterval(lastInterval);

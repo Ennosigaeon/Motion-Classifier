@@ -3,15 +3,16 @@ sample.rows = 8
 sample.columns = 24
 interval.nrSamples = 150
 gnuPlot.path = "C:/Program Files (x86)/gnuplot/bin/gnuplot.exe"
-plot.rms = 1
-plot.variogramSurface = 1
-plot.variogramGraph = 1
+plot.rms = 0
+plot.variogramSurface = 0
+plot.variogramGraph = 0
 variogram.nrBins = 20
 blockingQueue.maxWaitTime = 5000
+trainer.baseDir = C:\Tmp\Trainer\
 
 #properties for the logger
 #allowed values are 0 - 5 with 0 == trace and 5 == fatal
-logger.level = 2
+logger.level = 1
 logger.file = log/OnlineClassificator.log
 
 #properties for libsvm

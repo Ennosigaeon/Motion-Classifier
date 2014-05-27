@@ -30,9 +30,9 @@ namespace math {
 		static math::Vector getVector(const math::Angle& angle);
 
 		/**
-		  * Calculates the distance between the two given Vectors. If you want to you can limit
-		  * the number of dimensions that are considured for the distance calculation. The
-		  * default number of dimensions is three.
+		  * Calculates the square distance between the two given Vectors. If you want to you
+		  * can limit the number of dimensions that are considured for the distance calculation.
+		  * The default number of dimensions is three.
 		  */
 		static double distance(const Vector& vector1, const Vector& vector2, int nrDimensions = 3);
 

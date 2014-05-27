@@ -27,6 +27,7 @@ private:
 	int sampleColumns;
 	int variogramNrBins;
 	int blockingQueueMaxWaitTime;
+	std::string trainerBaseDir;
 	int loggerLevel;
 	std::string loggerFile;
 	svm_parameter *param;
@@ -83,6 +84,7 @@ public:
 	int getSampleColumns() const;
 	int getVariogramNrBins() const;
 	int getBlockingQueueMaxWaitTime() const;
+	std::string getTrainerBaseDir() const;
 	int getLoggerLevel() const;
 	std::string getLoggerFile() const;
 	bool isPlotRMS() const;

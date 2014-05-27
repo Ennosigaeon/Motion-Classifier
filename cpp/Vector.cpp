@@ -29,12 +29,11 @@ math::Vector math::Vector::getVector(const Angle& angle) {
 	}
 }
 
-//TODO: remove sqrt for better performance
 double math::Vector::distance(const math::Vector& vector1, const math::Vector& vector2, int nrDimensions) {
 	double value = 0;
 	for (int i = 0; i < nrDimensions; i++)
 		value += pow(vector1.get(i) - vector2.get(i), 2);
-	return sqrt(value);
+	return value;
 }
 
 double math::Vector::get(const int index) const {

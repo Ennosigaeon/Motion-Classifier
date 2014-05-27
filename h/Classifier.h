@@ -10,7 +10,6 @@
 #include "Communication.h"
 #include "EMGProvider.h"
 #include "MultiClassSVM.h"
-#include "MuscleMotion.h"
 #include "Variogram.h"
 
 /**
@@ -27,8 +26,8 @@ private:
 	void run();
 	void plot(const Sample& sample, std::vector<math::Vector>& values);
 
-	BlockingQueue<MuscleMotion*> lastMuscleMotion{ 1, AppConfig::getInstance()->getBlockingQueueMaxWaitTime() };
-	MultiClassSVM svm;
+	BlockingQueue<Motion::Muscle*> lastMuscleMotion{ 1, AppConfig::getInstance()->getBlockingQueueMaxWaitTime() };
+	MultiClassSVM *svm;
 	Variogram variogram;
 	EMGProvider *emgProvider;
 	AppConfig *config;
@@ -38,9 +37,10 @@ private:
 public:
 
 	/**
-	  * Creates a new Classifier with the given EMGProvider.
+	  * Creates a new Classifier with the given EMGProvider and
+	  * Multiclass Support Vector Machine.
 	  */
-	Classifier(EMGProvider *emgProvider);
+	Classifier(EMGProvider *emgProvider, MultiClassSVM *svm);
 
 	/**
 	  * Stops the underlying worker Thread and the EMGProvider.
@@ -53,19 +53,12 @@ public:
 	  * available, the calling Thread will be blocked until an new
 	  * MuscleMotion is available.
 	  */
-	MuscleMotion getMuscleMotion();
+	Motion::Muscle getMuscleMotion();
 
 	/**
 	  * Sends the given signal to the underlying worker Thread.
 	  */
 	void send(const Signal& signal);
-
-	/**
-	  * Trains the Classifier with the given data for the given motion.
-	  * You have to provide data for every MuscleMotion. Otherwise the
-	  * classification is not reliable.
-	  */
-	void train(const MuscleMotion& motion, std::vector<math::Vector>& data);
 };
 
 #endif

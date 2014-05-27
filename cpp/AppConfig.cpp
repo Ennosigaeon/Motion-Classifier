@@ -32,6 +32,7 @@ AppConfig::AppConfig() {
 	plotRMS = false;
 	plotVariogramSurface = false;
 	plotVariogramGraph = false;
+	trainerBaseDir = "";
 
 	param = new svm_parameter;
 	//These default values are copied from svm_train.cpp from libsvm-3.18
@@ -123,6 +124,8 @@ void AppConfig::load(const std::string& path) {
 				instance->variogramNrBins = boost::lexical_cast<int>(values.at(1));
 			if (values.at(0) == "blockingQueue.maxWaitTime")
 				instance->blockingQueueMaxWaitTime = boost::lexical_cast<int>(values.at(1));
+			if (values.at(0) == "trainer.baseDir")
+				instance->trainerBaseDir = values.at(1);
 			if (values.at(0) == "logger.level")
 				instance->loggerLevel = boost::lexical_cast<int>(values.at(1));
 			if (values.at(0) == "logger.file")
@@ -220,6 +223,10 @@ bool AppConfig::isPlotVariogramGraph() const {
 
 int AppConfig::getBlockingQueueMaxWaitTime() const {
 	return blockingQueueMaxWaitTime;
+}
+
+std::string AppConfig::getTrainerBaseDir() const {
+	return trainerBaseDir;
 }
 
 svm_parameter* AppConfig::getSVMParameter() const {

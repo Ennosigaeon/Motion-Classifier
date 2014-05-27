@@ -5,10 +5,9 @@
 #include "../h/Classifier.h"
 #include "../h/Exception.h"
 #include "../h/EMGFileProvider.h"
-#include "../h/Plotter.h"
-
 #include "../h/MultiClassSVM.h"
-
+#include "../h/Plotter.h"
+#include "../h/Trainer.h"
 
 /**
   * It is necessary to pass an argument with the path to the configuration file.
@@ -32,35 +31,9 @@ int main(int argc, char *argv[]) {
 		return EXIT_FAILURE;
 	}
 
-	MultiClassSVM svm;
-	{
-		for (int i = MuscleMotion::REST_POSITION; i < 4; i++) {
-			std::vector<math::Vector> vector;
-			for (int j = 0; j < 5; j++)
-				vector.push_back(math::Vector(j, i * 10 + j));
-			svm.train(static_cast<MuscleMotion>(i), vector);
-		}
-	}
-	try {
-		svm.calculateSVMs();
-	}
-	catch (int ex) {
-		if (ex == Exception::SVM_MISSING_TRAININGS_DATA)
-			BOOST_LOG_TRIVIAL(fatal) << "unable to calculate SVMs. Missing trainings data.";
-		else
-			throw ex;
-	}
+	std::string path = "c:\\Users\\Marc\\Dropbox\\Informatik\\Studium\\6. Semester\\Bachelor Thesis\\MARC\\data\\data8_AN-f.txt";
 
-	for (int i = MuscleMotion::REST_POSITION; i < 4; i++) {
-		std::vector<math::Vector> list;
-		math::Vector vector(i, i * 10);
-		list.push_back(vector);
-		MuscleMotion result = svm.classify(list);
-		std::cout << static_cast<MuscleMotion>(i) << " -> " << result << std::endl;
-	}
-
-
-	std::string path = "c:\\Users\\Marc\\Dropbox\\Informatik\\Studium\\6. Semester\\Bachelor Thesis\\MARC\\data\\data8_AN";
+	
 
 	//It takes very much time to delete EMGProvider and/or Classifier.
 	//Therefor I added this block, so that both are destroyed before the end
@@ -68,9 +41,14 @@ int main(int argc, char *argv[]) {
 	{
 		//TODO: This is just dummy code. Add real application here
 		EMGFileProvider emgProvider{ path };
-		Classifier classifier(&emgProvider);
+		MultiClassSVM svm;
+
+		Trainer trainer(&emgProvider, &svm);
+		trainer.train();
+
+		Classifier classifier(&emgProvider, &svm);
 		classifier.send(Signal::START);
-		Sleep(6000);
+		Sleep(60000);
 		classifier.send(Signal::SHUTDOWN);
 		//TODO: Shutdown takes way more time, then it is supposed to do
 	}
@@ -84,3 +62,30 @@ int main(int argc, char *argv[]) {
 	std::cin.get();
 	return EXIT_SUCCESS;
 }
+
+
+
+//std::string printMotion(const Motion::MuscleMotion& motion) {
+//	switch (motion) {
+//	case Motion::MuscleMotion::REST_POSITION:
+//		return "REST_POSITION";
+//	case Motion::MuscleMotion::FORARM_PRONATION:
+//		return "FORARM_PRONATION";
+//	case Motion::MuscleMotion::FORARM_SUPINATION:
+//		return "FORARM_SUPINATION";
+//	case Motion::MuscleMotion::WRIST_FLEXION:
+//		return "WRIST_FLEXION";
+//	case Motion::MuscleMotion::WRIST_EXTENSION:
+//		return "WRIST_EXTENSION";
+//	case Motion::MuscleMotion::HAND_OPEN:
+//		return "HAND_OPEN";
+//	case Motion::MuscleMotion::HAND_CLOSE:
+//		return "HAND_CLOSE";
+//	case Motion::MuscleMotion::RADIAL_DEVIATION:
+//		return "RADIAL_DEVIATION";
+//	case Motion::MuscleMotion::ULNAR_DEVIATION:
+//		return "ULNAR_DEVIATION";
+//	default:
+//		return "UNKNOWN";
+//	}
+//}
