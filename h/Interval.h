@@ -15,11 +15,13 @@
   */
 class Interval {
 private:
-	std::vector<Sample> samples;
+	std::vector<Sample*> samples;
+	Sample *rms = NULL;
 	int MAX_SIZE;
 
 public:
 	Interval();
+	~Interval();
 
 	/**
 	  * Tests whether this Interval is full (maximum number of samples stored) or not.
@@ -28,19 +30,19 @@ public:
 
 	/**
 	  * Calculates the Root Mean Square (RMS) over all stored samples. The result
-	  * is not cached.
+	  * is not cached. Returns NULL when no Samples are stored in this Interval.
 	  */
-	Sample getRMSSample();
+	Sample* getRMSSample();
 
 	/**
 	  * Returns all stored Samples.
 	  */
-	std::vector<Sample> getSamples() const;
+	std::vector<Sample*> getSamples() const;
 
 	/**
 	  * Adds a new Sample to this Interval.
 	  */
-	void addSample(const Sample& sample);
+	void addSample(Sample *sample);
 };
 
 #endif

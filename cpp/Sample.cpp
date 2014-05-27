@@ -6,15 +6,15 @@ Sample::Sample(int nrRows, int nrColumns, long nr) {
 	Sample::nrRows = nrRows;
 	Sample::nrColumns = nrColumns;
 	Sample::nr = nr;
-	entries.reserve(nrRows * nrColumns);
+	entries = new math::Vector[nrRows * nrColumns];
 }
 
-void Sample::addEntry(const math::Vector& entry) {
-	entries.push_back(entry);
+Sample::~Sample() {
+	delete[] entries;
 }
 
-std::vector<math::Vector>* Sample::getEntries() {
-	return &entries;
+math::Vector* Sample::getEntries() {
+	return entries;
 }
 
 int Sample::getNrRows() const {
@@ -30,8 +30,10 @@ long Sample::getNumber() const {
 }
 
 std::ostream& operator<<(std::ostream& stream, const Sample& sample) {
-	for (std::vector<math::Vector>::const_iterator it = sample.entries.begin(); it != sample.entries.end(); it++)
-		stream << it->getZ() << " ";
+	int size = sample.getNrColumns() * sample.getNrRows();
+	math::Vector *entries = sample.entries;
+	for (int i = 0; i < size; i++)
+		stream << entries[i].getZ() << " ";
 	stream << std::endl;
 	return stream;
 }
@@ -45,15 +47,17 @@ std::istream& operator>> (std::istream& stream, Sample& sample) {
 	if (tokens.size() != sample.getNrColumns() * sample.getNrRows())
 		throw Exception::END_OF_FILE;
 
-	int x = 0, y = 0;
-	for (std::vector<double>::iterator it = tokens.begin(); it != tokens.end(); it++) {
+	int x = 0, y = 0, i = 0;
+	math::Vector *entries = sample.getEntries();
+	for (std::vector<double>::iterator it = tokens.begin(); it != tokens.end(); it++, i++) {
 		math::Vector vec(x, y, *it);
-		sample.addEntry(vec);
+		entries[i] = vec;
 		y++;
 		if (y == sample.getNrRows()) {
 			y = 0;
 			x++;
 		}
 	}
+
 	return stream;
 }

@@ -38,7 +38,7 @@ void Classifier::run() {
 
 			clock_t t = clock();
 			BOOST_LOG_TRIVIAL(debug) << "calculating RMS sample";
-			Sample rms = interval->getRMSSample();
+			Sample *rms = interval->getRMSSample();
 
 			BOOST_LOG_TRIVIAL(debug) << "calculation Variogram";
 			std::vector<math::Vector> values = variogram.calculate(rms);
@@ -104,11 +104,11 @@ void Classifier::send(const Signal& signal) {
 }
 
 //TODO: no real-time plotting. Change this!
-void Classifier::plot(const Sample& sample, std::vector<math::Vector>& values) {
+void Classifier::plot(Sample* sample, std::vector<math::Vector>& values) {
 	if (config->isPlotRMS()) {
 		std::ofstream sampleStream;
 		sampleStream.open(std::string("C:/Tmp/plot/") + boost::lexical_cast<std::string>(nr)+"-rms.txt");
-		sampleStream << sample;
+		sampleStream << *sample;
 		sampleStream.close();
 	}
 	if (config->isPlotVariogramGraph()) {

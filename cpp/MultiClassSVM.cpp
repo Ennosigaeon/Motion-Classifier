@@ -60,7 +60,7 @@ void MultiClassSVM::train(const std::string& folder) {
 			for (int n = 0; n < Trainer::trainingsSize; n++) {
 				Sample s(config->getSampleRows(), config->getSampleColumns());
 				in >> s;
-				std::vector<math::Vector> r = variogram.calculate(s);
+				std::vector<math::Vector> r = variogram.calculate(&s);
 				result.insert(result.end(), r.begin(), r.end());
 			}
 		}

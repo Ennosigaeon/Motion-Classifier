@@ -44,7 +44,7 @@ int main(int argc, char *argv[]) {
 		MultiClassSVM svm;
 
 		Trainer trainer(&emgProvider, &svm);
-		trainer.train();
+		//trainer.train();
 
 		Classifier classifier(&emgProvider, &svm);
 		classifier.send(Signal::START);

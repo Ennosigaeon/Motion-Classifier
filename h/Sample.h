@@ -10,7 +10,7 @@
   */
 class Sample {
 private:
-	std::vector<math::Vector> entries;
+	math::Vector *entries;
 	int nrRows;
 	int nrColumns;
 	long nr;
@@ -23,6 +23,8 @@ public:
 	  * number. It is like an ID for the Sample.	
 	  */
 	Sample(int nrRows = 0, int nrColumns = 0, long nr = -1);
+
+	~Sample();
 
 	/**
 	  * Returns the number of rows in this Sample.
@@ -42,12 +44,7 @@ public:
 	/**
 	  * Returns all entries stored in this Sample.
 	  */
-	std::vector<math::Vector>* getEntries();
-
-	/**
-	  * Adds a new Entry to this Sample.
-	  */
-	void addEntry(const math::Vector& entry);
+	math::Vector* getEntries();
 
 	//operator
 	friend std::ostream& operator<<(std::ostream& stream, const Sample& sample);

@@ -24,7 +24,7 @@ private:
 	std::mutex mutex;
 	std::condition_variable condition;
 	void run();
-	void plot(const Sample& sample, std::vector<math::Vector>& values);
+	void plot(Sample* sample, std::vector<math::Vector>& values);
 
 	BlockingQueue<Motion::Muscle*> lastMuscleMotion{ 1, AppConfig::getInstance()->getBlockingQueueMaxWaitTime() };
 	MultiClassSVM *svm;

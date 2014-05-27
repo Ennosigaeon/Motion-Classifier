@@ -11,24 +11,23 @@ Variogram::Variogram() {
 	nrBins = AppConfig::getInstance()->getVariogramNrBins();
 }
 
-std::vector<math::Vector> Variogram::calculate(Sample& sample) const {
+std::vector<math::Vector> Variogram::calculate(Sample* sample) const {
 	std::vector<math::Vector> result;
 
-	int maxX = sample.getNrColumns() / 2;
-	int maxY = sample.getNrRows() / 2;
+	int maxX = sample->getNrColumns() / 2;
+	int maxY = sample->getNrRows() / 2;
 	//distance is calculated without sqrt, therefore precision has to be squared
 	double precision = pow(std::max(maxX, maxY) * 1.0 / nrBins, 2);
 	clock_t t = clock();
 
-	//TODO: math::Angle::DEGREE_150
-	for (int i = math::Angle::DEGREE_0; i <= math::Angle::DEGREE_0; i++) {
+	for (int i = math::Angle::DEGREE_0; i <= math::Angle::DEGREE_150; i++) {
 		math::Angle angle = static_cast<math::Angle>(i);
 		math::Vector h = math::Vector::getVector(angle);
 		int count = 0;
 
 		while (std::abs(h.get(0)) <= maxX && std::abs(h.get(1)) <= maxY) {
 			std::map<double, double> pairs;
-			findPairs(&pairs, sample.getEntries(), h, precision);
+			findPairs(&pairs, sample, h, precision);
 			count += pairs.size();
 
 			BOOST_LOG_TRIVIAL(trace) << "found " << pairs.size() << " pairs for the offset " << h;
@@ -52,25 +51,29 @@ std::vector<math::Vector> Variogram::calculate(Sample& sample) const {
 }
 
 //TODO: this is by far the slowest part of the application
-void Variogram::findPairs(std::map<double, double> *result, std::vector<math::Vector>* values, const math::Vector& h, const double precision) const {
-	for (std::vector<math::Vector>::iterator it = values->begin(); it != values->end(); it++) {
-		if (it->getGroup() != -1)
+void Variogram::findPairs(std::map<double, double> *result, Sample* sample, const math::Vector& h, const double precision) const {
+	int size = sample->getNrColumns() * sample->getNrRows();
+	math::Vector *entries = sample->getEntries();
+	for (int i = 0; i < size; i++) {
+		if (entries[i].getGroup() != -1 || entries[i].getZ() == NAN)
 			continue;
-		math::Vector point(it->getX() + h.getX(), it->getY() + h.getY(), 0);
-		for (std::vector<math::Vector>::iterator it2 = values->begin(); it2 != values->end(); it2++) {
+		math::Vector point(entries[i].getX() + h.getX(), entries[i].getY() + h.getY(), 0);
+
+		for (int j = 0; j < size; j++) {
 			//Same vector
-			if (it->getX() == it2->getX() && it->getY() == it2->getY())
+			if (entries[i].getX() == entries[j].getX() && entries[i].getY() == entries[j].getY())
 				continue;
-			//Entry is not added yet, Entry contains a valid value and distance is small enough
-			if (it2->getGroup() == -1 && it2->getZ() != NAN &&
-				math::Vector::distance(*it2, point, 2) < precision) {
-				it2->setGroup(0);
-				it->setGroup(0);
-				result->insert(std::make_pair(it->getZ(), it2->getZ()));
+			if (entries[j].getGroup() == -1 && entries[j].getZ() != NAN &&
+				math::Vector::distance(entries[j], point, 2) < precision) {
+				entries[i].setGroup(0);
+				entries[j].setGroup(0);
+				//TODO: calculate value here
+				result->insert(std::make_pair(entries[i].getZ(),entries[j].getZ()));
 				break;
 			}
 		}
 	}
-	for (std::vector<math::Vector>::iterator it = values->begin(); it != values->end(); it++)
-		it->setGroup(-1);
+	//reset for next run
+	for (int i = 0; i < size; i++)
+		entries[i].setGroup(-1);
 }

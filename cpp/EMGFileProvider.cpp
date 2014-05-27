@@ -70,9 +70,9 @@ void EMGFileProvider::run() {
 				lastInterval = new Interval();
 
 			//sensor array of 8 rows and 24 columns, in total 192 values
-			Sample s{ nrRows, nrColumns, number };
+			Sample *s = new Sample{ nrRows, nrColumns, number };
 			try {
-				fileIn >> s;
+				fileIn >> *s;
 				lastInterval->addSample(s);
 			}
 			catch (int ex) {
