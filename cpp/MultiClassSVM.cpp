@@ -3,6 +3,7 @@
 #include <boost/filesystem.hpp>
 #include <boost/log/expressions.hpp>
 #include <boost/log/trivial.hpp>
+#include "../h/Exception.h"
 #include "../h/MultiClassSVM.h"
 #include "../h/Trainer.h"
 #include "../h/Variogram.h"
@@ -13,6 +14,9 @@ MultiClassSVM::~MultiClassSVM() {
 }
 
 void MultiClassSVM::train(const std::string& folder) {
+	if (!boost::filesystem::is_directory(boost::filesystem::path(folder)))
+		throw Exception::UNABLE_TO_OPEN_FILE;
+
 	AppConfig *config = AppConfig::getInstance();
 	Variogram variogram;
 	BOOST_LOG_TRIVIAL(info) << "loading trainings data from " << folder;

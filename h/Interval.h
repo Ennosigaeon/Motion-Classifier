@@ -20,6 +20,9 @@ private:
 	int MAX_SIZE;
 
 public:
+	/**
+	  * Creates a new empty Interval.
+	  */
 	Interval();
 	~Interval();
 
@@ -30,7 +33,7 @@ public:
 
 	/**
 	  * Calculates the Root Mean Square (RMS) over all stored samples. The result
-	  * is not cached. Returns NULL when no Samples are stored in this Interval.
+	  * is cached. Returns NULL when no Samples are stored in this Interval.
 	  */
 	Sample* getRMSSample();
 
@@ -40,7 +43,8 @@ public:
 	std::vector<Sample*> getSamples() const;
 
 	/**
-	  * Adds a new Sample to this Interval.
+	  * Adds a new Sample to this Interval. It is crucial that all Samples
+	  * in an Interval have the same number of rows and columns.
 	  */
 	void addSample(Sample *sample);
 };

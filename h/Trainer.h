@@ -1,4 +1,3 @@
-
 #ifndef TRAINER_H
 #define TRAINER_H
 
@@ -9,7 +8,6 @@
 
 class Trainer {
 private:
-	
 	std::string folder;
 	EMGProvider *emgProvider;
 	MultiClassSVM *svm;

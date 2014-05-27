@@ -21,11 +21,33 @@ private:
 	svm_node* createNode(math::Vector* vector);
 
 public:
+
+	/**
+	  * Creates a new empty Support Vector Machine. This class is a wrapper
+	  * for the libsvm Support Vector Machine.
+	  */
 	SupportVectorMachine();
 	~SupportVectorMachine();
 
+	/**
+	  * Adds the collection of math::Vectors for the given MuscleMotion to
+	  * the libsvm Support Vector Machine. The values are converted into the
+	  * correct data format.
+	  */
 	void addTrainData(const Motion::Muscle& motion, std::vector<math::Vector>& values);
+
+	/**
+	  * Calculates the Support Vector Machine from the given trainings data.
+	  * You have to provide trainings data for both classes before calling this
+	  * member function.
+	  * Throws: Exception::SVM_MISSING_TRAININGS_DATA
+	  */
 	void calculateSVM();
+
+	/**
+	  * Classifies the given collection of variogram values to one of 
+	  * the both trained classes.
+	  */
 	Motion::Muscle classify(std::vector<math::Vector>& values);
 };
 

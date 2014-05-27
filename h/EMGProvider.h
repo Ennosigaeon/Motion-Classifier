@@ -17,7 +17,7 @@
   */
 class EMGProvider {
 private:
-	//Logs a warning when too much Intervals are cached.
+	//Logs a warning when bufferWarnSize much Intervals are cached.
 	static int bufferWarnSize;
 
 protected:
@@ -29,6 +29,10 @@ protected:
 	void addInterval(Interval* const interval);
 
 public:
+
+	/**
+	  * Deletes all cached Intervals.
+	  */
 	~EMGProvider();
 
 	/**

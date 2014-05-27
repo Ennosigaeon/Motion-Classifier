@@ -2,8 +2,7 @@
 Known Issues - Online Classifier
 
 1. 	Unsafe string copy
-	Microsoft implemented an own mechanism to check whether std::string copies are correctly done (no buffer overflow,...). The boost library uses other mechanisms to copy std::strings, so the
-	msvc compiler throws a warning. To disable this warning add the flag -D_SCL_SECURE_NO_WARNINGS under Properties -> Configuration -> C/C++ -> Command Line -> additional options (Microsoft Visual Studio 2013).
+	Microsoft implemented an own mechanism to check whether std::string copies are correctly done (no buffer overflow,...). The boost library uses other mechanisms to copy std::strings, so the msvc compiler throws a warning. To disable this warning add the flag -D_SCL_SECURE_NO_WARNINGS under Properties -> Configuration -> C/C++ -> Command Line -> additional options (Microsoft Visual Studio 2013).
 	A more detailed description is available under http://stackoverflow.com/questions/12270224/xutility2227-warning-c4996-std-copy-impl
 	
 2.	Shutdown takes a lot of time

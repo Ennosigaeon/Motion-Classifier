@@ -50,6 +50,11 @@ public:
 	friend std::ostream& operator<<(std::ostream& stream, const Sample& sample);
 };
 
+/**
+  * Loads a sample from the given stream. All values for the sample has to be in
+  * a single line. The values have to be seperated by a blank. The values are
+  * interpreted as columns.
+  */
 std::istream& operator>>(std::istream& stream, Sample& sample);
 
 #endif

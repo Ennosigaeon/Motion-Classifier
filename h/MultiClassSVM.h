@@ -50,7 +50,7 @@ public:
 	  * Loads a precalculated Multiclass Support Vector Machine from
 	  * the file system. You don't have to train the Multiclass SVM
 	  * again with new values.
-	  * Throws: Exception::USERNAME_NOT_FOUND
+	  * Throws: Exception:UNABLE_TO_OPEN_FILE
 	  */
 	void train(const std::string& folder);
 };

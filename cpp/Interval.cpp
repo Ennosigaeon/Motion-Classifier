@@ -34,18 +34,21 @@ Sample* Interval::getRMSSample() {
 	BOOST_LOG_TRIVIAL(trace) << "calculating RMS Sample";
 	if (samples.empty())
 		return NULL;
+	if (rms != NULL)
+		return rms;
 
 	clock_t t = clock();
 	Sample *start = samples.at(0);
 	rms = new Sample{ start->getNrRows(), start->getNrColumns() };
+	int size = rms->getNrRows() * rms->getNrColumns();
 
 	//creates both arrays and inititalizes them with 0
-	double *value = new double[rms->getNrRows() * rms->getNrColumns()]();
-	int *count = new int[rms->getNrRows() * rms->getNrColumns()]();
+	double *value = new double[size]();
+	int *count = new int[size]();
 
 	for (std::vector<Sample*>::iterator it = samples.begin(); it != samples.end(); it++) {
 		math::Vector* entries = (*it)->getEntries();
-		for (int i = 0; i < (*it)->getNrColumns() * (*it)->getNrRows(); i++) {
+		for (int i = 0; i < size; i++) {
 			double n = entries[i].getZ();
 			if (n != NAN) {
 				value[i] += n * n;
@@ -55,7 +58,7 @@ Sample* Interval::getRMSSample() {
 	}
 	math::Vector* entries = start->getEntries();
 	math::Vector* resultEntries = rms->getEntries();
-	for (int i = 0; i < rms->getNrColumns() * rms->getNrRows(); i++)
+	for (int i = 0; i < size; i++)
 		resultEntries[i] = math::Vector(entries[i].getX(), entries[i].getY(), sqrt(value[i] / count[i]));
 
 	delete[] value;
