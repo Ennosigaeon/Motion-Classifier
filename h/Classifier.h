@@ -33,6 +33,7 @@ private:
 	AppConfig *config;
 	Status status = NEW;
 	int nr = 0;
+	long time = 0;
 
 public:
 

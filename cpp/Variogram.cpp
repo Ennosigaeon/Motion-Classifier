@@ -26,18 +26,14 @@ std::vector<math::Vector> Variogram::calculate(Sample* sample) const {
 		int count = 0;
 
 		while (std::abs(h.get(0)) <= maxX && std::abs(h.get(1)) <= maxY) {
-			std::map<double, double> pairs;
-			findPairs(&pairs, sample, h, precision);
-			count += pairs.size();
+			int c = 0;
+			double value = calc(sample, h, precision, &c);
+			count += c;
 
-			BOOST_LOG_TRIVIAL(trace) << "found " << pairs.size() << " pairs for the offset " << h;
-			if (!pairs.empty()) {
-				double value = 0;
-				for (std::map<double, double>::iterator it = pairs.begin(); it != pairs.end(); it++)
-					value += pow(it->first - it->second, 2);
+			if (value != NAN) {
 				math::Vector tmp = h;
 				tmp.setGroup(angle);
-				tmp.setZ(value / (2 * pairs.size()));
+				tmp.setZ(value);
 				result.push_back(tmp);
 			}
 			h.setLength(h.getLength() + 1);
@@ -51,7 +47,10 @@ std::vector<math::Vector> Variogram::calculate(Sample* sample) const {
 }
 
 //TODO: this is by far the slowest part of the application
-void Variogram::findPairs(std::map<double, double> *result, Sample* sample, const math::Vector& h, const double precision) const {
+//Searches for pairs with the given offset h and calculates the variogram.
+double Variogram::calc(Sample* sample, const math::Vector& h, const double precision, int *count) const {
+	double result = 0;
+
 	int size = sample->getNrColumns() * sample->getNrRows();
 	math::Vector *entries = sample->getEntries();
 	for (int i = 0; i < size; i++) {
@@ -67,8 +66,8 @@ void Variogram::findPairs(std::map<double, double> *result, Sample* sample, cons
 				math::Vector::distance(entries[j], point, 2) < precision) {
 				entries[i].setGroup(0);
 				entries[j].setGroup(0);
-				//TODO: calculate value here
-				result->insert(std::make_pair(entries[i].getZ(),entries[j].getZ()));
+				result += pow(entries[i].getZ() - entries[j].getZ(), 2);
+				(*count)++;
 				break;
 			}
 		}
@@ -76,4 +75,10 @@ void Variogram::findPairs(std::map<double, double> *result, Sample* sample, cons
 	//reset for next run
 	for (int i = 0; i < size; i++)
 		entries[i].setGroup(-1);
+
+	BOOST_LOG_TRIVIAL(trace) << "found " << *count << " pairs for the offset " << h;
+	if (*count == 0)
+		return NAN;
+	else
+		return result / (2 * (*count));
 }

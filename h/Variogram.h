@@ -11,7 +11,7 @@
   */
 class Variogram {
 private:
-	void findPairs(std::map<double, double> *result, Sample* sample, const math::Vector& h, const double precision) const;
+	double calc(Sample* sample, const math::Vector& h, const double precision, int *count) const;
 	int nrBins;
 
 public:

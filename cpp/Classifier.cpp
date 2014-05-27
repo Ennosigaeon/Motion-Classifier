@@ -17,6 +17,7 @@ Classifier::Classifier(EMGProvider* emgProvider, MultiClassSVM *svm) {
 
 Classifier::~Classifier() {
 	send(Signal::SHUTDOWN);
+	BOOST_LOG_TRIVIAL(info) << "Classified " << nr << " Samples in avg. " << time / nr << " ms";
 	BOOST_LOG_TRIVIAL(info) << "Classifier destroyed";
 }
 
@@ -52,7 +53,11 @@ void Classifier::run() {
 			//overrides the last stored value
 			lastMuscleMotion.push(&motion);
 			t = clock() - t;
-			BOOST_LOG_TRIVIAL(info) << "classified new Interval in " << ((double)t) / CLOCKS_PER_SEC * 1000 << " ms as " << motion;
+			long tmp = ((double)t) / CLOCKS_PER_SEC * 1000;
+			BOOST_LOG_TRIVIAL(info) << "classified new Interval in " << tmp << " ms as " << motion;
+
+			time += tmp;
+			nr++;
 
 			delete interval;
 		}
@@ -107,23 +112,22 @@ void Classifier::send(const Signal& signal) {
 void Classifier::plot(Sample* sample, std::vector<math::Vector>& values) {
 	if (config->isPlotRMS()) {
 		std::ofstream sampleStream;
-		sampleStream.open(std::string("C:/Tmp/plot/") + boost::lexical_cast<std::string>(nr)+"-rms.txt");
+		sampleStream.open(std::string("C:/Tmp/plot/") + boost::lexical_cast<std::string>(sample->getNumber())+"-rms.txt");
 		sampleStream << *sample;
 		sampleStream.close();
 	}
 	if (config->isPlotVariogramGraph()) {
 		std::ofstream sampleStream;
-		sampleStream.open(std::string("C:/Tmp/plot/") + boost::lexical_cast<std::string>(nr)+"-graph.txt");
+		sampleStream.open(std::string("C:/Tmp/plot/") + boost::lexical_cast<std::string>(sample->getNumber()) + "-graph.txt");
 		for (std::vector<math::Vector>::iterator it = values.begin(); it != values.end(); it++)
 			sampleStream << it->getGroup() << "\t" << it->getLength(2) << "\t" << it->getZ() << std::endl;
 		sampleStream.close();
 	}
 	if (config->isPlotVariogramSurface()) {
 		std::ofstream sampleStream;
-		sampleStream.open(std::string("C:/Tmp/plot/") + boost::lexical_cast<std::string>(nr)+"-surface.txt");
+		sampleStream.open(std::string("C:/Tmp/plot/") + boost::lexical_cast<std::string>(sample->getNumber()) + "-surface.txt");
 		for (std::vector<math::Vector>::iterator it = values.begin(); it != values.end(); it++)
 			sampleStream << it->getX() << "\t" << it->getY() << "\t" << it->getZ() << std::endl;
 		sampleStream.close();
 	}
-	nr++;
 }
