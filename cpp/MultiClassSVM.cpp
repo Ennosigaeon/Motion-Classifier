@@ -6,70 +6,12 @@
 #include "../h/Exception.h"
 #include "../h/MultiClassSVM.h"
 #include "../h/Trainer.h"
+#include "../h/Utilities.h"
 #include "../h/Variogram.h"
 
 MultiClassSVM::~MultiClassSVM() {
 	for (std::vector<SupportVectorMachine*>::iterator it = svms.begin(); it != svms.end(); it++)
 		delete *it;
-}
-
-void MultiClassSVM::train(const std::string& folder) {
-	if (!boost::filesystem::is_directory(boost::filesystem::path(folder)))
-		throw Exception::UNABLE_TO_OPEN_FILE;
-
-	AppConfig *config = AppConfig::getInstance();
-	Variogram variogram;
-	BOOST_LOG_TRIVIAL(info) << "loading trainings data from " << folder;
-	for (int i = Motion::Muscle::REST_POSITION; i <= Motion::Muscle::HAND_CLOSE; i++) {
-		std::string file = folder;
-		switch (i) {
-		case Motion::Muscle::REST_POSITION:
-			file += "REST_POSITION";
-			break;
-		case Motion::Muscle::FORARM_PRONATION:
-			file += "FORARM_PRONATION";
-			break;
-		case Motion::Muscle::FORARM_SUPINATION:
-			file += "FORARM_SUPINATION";
-			break;
-		case Motion::Muscle::WRIST_FLEXION:
-			file += "WRIST_FLEXION";
-			break;
-			case Motion::Muscle::WRIST_EXTENSION:
-			file += "WRIST_EXTENSION";
-			break;
-		case Motion::Muscle::HAND_OPEN:
-			file += "HAND_OPEN";
-			break;
-		case Motion::Muscle::HAND_CLOSE:
-			file += "HAND_CLOSE";
-			break;
-		case Motion::Muscle::RADIAL_DEVIATION:
-			file += "RADIAL_DEVIATION";
-			break;
-		case Motion::Muscle::ULNAR_DEVIATION:
-			file += "ULNAR_DEVIATION";
-			break;
-		}
-		file += "-";
-
-		std::vector<math::Vector> result;
-		for (int j = 0; j < Trainer::NR_RUNS; j++) {
-			std::string tmp = file;
-			tmp += boost::lexical_cast<std::string>(j)+".txt";
-			std::ifstream in(tmp);
-			//This trainigs file does not exists
-			if (!in.is_open())
-				continue;
-			for (int n = 0; n < Trainer::trainingsSize; n++) {
-				Sample s(config->getSampleRows(), config->getSampleColumns());
-				in >> s;
-				std::vector<math::Vector> r = variogram.calculate(&s);
-				result.insert(result.end(), r.begin(), r.end());
-			}
-		}
-		train(static_cast<Motion::Muscle>(i), result);
-	}
 }
 
 void MultiClassSVM::train(const Motion::Muscle& motion, const std::vector<math::Vector>& data) {

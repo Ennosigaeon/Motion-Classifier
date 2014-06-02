@@ -5,6 +5,7 @@
 #include <boost/log/expressions.hpp>
 #include <boost/log/trivial.hpp>
 #include "../h/AppConfig.h"
+#include "../h/Utilities.h"
 #include "../h/Variogram.h"
 
 Variogram::Variogram() {
@@ -30,7 +31,7 @@ std::vector<math::Vector> Variogram::calculate(Sample* sample) const {
 			double value = calc(sample, h, precision, &c);
 			count += c;
 
-			if (value != NAN) {
+			if (!isnan(value)) {
 				math::Vector tmp = h;
 				tmp.setGroup(angle);
 				tmp.setZ(value);
@@ -38,7 +39,7 @@ std::vector<math::Vector> Variogram::calculate(Sample* sample) const {
 			}
 			h.setLength(h.getLength() + 1);
 		}
-		BOOST_LOG_TRIVIAL(debug) << "found " << count << " pairs for math::Angle " << angle;
+		BOOST_LOG_TRIVIAL(trace) << "found " << count << " pairs for math::Angle " << printAngle(angle);
 	}
 	t = clock() - t;
 	BOOST_LOG_TRIVIAL(debug) << "Variogram calculation took " << ((double)t) / CLOCKS_PER_SEC * 1000 << " ms. " << result.size() << " pairs found";
@@ -54,7 +55,7 @@ double Variogram::calc(Sample* sample, const math::Vector& h, const double preci
 	int size = sample->getNrColumns() * sample->getNrRows();
 	math::Vector *entries = sample->getEntries();
 	for (int i = 0; i < size; i++) {
-		if (entries[i].getGroup() != -1 || entries[i].getZ() == NAN)
+		if (entries[i].getGroup() != -1 || isnan(entries[i].getZ()))
 			continue;
 		math::Vector point(entries[i].getX() + h.getX(), entries[i].getY() + h.getY(), 0);
 
@@ -62,7 +63,7 @@ double Variogram::calc(Sample* sample, const math::Vector& h, const double preci
 			//Same vector
 			if (entries[i].getX() == entries[j].getX() && entries[i].getY() == entries[j].getY())
 				continue;
-			if (entries[j].getGroup() == -1 && entries[j].getZ() != NAN &&
+			if (entries[j].getGroup() == -1 && !isnan(entries[j].getZ()) &&
 				math::Vector::distance(entries[j], point, 2) < precision) {
 				entries[i].setGroup(0);
 				entries[j].setGroup(0);

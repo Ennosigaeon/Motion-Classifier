@@ -97,6 +97,8 @@ namespace math {
 		bool operator<(const math::Vector& vector) const;
 		friend std::ostream& operator<<(std::ostream & stream, const math::Vector & vector);
 	};
+
+	std::istream& operator>>(std::istream& stream, math::Vector& vector);
 }
 
 #endif

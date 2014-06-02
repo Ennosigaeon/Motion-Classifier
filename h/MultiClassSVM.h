@@ -45,14 +45,6 @@ public:
 	  * MuscleMotion UNKNOWN will be returned.
 	  */
 	Motion::Muscle classify(std::vector<math::Vector>& values);
-
-	/**
-	  * Loads a precalculated Multiclass Support Vector Machine from
-	  * the file system. You don't have to train the Multiclass SVM
-	  * again with new values.
-	  * Throws: Exception:UNABLE_TO_OPEN_FILE
-	  */
-	void train(const std::string& folder);
 };
 
 #endif

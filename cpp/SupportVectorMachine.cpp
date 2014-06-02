@@ -2,6 +2,7 @@
 #include <boost/log/expressions.hpp>
 #include "../h/Exception.h"
 #include "../h/SupportVectorMachine.h"
+#include "../h/Utilities.h"
 
 SupportVectorMachine::SupportVectorMachine() {
 	config = AppConfig::getInstance();
@@ -29,8 +30,8 @@ void SupportVectorMachine::addTrainData(const Motion::Muscle& motion, std::vecto
 void SupportVectorMachine::calculateSVM() {
 	if (classA == Motion::Muscle::UNKNOWN || classB == Motion::Muscle::UNKNOWN || valuesA.empty() || valuesB.empty())
 		throw Exception::SVM_MISSING_TRAININGS_DATA;
-	BOOST_LOG_TRIVIAL(debug) << "Training SVM for MuscleMotions " << classA << " (" << valuesA.size() << " values) and "
-		<< classB << " (" << valuesA.size() << " values).";
+	BOOST_LOG_TRIVIAL(debug) << "Training SVM for MuscleMotions " << printMotion(classA) << " (" << valuesA.size() << " values) and "
+		<< printMotion(classB) << " (" << valuesA.size() << " values).";
 
 	//converts the two given std::vectors in a svm_problem
 	std::vector<math::Vector> list(valuesA);
@@ -40,7 +41,7 @@ void SupportVectorMachine::calculateSVM() {
 	double *label = new double[problem.l];
 	for (unsigned int i = 0; i < valuesA.size(); i++)
 		label[i] = -1;
-	for (unsigned int i = valuesA.size(); i < problem.l; i++)
+	for (int i = valuesA.size(); i < problem.l; i++)
 		label[i] = 1;
 	problem.y = label;
 
@@ -56,7 +57,7 @@ void SupportVectorMachine::calculateSVM() {
 
 	//creates the model for the svm
 	svm = svm_train(&problem, param);
-	BOOST_LOG_TRIVIAL(trace) << "Trained SVM for " << classA << " & " << classB;
+	BOOST_LOG_TRIVIAL(trace) << "Trained SVM for " << printMotion(classA) << " & " << printMotion(classB);
 }
 
 Motion::Muscle SupportVectorMachine::classify(std::vector<math::Vector>& vector) {
@@ -71,11 +72,11 @@ Motion::Muscle SupportVectorMachine::classify(std::vector<math::Vector>& vector)
 	}
 
 	if (matchA > matchB) {
-		BOOST_LOG_TRIVIAL(trace) << "variogram assigned to " << classA;
+		BOOST_LOG_TRIVIAL(trace) << "variogram assigned to " << printMotion(classA);
 		return classA;
 	}
 	if (matchB > matchA) {
-		BOOST_LOG_TRIVIAL(trace) << "variogram assigned to " << classB;
+		BOOST_LOG_TRIVIAL(trace) << "variogram assigned to " << printMotion(classB);
 		return classB;
 	}
 	BOOST_LOG_TRIVIAL(trace) << "unable to assign variogram";

@@ -126,6 +126,10 @@ void AppConfig::load(const std::string& path) {
 				instance->blockingQueueMaxWaitTime = boost::lexical_cast<int>(values.at(1));
 			if (values.at(0) == "trainer.baseDir")
 				instance->trainerBaseDir = values.at(1);
+			if (values.at(0) == "trainer.trainingsSize")
+				instance->trainingsSize = boost::lexical_cast<int>(values.at(1));
+			if (values.at(0) == "trainer.nrRuns")
+				instance->trainerNrRuns = boost::lexical_cast<int>(values.at(1));
 			if (values.at(0) == "logger.level")
 				instance->loggerLevel = boost::lexical_cast<int>(values.at(1));
 			if (values.at(0) == "logger.file")
@@ -141,6 +145,9 @@ void AppConfig::load(const std::string& path) {
 			throw Exception::UNABLE_TO_PARSE_CONFIGURATION;
 		}
 	}
+	char c = instance->trainerBaseDir.at(instance->trainerBaseDir.size() - 1);
+	if (c != '\\' && c != '/')
+		instance->trainerBaseDir += "/";
 }
 
 //inits the logging system
@@ -227,6 +234,14 @@ int AppConfig::getBlockingQueueMaxWaitTime() const {
 
 std::string AppConfig::getTrainerBaseDir() const {
 	return trainerBaseDir;
+}
+
+int AppConfig::getTrainingsSize() const {
+	return trainingsSize;
+}
+
+int AppConfig::getTrainerNrRuns() const {
+	return trainerNrRuns;
 }
 
 svm_parameter* AppConfig::getSVMParameter() const {

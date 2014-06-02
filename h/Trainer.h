@@ -12,12 +12,11 @@ private:
 	EMGProvider *emgProvider;
 	MultiClassSVM *svm;
 
-	std::vector<Interval*> collectData(EMGProvider *emgProvider);
+	std::vector<Interval*> collectData();
 	void store(std::vector<Interval*>* values, Motion::Muscle motion, int runNr);
+	void load();
 
 public:
-	static int NR_RUNS;
-	static int trainingsSize;
 	Trainer(EMGProvider *emgProvider, MultiClassSVM *svm);
 
 	void train();

@@ -50,7 +50,7 @@ Sample* Interval::getRMSSample() {
 		math::Vector* entries = (*it)->getEntries();
 		for (int i = 0; i < size; i++) {
 			double n = entries[i].getZ();
-			if (n != NAN) {
+			if (!isnan(n)) {
 				value[i] += n * n;
 				count[i]++;
 			}

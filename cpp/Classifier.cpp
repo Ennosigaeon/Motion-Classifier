@@ -7,6 +7,7 @@
 #include <boost/log/trivial.hpp>
 #include "../h/Classifier.h"
 #include "../h/Exception.h"
+#include "../h/Utilities.h"
 
 Classifier::Classifier(EMGProvider* emgProvider, MultiClassSVM *svm) {
 	config = AppConfig::getInstance();
@@ -41,7 +42,7 @@ void Classifier::run() {
 			BOOST_LOG_TRIVIAL(debug) << "calculating RMS sample";
 			Sample *rms = interval->getRMSSample();
 
-			BOOST_LOG_TRIVIAL(debug) << "calculation Variogram";
+			BOOST_LOG_TRIVIAL(debug) << "calculating Variogram";
 			std::vector<math::Vector> values = variogram.calculate(rms);
 
 			BOOST_LOG_TRIVIAL(debug) << "classifying values";
@@ -54,7 +55,7 @@ void Classifier::run() {
 			lastMuscleMotion.push(&motion);
 			t = clock() - t;
 			long tmp = ((double)t) / CLOCKS_PER_SEC * 1000;
-			BOOST_LOG_TRIVIAL(info) << "classified new Interval in " << tmp << " ms as " << motion;
+			BOOST_LOG_TRIVIAL(info) << "classified new Interval in " << tmp << " ms as " << printMotion(motion);
 
 			time += tmp;
 			nr++;

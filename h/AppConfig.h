@@ -28,6 +28,8 @@ private:
 	int variogramNrBins;
 	int blockingQueueMaxWaitTime;
 	std::string trainerBaseDir;
+	int trainingsSize;
+	int trainerNrRuns;
 	int loggerLevel;
 	std::string loggerFile;
 	svm_parameter *param;
@@ -91,6 +93,8 @@ public:
 	int getVariogramNrBins() const;
 	int getBlockingQueueMaxWaitTime() const;
 	std::string getTrainerBaseDir() const;
+	int getTrainingsSize() const;
+	int getTrainerNrRuns() const;
 	int getLoggerLevel() const;
 	std::string getLoggerFile() const;
 	bool isPlotRMS() const;
