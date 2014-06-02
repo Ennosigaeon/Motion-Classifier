@@ -32,7 +32,7 @@ math::Vector math::Vector::getVector(const Angle& angle) {
 
 double math::Vector::distance(const math::Vector& vector1, const math::Vector& vector2, int nrDimensions) {
 	double value = 0;
-	for (int i = 0; i < nrDimensions; i++)
+	for (int i = 0; i < nrDimensions; ++i)
 		value += pow(vector1.get(i) - vector2.get(i), 2);
 	return value;
 }
@@ -67,13 +67,13 @@ void math::Vector::setZ(const double value) {
 
 void math::Vector::setLength(const double length, const int nrDimensions) {
 	double l = length / getLength(nrDimensions);
-	for (int i = 0; i < nrDimensions; i++)
+	for (int i = 0; i < nrDimensions; ++i)
 		values[i] = values[i] * l;
 }
 
 double math::Vector::getLength(int nrDimensions) const {
 	double value = 0;
-	for (int i = 0; i < nrDimensions; i++)
+	for (int i = 0; i < nrDimensions; ++i)
 		value += values[i] * values[i];
 	return sqrt(value);
 }

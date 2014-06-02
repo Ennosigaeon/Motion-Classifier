@@ -18,20 +18,20 @@ private:
 	static AppConfig *instance;
 	AppConfig();
 
-	int intervalNrSamples;
-	std::string gnuPlotPath;
-	bool plotRMS;
-	bool plotVariogramSurface;
-	bool plotVariogramGraph;
-	int sampleRows;
-	int sampleColumns;
-	int variogramNrBins;
-	int blockingQueueMaxWaitTime;
-	std::string trainerBaseDir;
-	int trainingsSize;
-	int trainerNrRuns;
-	int loggerLevel;
-	std::string loggerFile;
+	int intervalNrSamples = 1;
+	std::string gnuPlotPath = "";
+	bool plotRMS = 0;
+	bool plotVariogramSurface = 0;
+	bool plotVariogramGraph = 0;
+	int sampleRows = 0;
+	int sampleColumns = 0;
+	int variogramNrBins = 1;
+	int blockingQueueMaxWaitTime = -1;
+	std::string trainerBaseDir = "";
+	int trainingsSize = 1;
+	int trainerNrRuns = 1;
+	int loggerLevel = 2;
+	std::string loggerFile = "";
 	svm_parameter *param;
 
 public:

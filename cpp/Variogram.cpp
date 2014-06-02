@@ -21,7 +21,7 @@ std::vector<math::Vector> Variogram::calculate(Sample* sample) const {
 	double precision = pow(std::max(maxX, maxY) * 1.0 / nrBins, 2);
 	clock_t t = clock();
 
-	for (int i = math::Angle::DEGREE_0; i <= math::Angle::DEGREE_150; i++) {
+	for (int i = math::Angle::DEGREE_0; i <= math::Angle::DEGREE_150; ++i) {
 		math::Angle angle = static_cast<math::Angle>(i);
 		math::Vector h = math::Vector::getVector(angle);
 		int count = 0;
@@ -51,30 +51,30 @@ std::vector<math::Vector> Variogram::calculate(Sample* sample) const {
 //Searches for pairs with the given offset h and calculates the variogram.
 double Variogram::calc(Sample* sample, const math::Vector& h, const double precision, int *count) const {
 	double result = 0;
-
 	int size = sample->getNrColumns() * sample->getNrRows();
 	math::Vector *entries = sample->getEntries();
-	for (int i = 0; i < size; i++) {
+
+	for (int i = 0; i < size; ++i) {
 		if (entries[i].getGroup() != -1 || isnan(entries[i].getZ()))
 			continue;
-		math::Vector point(entries[i].getX() + h.getX(), entries[i].getY() + h.getY(), 0);
+		math::Vector point(entries[i].getX() + h.getX(), entries[i].getY() + h.getY());
 
-		for (int j = 0; j < size; j++) {
+		for (int j = 0; j < size; ++j) {
 			//Same vector
-			if (entries[i].getX() == entries[j].getX() && entries[i].getY() == entries[j].getY())
+			if (i == j)
 				continue;
 			if (entries[j].getGroup() == -1 && !isnan(entries[j].getZ()) &&
 				math::Vector::distance(entries[j], point, 2) < precision) {
 				entries[i].setGroup(0);
 				entries[j].setGroup(0);
 				result += pow(entries[i].getZ() - entries[j].getZ(), 2);
-				(*count)++;
+				++(*count);
 				break;
 			}
 		}
 	}
 	//reset for next run
-	for (int i = 0; i < size; i++)
+	for (int i = 0; i < size; ++i)
 		entries[i].setGroup(-1);
 
 	BOOST_LOG_TRIVIAL(trace) << "found " << *count << " pairs for the offset " << h;

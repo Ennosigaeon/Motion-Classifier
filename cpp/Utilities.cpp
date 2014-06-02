@@ -97,7 +97,7 @@ void convertFile(const std::string& inputFile, const std::string& outputFile) {
 			splitter >> sub;
 			if (!sub.empty()) {
 				out << sub << " ";
-				count++;
+				++count;
 			}
 			if (count != 0 && count % sampleSize == 0) {
 				out << std::endl;
@@ -132,19 +132,19 @@ void createTrainingsData(const std::string& inputFile, const std::string& userna
 
 	int count[Motion::Muscle::HAND_CLOSE + 1] = {};
 	int lineNr = 0;
-	for (std::vector<std::pair<Motion::Muscle, int>>::const_iterator it = values.begin(); it != values.end(); it++) {
+	for (std::vector<std::pair<Motion::Muscle, int>>::const_iterator it = values.begin(); it != values.end(); ++it) {
 		std::string s = folder + printMotion(it->first) + "-" + boost::lexical_cast<std::string>(count[it->first]) + ".txt";
 		std::ofstream out(s);
 		if (!out.is_open())
 			throw Exception::UNABLE_TO_OPEN_FILE;
-		count[it->first]++;
+		++count[it->first];
 
 		int nr = it->second - windowSize / 2;
 		bool found = false;
 		
 		Interval *interval = new Interval();
 		while (!in.eof()) {
-			lineNr++;
+			++lineNr;
 			if (lineNr == nr) {
 				found = true;
 				std::cout << "found data for " << printMotion(it->first) << " at " << lineNr << std::endl;
@@ -155,7 +155,7 @@ void createTrainingsData(const std::string& inputFile, const std::string& userna
 				interval->addSample(s);
 				if (interval->isFull()) {
 					std::vector<math::Vector> vec = variogram.calculate(interval->getRMSSample());
-					for (std::vector<math::Vector>::iterator it = vec.begin(); it != vec.end(); it++)
+					for (std::vector<math::Vector>::iterator it = vec.begin(); it != vec.end(); ++it)
 						out << *it << std::endl;
 					delete interval;
 					interval = new Interval();

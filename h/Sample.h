@@ -29,12 +29,12 @@ public:
 	/**
 	  * Returns the number of rows in this Sample.
 	  */
-	int getNrRows() const;
+	inline int getNrRows() const;
 
 	/**
 	  * Returns the number of columns in this Sample.
 	  */
-	int getNrColumns() const;
+	inline int getNrColumns() const;
 
 	/**
 	  * Returns the number of this Sample.

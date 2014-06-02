@@ -10,7 +10,7 @@ Interval::Interval() {
 }
 
 Interval::~Interval() {
-	for (std::vector<Sample*>::iterator it = samples.begin(); it != samples.end(); it++)
+	for (std::vector<Sample*>::iterator it = samples.begin(); it != samples.end(); ++it)
 		delete *it;
 	delete rms;
 }
@@ -42,19 +42,19 @@ Sample* Interval::getRMSSample() {
 	double *value = new double[size]();
 	int *count = new int[size]();
 
-	for (std::vector<Sample*>::iterator it = samples.begin(); it != samples.end(); it++) {
+	for (std::vector<Sample*>::iterator it = samples.begin(); it != samples.end(); ++it) {
 		math::Vector* entries = (*it)->getEntries();
-		for (int i = 0; i < size; i++) {
+		for (int i = 0; i < size; ++i) {
 			double n = entries[i].getZ();
 			if (!isnan(n)) {
 				value[i] += n * n;
-				count[i]++;
+				++count[i];
 			}
 		}
 	}
 	math::Vector* entries = start->getEntries();
 	math::Vector* resultEntries = rms->getEntries();
-	for (int i = 0; i < size; i++)
+	for (int i = 0; i < size; ++i)
 		resultEntries[i] = math::Vector(entries[i].getX(), entries[i].getY(), sqrt(value[i] / count[i]));
 
 	delete[] value;

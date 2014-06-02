@@ -44,32 +44,32 @@ namespace math {
 		/**
 		  * Sets the x-value to the given value.
 		  */
-		void setX(const double x);
+		inline void setX(const double x);
 
 		/**
 		  * Sets the y-value to the given value.
 		  */
-		void setY(const double y);
+		inline void setY(const double y);
 
 		/**
 		  * Sets the z-value to the given value.
 		  */
-		void setZ(const double z);
+		inline void setZ(const double z);
 
 		/**
 		  * Returns the x-value.
 		  */
-		double getX() const;
+		inline double getX() const;
 
 		/**
 		  * Returns the y-value.
 		  */
-		double getY() const;
+		inline double getY() const;
 
 		/**
 		  * Returns the z-value.
 		  */
-		double getZ() const;
+		inline double getZ() const;
 
 		/**
 		  * Changes the Vector so, that its length is equal to the given lenght. The values in
@@ -85,12 +85,12 @@ namespace math {
 		/**
 		  * Sets, that this Vector belongs to the given group number.
 		  */
-		void setGroup(int group);
+		inline void setGroup(int group);
 
 		/**
 		  * Returns the group number of this Vector.
 		  */
-		int getGroup() const;
+		inline int getGroup() const;
 
 		//operators
 		math::Vector operator+(const math::Vector& vector);

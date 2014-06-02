@@ -39,15 +39,15 @@ void SupportVectorMachine::calculateSVM() {
 
 	problem.l = list.size();
 	double *label = new double[problem.l];
-	for (unsigned int i = 0; i < valuesA.size(); i++)
+	for (unsigned int i = 0; i < valuesA.size(); ++i)
 		label[i] = -1;
-	for (int i = valuesA.size(); i < problem.l; i++)
+	for (int i = valuesA.size(); i < problem.l; ++i)
 		label[i] = 1;
 	problem.y = label;
 
 	svm_node **nodes = new svm_node*[problem.l];
 	int i = 0;
-	for (std::vector<math::Vector>::iterator it = list.begin(); it != list.end(); it++, i++)
+	for (std::vector<math::Vector>::iterator it = list.begin(); it != list.end(); ++it, ++i)
 		nodes[i] = createNode(&(*it));
 	problem.x = nodes;
 
@@ -64,10 +64,10 @@ Motion::Muscle SupportVectorMachine::classify(std::vector<math::Vector>& vector)
 	int matchA = 0;
 	int matchB = 0;
 
-	for (std::vector<math::Vector>::iterator it = vector.begin(); it != vector.end(); it++) {
+	for (std::vector<math::Vector>::iterator it = vector.begin(); it != vector.end(); ++it) {
 		svm_node *node = createNode(&(*it));
 		double result = svm_predict(svm, node);
-		result == -1 ? matchA++ : matchB++;
+		result == -1 ? ++matchA : ++matchB;
 		delete[] node;
 	}
 

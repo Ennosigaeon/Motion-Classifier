@@ -21,19 +21,6 @@ AppConfig* AppConfig::instance = NULL;
 const std::string AppConfig::CONFIG_ARGUMENT = "motion_classifier.config";
 
 AppConfig::AppConfig() {
-	intervalNrSamples = 1;
-	sampleColumns = 0;
-	sampleRows = 0;
-	variogramNrBins = 1;
-	gnuPlotPath = "";
-	blockingQueueMaxWaitTime = -1;
-	loggerLevel = 0;
-	loggerFile = "";
-	plotRMS = false;
-	plotVariogramSurface = false;
-	plotVariogramGraph = false;
-	trainerBaseDir = "";
-
 	param = new svm_parameter;
 	//These default values are copied from svm_train.cpp from libsvm-3.18
 	param->svm_type = C_SVC;
@@ -67,7 +54,7 @@ void AppConfig::release() {
 void AppConfig::load(int argc, char *argv[]) {
 	//parses the path to the configuration file from the command line parameters
 	std::string configPath = "";
-	for (int i = 0; i < argc; i++) {
+	for (int i = 0; i < argc; ++i) {
 		if (argv[i] == AppConfig::CONFIG_ARGUMENT && i < argc - 1) {
 			configPath = argv[i + 1];
 			break;

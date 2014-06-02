@@ -10,7 +10,7 @@
 #include "../h/Variogram.h"
 
 MultiClassSVM::~MultiClassSVM() {
-	for (std::vector<SupportVectorMachine*>::iterator it = svms.begin(); it != svms.end(); it++)
+	for (std::vector<SupportVectorMachine*>::iterator it = svms.begin(); it != svms.end(); ++it)
 		delete *it;
 }
 
@@ -28,7 +28,7 @@ void MultiClassSVM::train(const Motion::Muscle& motion, const std::vector<math::
 }
 
 void MultiClassSVM::calculateSVMs() {
-	for (std::map<Motion::Muscle, std::vector<math::Vector>>::iterator it = trainingsData.begin(); it != trainingsData.end(); it++) {
+	for (std::map<Motion::Muscle, std::vector<math::Vector>>::iterator it = trainingsData.begin(); it != trainingsData.end(); ++it) {
 		for (std::map<Motion::Muscle, std::vector<math::Vector>>::iterator it2 = trainingsData.begin(); it2 != trainingsData.end(); it2++) {
 			if (it->first == it2->first || it->second.empty() || it2->second.empty())
 				continue;
@@ -46,19 +46,20 @@ Motion::Muscle MultiClassSVM::classify(std::vector<math::Vector>& values) {
 	Motion::Muscle motion = Motion::Muscle::UNKNOWN;
 	clock_t t = clock();
 
+	//TODO: Do not use Magic Numbers
 	int count[9];
-	for (int i = 0; i < 9; i++)
+	for (int i = 0; i < 9; ++i)
 		count[i] = 0;
 
 	int length = sizeof(count) / sizeof(count[0]);
-	for (std::vector<SupportVectorMachine*>::iterator it = svms.begin(); it != svms.end(); it++) {
+	for (std::vector<SupportVectorMachine*>::iterator it = svms.begin(); it != svms.end(); ++it) {
 		Motion::Muscle result = (*it)->classify(values);
 		if (result < 9)
-			count[result]++;
+			++count[result];
 	}
 
 	int max = 0;
-	for (int i = 0; i < 9; i++) {
+	for (int i = 0; i < 9; ++i) {
 		if (count[i] > max) {
 			max = count[i];
 			motion = static_cast<Motion::Muscle>(i);

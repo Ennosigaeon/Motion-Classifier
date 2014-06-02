@@ -54,7 +54,7 @@ void Trainer::train() {
 	std::cout << "created new user" << std::endl;
 
 	//TODO: this code is wrong
-	//for (int i = 0; i < NR_RUNS; i++) {
+	//for (int i = 0; i < NR_RUNS; ++i) {
 	//	std::cout << "Doing run " << i+1 << " of " << NR_RUNS;
 
 	//	//rest position
@@ -114,7 +114,7 @@ std::vector<Interval*> Trainer::collectData() {
 	std::cout << "Press Enter to start: ";
 	std::cin.get();
 	emgProvider->send(Signal::START);
-	for (int i = 0; i < 0; i++) {
+	for (int i = 0; i < 0; ++i) {
 		Interval *interval = emgProvider->getInterval();
 		result.push_back(interval);
 	}
@@ -125,7 +125,7 @@ std::vector<Interval*> Trainer::collectData() {
 void Trainer::store(std::vector<Interval*> *values, Motion::Muscle& motion, int nrRun) {
 	std::string file = folder + printMotion(motion) + "-" + boost::lexical_cast<std::string>(nrRun)+".txt";
 	std::ofstream stream(file);
-	for (std::vector<Interval*>::iterator it = values->begin(); it != values->end(); it++)
+	for (std::vector<Interval*>::iterator it = values->begin(); it != values->end(); ++it)
 		stream << (*it)->getRMSSample();
 }
 
@@ -135,11 +135,11 @@ void Trainer::load() {
 
 	AppConfig *config = AppConfig::getInstance();
 	BOOST_LOG_TRIVIAL(info) << "loading trainings data from " << folder;
-	for (int i = Motion::Muscle::REST_POSITION; i <= Motion::Muscle::HAND_CLOSE; i++) {
+	for (int i = Motion::Muscle::REST_POSITION; i <= Motion::Muscle::HAND_CLOSE; ++i) {
 		std::string file = folder + printMotion(static_cast<Motion::Muscle>(i)) + "-";
 
 		std::vector<math::Vector> result;
-		for (int j = 0; j < config->getTrainerNrRuns(); j++) {
+		for (int j = 0; j < config->getTrainerNrRuns(); ++j) {
 			std::string tmp = file;
 			tmp += boost::lexical_cast<std::string>(j)+".txt";
 			std::ifstream in(tmp);

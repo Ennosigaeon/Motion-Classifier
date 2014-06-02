@@ -79,7 +79,7 @@ void EMGFileProvider::run() {
 				BOOST_LOG_TRIVIAL(warning) << "EMGFileProvider reached end of file. No more intervals will be read";
 				status = Status::FINISHED;
 			}
-			number++;
+			++number;
 			
 			if (lastInterval->isFull()) {
 				BOOST_LOG_TRIVIAL(debug) << "created new Interval";

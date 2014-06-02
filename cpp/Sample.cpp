@@ -2,10 +2,7 @@
 #include "../h/Exception.h"
 #include "../h/Sample.h"
 
-Sample::Sample(int nrRows, int nrColumns, long nr) {
-	Sample::nrRows = nrRows;
-	Sample::nrColumns = nrColumns;
-	Sample::nr = nr;
+Sample::Sample(int nrRows, int nrColumns, long nr) : nrRows(nrRows), nrColumns(nrColumns), nr(nr) {
 	entries = new math::Vector[nrRows * nrColumns];
 }
 
@@ -32,7 +29,7 @@ long Sample::getNumber() const {
 std::ostream& operator<<(std::ostream& stream, const Sample& sample) {
 	int size = sample.getNrColumns() * sample.getNrRows();
 	math::Vector *entries = sample.entries;
-	for (int i = 0; i < size; i++)
+	for (int i = 0; i < size; ++i)
 		stream << entries[i].getZ() << " ";
 	stream << std::endl;
 	return stream;
@@ -49,13 +46,13 @@ std::istream& operator>> (std::istream& stream, Sample& sample) {
 
 	int x = 0, y = 0, i = 0;
 	math::Vector *entries = sample.getEntries();
-	for (std::vector<double>::iterator it = tokens.begin(); it != tokens.end(); it++, i++) {
+	for (std::vector<double>::iterator it = tokens.begin(); it != tokens.end(); ++it, ++i) {
 		math::Vector vec(x, y, *it);
 		entries[i] = vec;
-		y++;
+		++y;
 		if (y == sample.getNrRows()) {
 			y = 0;
-			x++;
+			++x;
 		}
 	}
 
