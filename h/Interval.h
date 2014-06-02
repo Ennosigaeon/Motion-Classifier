@@ -38,11 +38,6 @@ public:
 	Sample* getRMSSample();
 
 	/**
-	  * Returns all stored Samples.
-	  */
-	std::vector<Sample*> getSamples() const;
-
-	/**
 	  * Adds a new Sample to this Interval. It is crucial that all Samples
 	  * in an Interval have the same number of rows and columns.
 	  */

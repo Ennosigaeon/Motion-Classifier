@@ -197,7 +197,7 @@ int AppConfig::getIntervalNrSamples() const {
 	return intervalNrSamples;
 }
 
-std::string AppConfig::getGnuPlotPath() const {
+const std::string& AppConfig::getGnuPlotPath() const {
 	return gnuPlotPath;
 }
 
@@ -209,7 +209,7 @@ int AppConfig::getLoggerLevel() const {
 	return loggerLevel;
 }
 
-std::string AppConfig::getLoggerFile() const {
+const std::string& AppConfig::getLoggerFile() const {
 	return loggerFile;
 }
 
@@ -232,7 +232,7 @@ int AppConfig::getBlockingQueueMaxWaitTime() const {
 	return blockingQueueMaxWaitTime;
 }
 
-std::string AppConfig::getTrainerBaseDir() const {
+const std::string& AppConfig::getTrainerBaseDir() const {
 	return trainerBaseDir;
 }
 

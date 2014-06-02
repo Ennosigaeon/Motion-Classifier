@@ -30,7 +30,7 @@ public:
 	  * signals are stored.
 	  * Throws: Exception::UNABLE_TO_OPEN_FILE
 	  */
-	EMGFileProvider(const std::string path);
+	EMGFileProvider(const std::string& path);
 
 	/**
 	  * Destroys the EMGFileProvider. The underlying worker

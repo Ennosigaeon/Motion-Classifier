@@ -87,16 +87,16 @@ public:
 	void initLogging();
 
 	int getIntervalNrSamples() const;
-	std::string getGnuPlotPath() const;
+	const std::string& getGnuPlotPath() const;
 	int getSampleRows() const;
 	int getSampleColumns() const;
 	int getVariogramNrBins() const;
 	int getBlockingQueueMaxWaitTime() const;
-	std::string getTrainerBaseDir() const;
+	const std::string& getTrainerBaseDir() const;
 	int getTrainingsSize() const;
 	int getTrainerNrRuns() const;
 	int getLoggerLevel() const;
-	std::string getLoggerFile() const;
+	const std::string& getLoggerFile() const;
 	bool isPlotRMS() const;
 	bool isPlotVariogramSurface() const;
 	bool isPlotVariogramGraph() const;

@@ -122,7 +122,7 @@ std::vector<Interval*> Trainer::collectData() {
 	return result;
 }
 
-void Trainer::store(std::vector<Interval*> *values, Motion::Muscle motion, int nrRun) {
+void Trainer::store(std::vector<Interval*> *values, Motion::Muscle& motion, int nrRun) {
 	std::string file = folder + printMotion(motion) + "-" + boost::lexical_cast<std::string>(nrRun)+".txt";
 	std::ofstream stream(file);
 	for (std::vector<Interval*>::iterator it = values->begin(); it != values->end(); it++)

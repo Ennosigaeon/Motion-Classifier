@@ -13,7 +13,7 @@ private:
 	MultiClassSVM *svm;
 
 	std::vector<Interval*> collectData();
-	void store(std::vector<Interval*>* values, Motion::Muscle motion, int runNr);
+	void store(std::vector<Interval*>* values, Motion::Muscle& motion, int runNr);
 	void load();
 
 public:

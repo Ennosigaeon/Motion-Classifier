@@ -8,6 +8,7 @@
 #include "../h/MultiClassSVM.h"
 #include "../h/Plotter.h"
 #include "../h/Trainer.h"
+#include "../h/Utilities.h"
 
 /**
   * It is necessary to pass an argument with the path to the configuration file.
@@ -31,9 +32,28 @@ int main(int argc, char *argv[]) {
 		return EXIT_FAILURE;
 	}
 
-	std::string path = "c:\\Users\\Marc\\Dropbox\\Informatik\\Studium\\6. Semester\\Bachelor Thesis\\MARC\\data\\data8_AN-f.txt";
 
-	
+
+	std::string path = "c:\\Users\\Marc\\Dropbox\\Informatik\\Studium\\6. Semester\\Bachelor Thesis\\MARC\\data\\data8_AN-format.txt";
+	std::vector<std::pair<Motion::Muscle, int>> values;
+
+	values.push_back(std::make_pair<Motion::Muscle, int>(Motion::Muscle::HAND_CLOSE, 36142));
+	values.push_back(std::make_pair<Motion::Muscle, int>(Motion::Muscle::HAND_CLOSE, 84545));
+	values.push_back(std::make_pair<Motion::Muscle, int>(Motion::Muscle::HAND_CLOSE, 141109));
+	values.push_back(std::make_pair<Motion::Muscle, int>(Motion::Muscle::HAND_CLOSE, 196698));
+
+	values.push_back(std::make_pair<Motion::Muscle, int>(Motion::Muscle::HAND_OPEN, 13552));
+	values.push_back(std::make_pair<Motion::Muscle, int>(Motion::Muscle::HAND_OPEN, 61725));
+	values.push_back(std::make_pair<Motion::Muscle, int>(Motion::Muscle::HAND_OPEN, 118371));
+	values.push_back(std::make_pair<Motion::Muscle, int>(Motion::Muscle::HAND_OPEN, 174459));
+
+	values.push_back(std::make_pair<Motion::Muscle, int>(Motion::Muscle::REST_POSITION, 24847));
+	values.push_back(std::make_pair<Motion::Muscle, int>(Motion::Muscle::REST_POSITION, 73135));
+	values.push_back(std::make_pair<Motion::Muscle, int>(Motion::Muscle::REST_POSITION, 129740));
+	values.push_back(std::make_pair<Motion::Muscle, int>(Motion::Muscle::REST_POSITION, 18557));
+
+	//createTrainingsData(path, "8_AN", values);
+
 
 	//It takes very much time to delete EMGProvider and/or Classifier.
 	//Therefor I added this block, so that both are destroyed before the end
@@ -44,7 +64,7 @@ int main(int argc, char *argv[]) {
 		MultiClassSVM svm;
 
 		Trainer trainer(&emgProvider, &svm);
-		//trainer.train();
+		trainer.train();
 
 		Classifier classifier(&emgProvider, &svm);
 		classifier.send(Signal::START);
@@ -62,30 +82,3 @@ int main(int argc, char *argv[]) {
 	std::cin.get();
 	return EXIT_SUCCESS;
 }
-
-
-
-//std::string printMotion(const Motion::MuscleMotion& motion) {
-//	switch (motion) {
-//	case Motion::MuscleMotion::REST_POSITION:
-//		return "REST_POSITION";
-//	case Motion::MuscleMotion::FORARM_PRONATION:
-//		return "FORARM_PRONATION";
-//	case Motion::MuscleMotion::FORARM_SUPINATION:
-//		return "FORARM_SUPINATION";
-//	case Motion::MuscleMotion::WRIST_FLEXION:
-//		return "WRIST_FLEXION";
-//	case Motion::MuscleMotion::WRIST_EXTENSION:
-//		return "WRIST_EXTENSION";
-//	case Motion::MuscleMotion::HAND_OPEN:
-//		return "HAND_OPEN";
-//	case Motion::MuscleMotion::HAND_CLOSE:
-//		return "HAND_CLOSE";
-//	case Motion::MuscleMotion::RADIAL_DEVIATION:
-//		return "RADIAL_DEVIATION";
-//	case Motion::MuscleMotion::ULNAR_DEVIATION:
-//		return "ULNAR_DEVIATION";
-//	default:
-//		return "UNKNOWN";
-//	}
-//}

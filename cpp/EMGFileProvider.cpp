@@ -6,7 +6,7 @@
 #include "../h/Exception.h"
 #include "../h/AppConfig.h"
 
-EMGFileProvider::EMGFileProvider(const std::string path) {
+EMGFileProvider::EMGFileProvider(const std::string& path) {
 	AppConfig *conf = AppConfig::getInstance();
 	nrRows = conf->getSampleRows();
 	nrColumns = conf->getSampleColumns();

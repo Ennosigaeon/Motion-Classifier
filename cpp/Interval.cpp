@@ -19,10 +19,6 @@ inline bool Interval::isFull() const {
 	return samples.size() == MAX_SIZE;
 }
 
-std::vector<Sample*> Interval::getSamples() const {
-	return samples;
-}
-
 void Interval::addSample(Sample* sample) {
 	//it is not possible to add Samples, when the Interval is full
 	if (isFull())
