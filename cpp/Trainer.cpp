@@ -6,7 +6,7 @@
 #include "../h/AppConfig.h"
 #include "../h/Exception.h"
 #include "../h/Trainer.h"
-#include "../h/Utilities.h"m
+#include "../h/Utilities.h"
 
 Trainer::Trainer(EMGProvider *emgProvider, MultiClassSVM *svm) {
 	Trainer::emgProvider = emgProvider;

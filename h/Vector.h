@@ -85,12 +85,12 @@ namespace math {
 		/**
 		  * Sets, that this Vector belongs to the given group number.
 		  */
-		inline void setGroup(int group);
+		void setGroup(int group);
 
 		/**
 		  * Returns the group number of this Vector.
 		  */
-		inline int getGroup() const;
+		int getGroup() const;
 
 		//operators
 		math::Vector operator+(const math::Vector& vector);
