@@ -9,6 +9,8 @@ plot.variogramGraph = 0
 variogram.nrBins = 20
 blockingQueue.maxWaitTime = 5000
 trainer.baseDir = C:\Tmp\Trainer\
+trainer.trainingsSize = 4500
+trainer.nrRuns = 4
 
 #properties for the logger
 #allowed values are 0 - 5 with 0 == trace and 5 == fatal

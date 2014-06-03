@@ -18,3 +18,5 @@ Known Issues - Online Classifier
 		#if 1
 		static void info(const char *fmt,...)
 	to '0';
+	
+5. WIN32_LEAN_AND_MEAN

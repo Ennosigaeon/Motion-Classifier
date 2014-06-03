@@ -6,6 +6,20 @@ Sample::Sample(int nrRows, int nrColumns, long nr) : nrRows(nrRows), nrColumns(n
 	entries = new math::Vector[nrRows * nrColumns];
 }
 
+Sample::Sample(std::vector<short>& values, int nrRows, int nrColumns, long nr) :nrRows(nrRows), nrColumns(nrColumns), nr(nr) {
+	entries = new math::Vector[nrRows * nrColumns];
+	int x = 0, y = 0, i = 0;
+	for (std::vector<short>::iterator it = values.begin(); it != values.end(); ++it, ++i) {
+		math::Vector vec(x, y, *it / 1000.0);
+		entries[i] = vec;
+		++y;
+		if (y == nrRows) {
+			y = 0;
+			++x;
+		}
+	}
+}
+
 Sample::~Sample() {
 	delete[] entries;
 }

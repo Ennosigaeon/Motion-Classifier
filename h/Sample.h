@@ -24,6 +24,8 @@ public:
 	  */
 	Sample(int nrRows = 0, int nrColumns = 0, long nr = -1);
 
+	Sample(std::vector<short>& values, int nrRows = 0, int nrColumns = 0, long nr = -1);
+
 	~Sample();
 
 	/**

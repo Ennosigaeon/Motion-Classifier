@@ -1,3 +1,6 @@
+#define WIN32_LEAN_AND_MEAN
+
+
 #include <iostream>
 #include <boost/log/expressions.hpp>
 #include <boost/log/trivial.hpp>
@@ -9,6 +12,8 @@
 #include "../h/Plotter.h"
 #include "../h/Trainer.h"
 #include "../h/Utilities.h"
+
+#include "../lib/OTBioLabClient/OTBioLabClient.h"
 
 /**
   * It is necessary to pass an argument with the path to the configuration file.
@@ -31,6 +36,22 @@ int main(int argc, char *argv[]) {
 			std::cerr << "Unable to parse configurations. Please check all configurations." << std::endl;
 		return EXIT_FAILURE;
 	}
+
+	{
+		OTBioLabClient ot("localhost");
+		std::cout << ot << std::endl;
+
+		while (true) {
+			std::vector<short> v;
+			ot.start();
+			ot.readChannels(v);
+			std::cout << v.at(0) / 1000.0 << std::endl;
+		}
+
+		ot.stop();
+	}
+
+
 
 
 
