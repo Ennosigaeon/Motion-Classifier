@@ -111,22 +111,23 @@ void Classifier::send(const Signal& signal) {
 
 //TODO: no real-time plotting. Change this!
 void Classifier::plot(Sample* sample, std::vector<math::Vector>& values) {
+	//TODO: create folder if it does not exists
 	if (config->isPlotRMS()) {
 		std::ofstream sampleStream;
-		sampleStream.open(std::string("C:/Tmp/plot/") + boost::lexical_cast<std::string>(sample->getNumber())+"-rms.txt");
+		sampleStream.open(std::string("C:/Tmp/plot/") + boost::lexical_cast<std::string>(nr)+"-rms.txt");
 		sampleStream << *sample;
 		sampleStream.close();
 	}
 	if (config->isPlotVariogramGraph()) {
 		std::ofstream sampleStream;
-		sampleStream.open(std::string("C:/Tmp/plot/") + boost::lexical_cast<std::string>(sample->getNumber()) + "-graph.txt");
+		sampleStream.open(std::string("C:/Tmp/plot/") + boost::lexical_cast<std::string>(nr) + "-graph.txt");
 		for (std::vector<math::Vector>::iterator it = values.begin(); it != values.end(); ++it)
 			sampleStream << it->getGroup() << "\t" << it->getLength(2) << "\t" << it->getZ() << std::endl;
 		sampleStream.close();
 	}
 	if (config->isPlotVariogramSurface()) {
 		std::ofstream sampleStream;
-		sampleStream.open(std::string("C:/Tmp/plot/") + boost::lexical_cast<std::string>(sample->getNumber()) + "-surface.txt");
+		sampleStream.open(std::string("C:/Tmp/plot/") + boost::lexical_cast<std::string>(nr) + "-surface.txt");
 		for (std::vector<math::Vector>::iterator it = values.begin(); it != values.end(); ++it)
 			sampleStream << it->getX() << "\t" << it->getY() << "\t" << it->getZ() << std::endl;
 		sampleStream.close();

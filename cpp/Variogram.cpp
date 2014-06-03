@@ -18,7 +18,7 @@ std::vector<math::Vector> Variogram::calculate(Sample* sample) const {
 	int maxX = sample->getNrColumns() / 2;
 	int maxY = sample->getNrRows() / 2;
 	//distance is calculated without sqrt, therefore precision has to be squared
-	double precision = pow(std::max(maxX, maxY) * 1.0 / nrBins, 2);
+	double precision = std::max(maxX, maxY) * 1.0 / nrBins;
 	clock_t t = clock();
 
 	for (int i = math::Angle::DEGREE_0; i <= math::Angle::DEGREE_150; ++i) {
@@ -49,7 +49,7 @@ std::vector<math::Vector> Variogram::calculate(Sample* sample) const {
 
 //TODO: this is by far the slowest part of the application
 //Searches for pairs with the given offset h and calculates the variogram.
-double Variogram::calc(Sample* sample, const math::Vector& h, const double precision, int *count) const {
+double Variogram::calc(Sample* sample, const math::Vector& h, const double radius, int *count) const {
 	double result = 0;
 	int size = sample->getNrColumns() * sample->getNrRows();
 	math::Vector *entries = sample->getEntries();
@@ -59,20 +59,26 @@ double Variogram::calc(Sample* sample, const math::Vector& h, const double preci
 			continue;
 		math::Vector point(entries[i].getX() + h.getX(), entries[i].getY() + h.getY());
 
-		for (int j = 0; j < size; ++j) {
-			//Same vector
-			if (i == j)
-				continue;
-			if (entries[j].getGroup() == -1 && !isnan(entries[j].getZ()) &&
-				math::Vector::distance(entries[j], point, 2) < precision) {
-				entries[i].setGroup(0);
-				entries[j].setGroup(0);
-				result += pow(entries[i].getZ() - entries[j].getZ(), 2);
-				++(*count);
-				break;
+
+		int endX = std::min(floor(point.getX() + radius), sample->getNrColumns() - 1 * 1.0);
+		int endY = std::min(floor(point.getY() + radius), sample->getNrRows() - 1 * 1.0);
+		for (int x = std::max(ceil(point.getX() - radius), 0.0); x <= endX; ++x) {
+			for (int y = std::max(ceil(point.getY() - radius), 0.0); y <= endY; ++y) {
+				int index = y + x * sample->getNrRows();
+				if (index != i && entries[index].getGroup() == -1 &&
+					pow(x - point.getX(), 2) + pow(y - point.getY(), 2) <= radius * radius) {
+					entries[index].setGroup(0);
+					entries[i].setGroup(0);
+					result += pow(entries[i].getZ() - entries[index].getZ(), 2);
+					++(*count);
+					goto end;
+				}
 			}
 		}
+	//Used to break nested loops
+	end:;
 	}
+
 	//reset for next run
 	for (int i = 0; i < size; ++i)
 		entries[i].setGroup(-1);
