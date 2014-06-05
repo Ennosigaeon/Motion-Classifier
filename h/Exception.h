@@ -19,7 +19,10 @@ enum  Exception {
 	SVM_MISSING_TRAININGS_DATA,
 
 	//InputStream has reached the end of the file
-	END_OF_FILE
+	END_OF_FILE,
+
+	//Traings data are too close to each other
+	INVALID_TRAINING
 };
 
 #endif

@@ -27,6 +27,7 @@ protected:
 	BlockingQueue<Interval*> intervals{ 1000, AppConfig::getInstance()->getBlockingQueueMaxWaitTime() };
 	Interval *lastInterval = NULL;
 	void addInterval(Interval* const interval);
+	long sampleNr;
 
 public:
 
@@ -58,10 +59,16 @@ public:
 	int getBufferSize() const;
 
 	/**
+	  * Returns the number of the last read Sample.
+	  */
+	int getSampleNr() const;
+
+	/**
 	  * Sends a signal to the reading thread. See Signal (in
 	  * Communication.h) for more information.
 	  */
 	virtual void send(const Signal& signal) = NULL;
+
 };
 
 #endif

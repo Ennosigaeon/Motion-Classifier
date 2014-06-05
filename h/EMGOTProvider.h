@@ -7,6 +7,7 @@
 
 
 class EMGOTProvider : public EMGProvider {
+	friend class EMGProvider;
 private:
 	OTBioLabClient *client;
 	void run();

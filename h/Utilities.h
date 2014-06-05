@@ -34,14 +34,4 @@ std::string printAngle(const math::Angle& angle);
   */
 void convertFile(const std::string& inputFile, const std::string& outputFile);
 
-/**
-  * Extracts the trainings data from the given file and stores them under the
-  * given user name. The input file has to be formated by convertFile(). The
-  * results can be used as input for the Trainer.
-  * values is a collection of Motion::Muscle and the according center of the
-  * movement. The center of the movement is the number of the Sample that lies
-  * in the middle of a Movement.
-  */
-void createTrainingsData(const std::string& inputFile, const std::string& userName, std::vector<std::pair<Motion::Muscle, int>>& values);
-
 #endif

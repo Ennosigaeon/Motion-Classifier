@@ -50,7 +50,6 @@ void EMGFileProvider::send(const Signal& signal) {
 
 //TODO: kontrollieren, ob die Werte in der richtigen Reihenfolge eingelesen werden.
 void EMGFileProvider::run() {
-	long number = 0;
 	while (true) {
 		if (EMGProvider::status == Status::FINISHED) {
 			BOOST_LOG_TRIVIAL(info) << "shuting down EMGFileProvider worker";
@@ -70,7 +69,7 @@ void EMGFileProvider::run() {
 				lastInterval = new Interval();
 
 			//sensor array of 8 rows and 24 columns, in total 192 values
-			Sample *s = new Sample{ nrRows, nrColumns, number };
+			Sample *s = new Sample{ nrRows, nrColumns, sampleNr };
 			try {
 				fileIn >> *s;
 				lastInterval->addSample(s);
@@ -79,7 +78,7 @@ void EMGFileProvider::run() {
 				BOOST_LOG_TRIVIAL(warning) << "EMGFileProvider reached end of file. No more intervals will be read";
 				status = Status::FINISHED;
 			}
-			++number;
+			++sampleNr;
 			
 			if (lastInterval->isFull()) {
 				BOOST_LOG_TRIVIAL(debug) << "created new Interval";

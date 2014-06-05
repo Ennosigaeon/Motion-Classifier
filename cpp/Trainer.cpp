@@ -1,21 +1,27 @@
+#include <algorithm>
 #include <iostream>
+#include <map>
+#include <boost/bind.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/filesystem/operations.hpp>
 #include <boost/log/expressions.hpp>
 #include <boost/log/trivial.hpp>
+#include <boost/thread/thread.hpp>
 #include "../h/AppConfig.h"
 #include "../h/Exception.h"
 #include "../h/Trainer.h"
 #include "../h/Utilities.h"
+#include "../h/Variogram.h"
 
 Trainer::Trainer(EMGProvider *emgProvider, MultiClassSVM *svm) {
 	Trainer::emgProvider = emgProvider;
 	Trainer::svm = svm;
+	config = AppConfig::getInstance();
 }
 
 void Trainer::train() {
 	//Create folder, if it doesn't exists
-	std::string BASE_DIR = AppConfig::getInstance()->getTrainerBaseDir();
+	std::string BASE_DIR = config->getTrainerBaseDir();
 	boost::filesystem::path root(BASE_DIR);
 	if (!boost::filesystem::exists(root))
 		boost::filesystem::create_directories(root);
@@ -33,8 +39,8 @@ void Trainer::train() {
 		std::cin >> answer;
 		std::cin.ignore();
 		if (answer == "y") {
+			BOOST_LOG_TRIVIAL(info) << "loading trainings data from " << folder;
 			load();
-			svm->calculateSVMs();
 			return;
 		}
 		else {
@@ -50,108 +56,190 @@ void Trainer::train() {
 			}
 		}
 	}
-	boost::filesystem::create_directory(Trainer::folder);
+
+	//Necessary to avoid problems with deleting a directory and
+	//immediatly creating it again.
+	boost::this_thread::sleep(boost::posix_time::milliseconds(100));
+	if (!boost::filesystem::exists(Trainer::folder))
+		boost::filesystem::create_directory(Trainer::folder);
 	std::cout << "created new user" << std::endl;
 
-	//TODO: this code is wrong
-	//for (int i = 0; i < NR_RUNS; ++i) {
-	//	std::cout << "Doing run " << i+1 << " of " << NR_RUNS;
-
-	//	//rest position
-	//	std::cout << "Hold your arm in the rest position: " << std::endl;
-	//	std::vector<Interval*> rest = collectData();
-	//	store(&rest, Motion::Muscle::REST_POSITION, i);
-
-	//	//close hand
-	//	std::cout << "Close your hand: " << std::endl;
-	//	std::vector<Interval*> handClose = collectData();
-	//	store(&handClose, Motion::Muscle::HAND_CLOSE, i);
-
-	//	//open hand
-	//	std::cout << "Open your hand: " << std::endl;
-	//	std::vector<Interval*> handOpen = collectData();
-	//	store(&handOpen, Motion::Muscle::HAND_OPEN, i);
-
-	//	//wrist flexion
-	//	std::cout << "Roll your hand down in direction of the innerside of the forarm (wrist flextion): " << std::endl;
-	//	std::vector<Interval*> wristFlexion = collectData();
-	//	store(&wristFlexion, Motion::Muscle::WRIST_FLEXION, i);
-
-	//	//wrist extension
-	//	std::cout << "Pull your hand up in direction of the outerside of the forarm (wrist extension): " << std::endl;
-	//	std::vector<Interval*> wristExtension = collectData();
-	//	store(&wristExtension, Motion::Muscle::WRIST_EXTENSION, i);
-
-	//	//radial deviation
-	//	std::cout << "Bend your hand outwards, parallel to palm (radial deviation): " << std::endl;
-	//	std::vector<Interval*> radialDeviation = collectData();
-	//	store(&radialDeviation, Motion::Muscle::RADIAL_DEVIATION, i);
-
-	//	//ulnar deviation
-	//	std::cout << "Bend your hand inwards, parallel to palm (wrist flextion): " << std::endl;
-	//	std::vector<Interval*> ulnarDeviation = collectData();
-	//	store(&ulnarDeviation, Motion::Muscle::ULNAR_DEVIATION, i);
-
-	//	//forarm pronation
-	//	std::cout << "Rotate your forarm inwards (forarm pronation): " << std::endl;
-	//	std::vector<Interval*> forarmPronation = collectData();
-	//	store(&forarmPronation, Motion::Muscle::FORARM_PRONATION, i);
-
-	//	//forarm supination
-	//	std::cout << "Rotate your forarm outwards (forarm supination): " << std::endl;
-	//	std::vector<Interval*> forarmSupination = collectData();
-	//	store(&forarmSupination, Motion::Muscle::FORARM_SUPINATION, i);
-
-	//	svm->train(Trainer::folder);
-	//	svm->calculateSVMs();
-	//}
-}
-
-//TODO: this function is wrong
-std::vector<Interval*> Trainer::collectData() {
-	std::vector<Interval*> result;
-
-	std::cout << "Press Enter to start: ";
+	std::cout << "Please press enter to start the training...";
 	std::cin.get();
+	status = Status::RUNNING;
+	std::thread thread = std::thread(&Trainer::run, this);
+
+	std::ofstream out(Trainer::folder + "data.txt");
 	emgProvider->send(Signal::START);
-	for (int i = 0; i < 0; ++i) {
+	while (status == Status::RUNNING) {
 		Interval *interval = emgProvider->getInterval();
-		result.push_back(interval);
+		if (interval != NULL)
+			for (std::vector<Sample*>::const_iterator it = interval->getSamples().begin(); it != interval->getSamples().end(); ++it)
+				out << (**it);
 	}
 	emgProvider->send(Signal::STOP);
-	return result;
+	if (thread.joinable())
+		thread.join();
+
+	//TODO: this is not needed, records are already in order
+	//sort vector by center of movement ascending
+	std::sort(startMotions.begin(), startMotions.end(),
+		boost::bind(&std::pair<Motion::Muscle, int>::second, _1) <
+		boost::bind(&std::pair<Motion::Muscle, int>::second, _2));
+
+	//Check, that begining of movements are far enough from each other. Otherwise store() could
+	//throw a END_OF_FILE exception
+	int windowSize = config->getTrainingsSize();
+	int previous = -windowSize;
+	for (std::vector<std::pair<Motion::Muscle, int>>::iterator it = startMotions.begin(); it != startMotions.end(); ++it) {
+		if (abs(it->second - previous) < windowSize) {
+			BOOST_LOG_TRIVIAL(fatal) << "The beginnings of the movements are too close to each other. Please restart the training!";
+			throw Exception::INVALID_TRAINING;
+		}
+		previous = it->second;
+	}
+
+	//stores the trainings data
+	store();
+	//loads the trainings data and trains svm with them
+	load();
 }
 
-void Trainer::store(std::vector<Interval*> *values, Motion::Muscle& motion, int nrRun) {
-	std::string file = folder + printMotion(motion) + "-" + boost::lexical_cast<std::string>(nrRun)+".txt";
-	std::ofstream stream(file);
-	for (std::vector<Interval*>::iterator it = values->begin(); it != values->end(); ++it)
-		stream << (*it)->getRMSSample();
+void Trainer::run() {
+	int nrRuns = config->getTrainerNrRuns();
+	for (int i = 0; i < nrRuns; ++i) {
+		std::cout << "Press enter if arm is in rest position: ";
+		std::cin.get();
+		startMotions.push_back(std::pair<Motion::Muscle, int>(Motion::Muscle::REST_POSITION, emgProvider->getSampleNr()));
+		BOOST_LOG_TRIVIAL(debug) << "added " << startMotions.back().second << " as center for " << printMotion(Motion::Muscle::REST_POSITION);
+
+		std::cout << "Press enter before rolling hand downwards (wrist flexion): ";
+		std::cin.get();
+		startMotions.push_back(std::pair<Motion::Muscle, int>(Motion::Muscle::WRIST_FLEXION, emgProvider->getSampleNr()));
+		BOOST_LOG_TRIVIAL(debug) << "added " << startMotions.back().second << " as center for " << printMotion(Motion::Muscle::WRIST_FLEXION);
+
+		std::cout << "Press enter before rolling hand upwards (wrist extension): ";
+		std::cin.get();
+		startMotions.push_back(std::pair<Motion::Muscle, int>(Motion::Muscle::WRIST_EXTENSION, emgProvider->getSampleNr()));
+		BOOST_LOG_TRIVIAL(debug) << "added " << startMotions.back().second << " as center for " << printMotion(Motion::Muscle::WRIST_EXTENSION);
+
+		std::cout << "Press enter before bending the hand to the body (radial  deviation): ";
+		std::cin.get();
+		startMotions.push_back(std::pair<Motion::Muscle, int>(Motion::Muscle::RADIAL_DEVIATION, emgProvider->getSampleNr()));
+		BOOST_LOG_TRIVIAL(debug) << "added " << startMotions.back().second << " as center for " << printMotion(Motion::Muscle::RADIAL_DEVIATION);
+
+		std::cout << "Press enter before bending the hand away from the body (ulnar  deviation): ";
+		std::cin.get();
+		startMotions.push_back(std::pair<Motion::Muscle, int>(Motion::Muscle::ULNAR_DEVIATION, emgProvider->getSampleNr()));
+		BOOST_LOG_TRIVIAL(debug) << "added " << startMotions.back().second << " as center for " << printMotion(Motion::Muscle::ULNAR_DEVIATION);
+
+		std::cout << "Press enter before rolling the forearm to the body (forearm pronation): ";
+		std::cin.get();
+		startMotions.push_back(std::pair<Motion::Muscle, int>(Motion::Muscle::FORARM_PRONATION, emgProvider->getSampleNr()));
+		BOOST_LOG_TRIVIAL(debug) << "added " << startMotions.back().second << " as center for " << printMotion(Motion::Muscle::FORARM_PRONATION);
+
+		std::cout << "Press enter before rolling the forearm away from the body (forearm supination): ";
+		std::cin.get();
+		startMotions.push_back(std::pair<Motion::Muscle, int>(Motion::Muscle::FORARM_SUPINATION, emgProvider->getSampleNr()));
+		BOOST_LOG_TRIVIAL(debug) << "added " << startMotions.back().second << " as center for " << printMotion(Motion::Muscle::FORARM_SUPINATION);
+
+		std::cout << "Press enter before closing the hand (hand close): ";
+		std::cin.get();
+		startMotions.push_back(std::pair<Motion::Muscle, int>(Motion::Muscle::HAND_CLOSE, emgProvider->getSampleNr()));
+		BOOST_LOG_TRIVIAL(debug) << "added " << startMotions.back().second << " as center for " << printMotion(Motion::Muscle::HAND_CLOSE);
+
+		std::cout << "Press enter before opening the hand (hand open): ";
+		std::cin.get();
+		startMotions.push_back(std::pair<Motion::Muscle, int>(Motion::Muscle::HAND_OPEN, emgProvider->getSampleNr()));
+		BOOST_LOG_TRIVIAL(debug) << "added " << startMotions.back().second << " as center for " << printMotion(Motion::Muscle::HAND_OPEN);
+	}
+
+	//The last recoreded Motion also has to have enough Samples after the start of the movement
+	boost::this_thread::sleep(boost::posix_time::milliseconds(5000));
+	status = Status::FINISHED;
+}
+
+void Trainer::store() {
+	BOOST_LOG_TRIVIAL(info) << "calculating trainings data from recorded input. This may take some time...";
+	int windowSize = config->getTrainingsSize();
+	Variogram variogram;
+
+	std::ifstream in(folder + "data.txt");
+	if (!in.is_open())
+		throw Exception::UNABLE_TO_OPEN_FILE;
+
+	//calculate Variograms for every center of movement
+	std::map<Motion::Muscle, std::vector<math::Vector>> map;
+	int lineNr = 0;
+	for (std::vector<std::pair<Motion::Muscle, int>>::const_iterator it = startMotions.begin(); it != startMotions.end(); ++it) {
+		if (map.find(it->first) == map.end())
+			map.insert(std::pair< Motion::Muscle, std::vector<math::Vector>>(it->first, std::vector<math::Vector>()));
+		std::vector<math::Vector> *values = &(map.find(it->first)->second);
+
+		Interval *interval = new Interval();
+		while (!in.eof()) {
+			if (lineNr < it->second) {
+				//TODO: can maybe replaced by ignore
+				std::string line;
+				std::getline(in, line);
+			}
+			else {
+				if (lineNr <= it->second + windowSize) {
+					Sample *s = new Sample(config->getSampleRows(), config->getSampleColumns());
+					in >> *s;
+					interval->addSample(s);
+					if (interval->isFull()) {
+						std::vector<math::Vector> vec = variogram.calculate(interval->getRMSSample());
+						values->insert(values->end(), vec.begin(), vec.end());
+						delete interval;
+						interval = new Interval();
+					}
+				}
+				else
+					break;
+			}
+			++lineNr;
+		}
+		delete interval;
+	}
+
+	//store values in filesystem
+	for (std::map<Motion::Muscle, std::vector<math::Vector>>::iterator it = map.begin(); it != map.end(); ++it) {
+		std::string s = folder + printMotion(it->first) + ".txt";
+		std::ofstream out(s);
+		if (!out.is_open())
+			throw Exception::UNABLE_TO_OPEN_FILE;
+		for (std::vector<math::Vector>::iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2)
+			out << *it2 << std::endl;
+		out.close();
+	}
 }
 
 void Trainer::load() {
 	if (!boost::filesystem::is_directory(boost::filesystem::path(folder)))
 		throw Exception::UNABLE_TO_OPEN_FILE;
 
-	AppConfig *config = AppConfig::getInstance();
-	BOOST_LOG_TRIVIAL(info) << "loading trainings data from " << folder;
+	int nrRuns = config->getTrainerNrRuns();
 	for (int i = Motion::Muscle::REST_POSITION; i <= Motion::Muscle::HAND_CLOSE; ++i) {
-		std::string file = folder + printMotion(static_cast<Motion::Muscle>(i)) + "-";
+		std::string file = folder + printMotion(static_cast<Motion::Muscle>(i)) + ".txt";
+		std::ifstream in(file);
+		//This trainigs file does not exists
+		if (!in.is_open()) {
+			BOOST_LOG_TRIVIAL(warning) << "No trainings data for " << printMotion(static_cast<Motion::Muscle>(i)) << " available.";
+			continue;
+		}
 
 		std::vector<math::Vector> result;
-		for (int j = 0; j < config->getTrainerNrRuns(); ++j) {
-			std::string tmp = file;
-			tmp += boost::lexical_cast<std::string>(j)+".txt";
-			std::ifstream in(tmp);
-			//This trainigs file does not exists
-			if (!in.is_open())
-				continue;
-			while (!in.eof()) {
-				math::Vector vec;
-				in >> vec;
-				result.push_back(vec);
-			}
+		while (!in.eof()) {
+			math::Vector vec;
+			in >> vec;
+			result.push_back(vec);
 		}
 		svm->train(static_cast<Motion::Muscle>(i), result);
+		in.close();
 	}
+	svm->calculateSVMs();
+
+	BOOST_LOG_TRIVIAL(info) << "Training finished. Press Enter to continue...";
+	std::cin.get();
 }

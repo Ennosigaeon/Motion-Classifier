@@ -54,7 +54,7 @@ void Classifier::run() {
 			//overrides the last stored value
 			lastMuscleMotion.push(&motion);
 			t = clock() - t;
-			long tmp = ((double)t) / CLOCKS_PER_SEC * 1000;
+			long tmp = (long) ((double)t) / CLOCKS_PER_SEC * 1000;
 			BOOST_LOG_TRIVIAL(info) << "classified new Interval in " << tmp << " ms as " << printMotion(motion);
 
 			time += tmp;

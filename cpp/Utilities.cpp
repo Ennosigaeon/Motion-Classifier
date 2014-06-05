@@ -1,16 +1,8 @@
-#include <algorithm>
 #include <fstream>
 #include <sstream>
-#include <boost/bind.hpp>
-#include <boost/filesystem.hpp>
-#include <boost/lexical_cast.hpp>
 #include "../h/AppConfig.h"
 #include "../h/Exception.h"
-#include "../h/Interval.h"
 #include "../h/Utilities.h"
-#include "../h/Variogram.h"
-
-#include <iostream>
 
 std::string printMotion(const Motion::Muscle& motion) {
 	switch (motion) {
@@ -107,68 +99,4 @@ void convertFile(const std::string& inputFile, const std::string& outputFile) {
 	}
 	in.close();
 	out.close();
-}
-
-void createTrainingsData(const std::string& inputFile, const std::string& username, std::vector<std::pair<Motion::Muscle, int>>& values) {
-	AppConfig *config = AppConfig::getInstance();
-	int windowSize = config->getTrainingsSize();
-	std::string folder = config->getTrainerBaseDir() + username + "/";
-
-	boost::filesystem::path root(folder);
-	if (!boost::filesystem::exists(root))
-		boost::filesystem::create_directories(root);
-
-
-	Variogram variogram;
-
-	std::ifstream in(inputFile);
-	if (!in.is_open())
-		throw Exception::UNABLE_TO_OPEN_FILE;
-
-	//sort vector by center of movement ascending
-	std::sort(values.begin(), values.end(),
-		boost::bind(&std::pair<Motion::Muscle, int>::second, _1) <
-		boost::bind(&std::pair<Motion::Muscle, int>::second, _2));
-
-	int count[Motion::Muscle::HAND_CLOSE + 1] = {};
-	int lineNr = 0;
-	for (std::vector<std::pair<Motion::Muscle, int>>::const_iterator it = values.begin(); it != values.end(); ++it) {
-		std::string s = folder + printMotion(it->first) + "-" + boost::lexical_cast<std::string>(count[it->first]) + ".txt";
-		std::ofstream out(s);
-		if (!out.is_open())
-			throw Exception::UNABLE_TO_OPEN_FILE;
-		++count[it->first];
-
-		int nr = it->second - windowSize / 2;
-		bool found = false;
-		
-		Interval *interval = new Interval();
-		while (!in.eof()) {
-			++lineNr;
-			if (lineNr == nr) {
-				found = true;
-				std::cout << "found data for " << printMotion(it->first) << " at " << lineNr << std::endl;
-			}
-			if (lineNr >= nr && lineNr <= nr + windowSize) {
-				Sample *s = new Sample(config->getSampleRows(), config->getSampleColumns());
-				in >> *s;
-				interval->addSample(s);
-				if (interval->isFull()) {
-					std::vector<math::Vector> vec = variogram.calculate(interval->getRMSSample());
-					for (std::vector<math::Vector>::iterator it = vec.begin(); it != vec.end(); ++it)
-						out << *it << std::endl;
-					delete interval;
-					interval = new Interval();
-				}
-			}
-			else {
-				std::string line;
-				std::getline(in, line);
-				if (found)
-					break;
-			}
-		}
-		out.close();
-		delete interval;
-	}
 }

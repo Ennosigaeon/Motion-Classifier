@@ -1,6 +1,5 @@
 #define WIN32_LEAN_AND_MEAN
 
-
 #include <iostream>
 #include <boost/log/expressions.hpp>
 #include <boost/log/trivial.hpp>
@@ -8,12 +7,14 @@
 #include "../h/Classifier.h"
 #include "../h/Exception.h"
 #include "../h/EMGFileProvider.h"
+#include "../h/EMGOTProvider.h"
 #include "../h/MultiClassSVM.h"
 #include "../h/Plotter.h"
 #include "../h/Trainer.h"
 #include "../h/Utilities.h"
 
 #include "../lib/OTBioLabClient/OTBioLabClient.h"
+
 
 /**
   * It is necessary to pass an argument with the path to the configuration file.
@@ -37,51 +38,14 @@ int main(int argc, char *argv[]) {
 		return EXIT_FAILURE;
 	}
 
-	{
-		OTBioLabClient ot("localhost");
-		std::cout << ot << std::endl;
-
-		while (true) {
-			std::vector<short> v;
-			ot.start();
-			ot.readChannels(v);
-			std::cout << v.at(0) / 1000.0 << std::endl;
-		}
-
-		ot.stop();
-	}
-
-
-
-
-
 	std::string path = "c:\\Users\\Marc\\Dropbox\\Informatik\\Studium\\6. Semester\\Bachelor Thesis\\MARC\\data\\data8_AN-format.txt";
-	std::vector<std::pair<Motion::Muscle, int>> values;
-
-	values.push_back(std::make_pair<Motion::Muscle, int>(Motion::Muscle::HAND_CLOSE, 36142));
-	values.push_back(std::make_pair<Motion::Muscle, int>(Motion::Muscle::HAND_CLOSE, 84545));
-	values.push_back(std::make_pair<Motion::Muscle, int>(Motion::Muscle::HAND_CLOSE, 141109));
-	values.push_back(std::make_pair<Motion::Muscle, int>(Motion::Muscle::HAND_CLOSE, 196698));
-
-	values.push_back(std::make_pair<Motion::Muscle, int>(Motion::Muscle::HAND_OPEN, 13552));
-	values.push_back(std::make_pair<Motion::Muscle, int>(Motion::Muscle::HAND_OPEN, 61725));
-	values.push_back(std::make_pair<Motion::Muscle, int>(Motion::Muscle::HAND_OPEN, 118371));
-	values.push_back(std::make_pair<Motion::Muscle, int>(Motion::Muscle::HAND_OPEN, 174459));
-
-	values.push_back(std::make_pair<Motion::Muscle, int>(Motion::Muscle::REST_POSITION, 24847));
-	values.push_back(std::make_pair<Motion::Muscle, int>(Motion::Muscle::REST_POSITION, 73135));
-	values.push_back(std::make_pair<Motion::Muscle, int>(Motion::Muscle::REST_POSITION, 129740));
-	values.push_back(std::make_pair<Motion::Muscle, int>(Motion::Muscle::REST_POSITION, 18557));
-
-	//createTrainingsData(path, "8_AN", values);
-
 
 	//It takes very much time to delete EMGProvider and/or Classifier.
 	//Therefor I added this block, so that both are destroyed before the end
 	//of the program is reached.
 	{
-		//TODO: This is just dummy code. Add real application here
-		EMGFileProvider emgProvider{ path };
+		EMGOTProvider emgProvider{};
+		//EMGFileProvider emgProvider{ path };
 		MultiClassSVM svm;
 
 		Trainer trainer(&emgProvider, &svm);
@@ -89,9 +53,8 @@ int main(int argc, char *argv[]) {
 
 		Classifier classifier(&emgProvider, &svm);
 		classifier.send(Signal::START);
-		Sleep(60000);
+		Sleep(30000);
 		classifier.send(Signal::SHUTDOWN);
-		//TODO: Shutdown takes way more time, then it is supposed to do
 	}
 
 	//closes all open resources, releases heap memory, ...

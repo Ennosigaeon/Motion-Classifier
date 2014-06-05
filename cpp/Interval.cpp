@@ -65,3 +65,7 @@ Sample* Interval::getRMSSample() {
 
 	return rms;
 }
+
+const std::vector<Sample*>& Interval::getSamples() const {
+	return samples;
+}

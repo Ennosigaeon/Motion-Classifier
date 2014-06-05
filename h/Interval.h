@@ -42,6 +42,8 @@ public:
 	  * in an Interval have the same number of rows and columns.
 	  */
 	void addSample(Sample *sample);
+
+	const std::vector<Sample*>& getSamples() const;
 };
 
 #endif

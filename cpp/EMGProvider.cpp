@@ -34,3 +34,7 @@ void EMGProvider::clearBuffer() {
 int EMGProvider::getBufferSize() const {
 	return intervals.size();
 }
+
+int EMGProvider::getSampleNr() const {
+	return sampleNr;
+}
