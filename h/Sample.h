@@ -5,8 +5,10 @@
 #include "Vector.h"
 
 /**
-  * A Sample represent all measured EMG signals for a specific timestamp.
-  * The sensors are in an array with a fixed number of rows and columns.
+  * A Sample represent all measured EMG signals for at a timestamp. The
+  * measured values are stored in an array with a fixed number of rows
+  * and columns. You can not change the size of the array during runtime,
+  * all Samples have to have the same size.
   */
 class Sample {
 private:
@@ -18,13 +20,18 @@ private:
 public:
 
 	/**
-	  * Creates a new Sample with the given number of rows and columns.
-	  * The Sample is empty. The parameter nr should be a incrementing
-	  * number. It is like an ID for the Sample.	
+	  * Creates a new Sample with the given number. The Sample is empty.
+	  * The parameter nr should be a incrementing number. It is like an
+	  * ID for the Sample.
 	  */
-	Sample(int nrRows = 0, int nrColumns = 0, long nr = -1);
+	Sample(long nr = -1);
 
-	Sample(std::vector<short>& values, int nrRows = 0, int nrColumns = 0, long nr = -1);
+	/**
+	  * Creates a new Sample with given number. The Sample is filled
+	  * with the given values. The parameter nr should be a incrementing
+	  * number. It is like an ID for the Sample.
+	  */
+	Sample(std::vector<short>& values, long nr = -1);
 
 	~Sample();
 

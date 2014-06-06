@@ -13,11 +13,13 @@
   */
 class Trainer {
 private:
+	static const int recordingTime;
+
 	std::string folder;
 	AppConfig *config;
 	EMGProvider *emgProvider;
 	MultiClassSVM *svm;
-	Status status = Status::RUNNING;
+	Status status = Status::NEW;
 	std::vector<std::pair<Motion::Muscle, int>> startMotions;
 
 	void load();
@@ -38,7 +40,7 @@ public:
 	  * By calling this method a interactive trainings procedure will
 	  * be started. It is possible to load old trainings results from
 	  * the filesystem or create new ones.
-	  * Throws: Exception::UNABLE_TO_OPEN_FILE
+	  * Throws	Exception::UNABLE_TO_OPEN_FILE
 	  */
 	void train();
 };

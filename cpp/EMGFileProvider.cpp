@@ -1,26 +1,22 @@
-#include <sstream>
-#include <thread>
 #include <boost/log/expressions.hpp>
 #include <boost/log/trivial.hpp>
 #include "../h/EMGFileProvider.h"
 #include "../h/Exception.h"
-#include "../h/AppConfig.h"
 
 EMGFileProvider::EMGFileProvider(const std::string& path) {
-	AppConfig *conf = AppConfig::getInstance();
-	nrRows = conf->getSampleRows();
-	nrColumns = conf->getSampleColumns();
-
 	fileIn.open(path, std::ios_base::in);
-	if (!fileIn.is_open())
+	if (!fileIn.is_open()) {
+		BOOST_LOG_TRIVIAL(fatal) << "unable to read records from file. Stopping EMGFileProvider";
 		throw Exception::UNABLE_TO_OPEN_FILE;
+	}
+	lastInterval = new Interval();
 	BOOST_LOG_TRIVIAL(info) << "EMGFileProvider created";
 }
 
 EMGFileProvider::~EMGFileProvider() {
 	send(Signal::SHUTDOWN);
-	fileIn.close();
 	BOOST_LOG_TRIVIAL(info) << "EMGFileProvider destroyed";
+	//Intervals are deleted in EMGProvider destructor
 }
 
 void EMGFileProvider::send(const Signal& signal) {
@@ -40,11 +36,14 @@ void EMGFileProvider::send(const Signal& signal) {
 		EMGProvider::status = Status::WAITING;
 	if (signal == Signal::SHUTDOWN) {
 		EMGProvider::status = Status::FINISHED;
+		//release waiting thread
 		std::unique_lock<std::mutex> mlock(mutex);
 		mlock.unlock();
 		condition.notify_one();
+		//wait for worker to finish
 		if (thread.joinable())
 			thread.join();
+		fileIn.close();
 	}
 }
 
@@ -61,15 +60,7 @@ void EMGFileProvider::run() {
 			condition.wait(lk);
 		}
 		if (EMGProvider::status == Status::RUNNING) {
-			if (!EMGFileProvider::fileIn.is_open()) {
-				BOOST_LOG_TRIVIAL(fatal) << "unable to read records from file. Stopping EMGFileProvider";
-				return;
-			}
-			if (lastInterval == NULL)
-				lastInterval = new Interval();
-
-			//sensor array of 8 rows and 24 columns, in total 192 values
-			Sample *s = new Sample{ nrRows, nrColumns, sampleNr };
+			Sample *s = new Sample(sampleNr);
 			try {
 				fileIn >> *s;
 				lastInterval->addSample(s);
@@ -79,7 +70,7 @@ void EMGFileProvider::run() {
 				status = Status::FINISHED;
 			}
 			++sampleNr;
-			
+
 			if (lastInterval->isFull()) {
 				BOOST_LOG_TRIVIAL(debug) << "created new Interval";
 				EMGProvider::addInterval(lastInterval);

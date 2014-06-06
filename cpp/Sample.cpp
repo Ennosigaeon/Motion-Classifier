@@ -1,16 +1,20 @@
 #include <sstream>
+#include "../h/AppConfig.h"
 #include "../h/Exception.h"
 #include "../h/Sample.h"
 
-Sample::Sample(int nrRows, int nrColumns, long nr) : nrRows(nrRows), nrColumns(nrColumns), nr(nr) {
+Sample::Sample(long nr) : nr(nr) {
+	AppConfig *config = AppConfig::getInstance();
+	nrRows =config->getSampleRows();
+	nrColumns = config->getSampleColumns();
 	entries = new math::Vector[nrRows * nrColumns];
 }
 
-Sample::Sample(std::vector<short>& values, int nrRows, int nrColumns, long nr) :nrRows(nrRows), nrColumns(nrColumns), nr(nr) {
-	entries = new math::Vector[nrRows * nrColumns];
+Sample::Sample(std::vector<short>& values, long nr) : Sample(nr) {
 	int x = 0, y = 0, i = 0;
 	for (std::vector<short>::iterator it = values.begin(); it != values.end(); ++it, ++i) {
-		math::Vector vec(x, y, *it / 1000.0);
+		//TODO: Maybe it is necessary to scale the data
+		math::Vector vec(x, y, *it);
 		entries[i] = vec;
 		++y;
 		if (y == nrRows) {

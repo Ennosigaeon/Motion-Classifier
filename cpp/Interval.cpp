@@ -6,17 +6,18 @@
 #include "../h/Interval.h"
 
 Interval::Interval() {
-	MAX_SIZE = AppConfig::getInstance()->getIntervalNrSamples();
+	maxNrSamples = AppConfig::getInstance()->getIntervalNrSamples();
 }
 
 Interval::~Interval() {
 	for (std::vector<Sample*>::iterator it = samples.begin(); it != samples.end(); ++it)
 		delete *it;
-	delete rms;
+	if (rms != NULL)
+		delete rms;
 }
 
 inline bool Interval::isFull() const {
-	return samples.size() == MAX_SIZE;
+	return samples.size() == maxNrSamples;
 }
 
 void Interval::addSample(Sample* sample) {
@@ -34,8 +35,7 @@ Sample* Interval::getRMSSample() {
 		return rms;
 
 	clock_t t = clock();
-	Sample *start = samples.at(0);
-	rms = new Sample{ start->getNrRows(), start->getNrColumns() };
+	rms = new Sample();
 	int size = rms->getNrRows() * rms->getNrColumns();
 
 	//creates both arrays and inititalizes them with 0
@@ -52,7 +52,7 @@ Sample* Interval::getRMSSample() {
 			}
 		}
 	}
-	math::Vector* entries = start->getEntries();
+	math::Vector* entries = samples.at(0)->getEntries();
 	math::Vector* resultEntries = rms->getEntries();
 	for (int i = 0; i < size; ++i)
 		resultEntries[i] = math::Vector(entries[i].getX(), entries[i].getY(), sqrt(value[i] / count[i]));

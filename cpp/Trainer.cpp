@@ -13,6 +13,8 @@
 #include "../h/Utilities.h"
 #include "../h/Variogram.h"
 
+const int Trainer::recordingTime = 3000;
+
 Trainer::Trainer(EMGProvider *emgProvider, MultiClassSVM *svm) {
 	Trainer::emgProvider = emgProvider;
 	Trainer::svm = svm;
@@ -81,12 +83,6 @@ void Trainer::train() {
 	if (thread.joinable())
 		thread.join();
 
-	//TODO: this is not needed, records are already in order
-	//sort vector by center of movement ascending
-	std::sort(startMotions.begin(), startMotions.end(),
-		boost::bind(&std::pair<Motion::Muscle, int>::second, _1) <
-		boost::bind(&std::pair<Motion::Muscle, int>::second, _2));
-
 	//Check, that begining of movements are far enough from each other. Otherwise store() could
 	//throw a END_OF_FILE exception
 	int windowSize = config->getTrainingsSize();
@@ -112,50 +108,57 @@ void Trainer::run() {
 		std::cin.get();
 		startMotions.push_back(std::pair<Motion::Muscle, int>(Motion::Muscle::REST_POSITION, emgProvider->getSampleNr()));
 		BOOST_LOG_TRIVIAL(debug) << "added " << startMotions.back().second << " as center for " << printMotion(Motion::Muscle::REST_POSITION);
+		boost::this_thread::sleep(boost::posix_time::milliseconds(recordingTime));
 
-		std::cout << "Press enter before rolling hand downwards (wrist flexion): ";
+		/*std::cout << "Press enter before rolling hand downwards (wrist flexion): ";
 		std::cin.get();
 		startMotions.push_back(std::pair<Motion::Muscle, int>(Motion::Muscle::WRIST_FLEXION, emgProvider->getSampleNr()));
 		BOOST_LOG_TRIVIAL(debug) << "added " << startMotions.back().second << " as center for " << printMotion(Motion::Muscle::WRIST_FLEXION);
+		boost::this_thread::sleep(boost::posix_time::milliseconds(recordingTime));
 
 		std::cout << "Press enter before rolling hand upwards (wrist extension): ";
 		std::cin.get();
 		startMotions.push_back(std::pair<Motion::Muscle, int>(Motion::Muscle::WRIST_EXTENSION, emgProvider->getSampleNr()));
 		BOOST_LOG_TRIVIAL(debug) << "added " << startMotions.back().second << " as center for " << printMotion(Motion::Muscle::WRIST_EXTENSION);
+		boost::this_thread::sleep(boost::posix_time::milliseconds(recordingTime));
 
 		std::cout << "Press enter before bending the hand to the body (radial  deviation): ";
 		std::cin.get();
 		startMotions.push_back(std::pair<Motion::Muscle, int>(Motion::Muscle::RADIAL_DEVIATION, emgProvider->getSampleNr()));
 		BOOST_LOG_TRIVIAL(debug) << "added " << startMotions.back().second << " as center for " << printMotion(Motion::Muscle::RADIAL_DEVIATION);
+		boost::this_thread::sleep(boost::posix_time::milliseconds(recordingTime));
 
 		std::cout << "Press enter before bending the hand away from the body (ulnar  deviation): ";
 		std::cin.get();
 		startMotions.push_back(std::pair<Motion::Muscle, int>(Motion::Muscle::ULNAR_DEVIATION, emgProvider->getSampleNr()));
 		BOOST_LOG_TRIVIAL(debug) << "added " << startMotions.back().second << " as center for " << printMotion(Motion::Muscle::ULNAR_DEVIATION);
+		boost::this_thread::sleep(boost::posix_time::milliseconds(recordingTime));
 
 		std::cout << "Press enter before rolling the forearm to the body (forearm pronation): ";
 		std::cin.get();
-		startMotions.push_back(std::pair<Motion::Muscle, int>(Motion::Muscle::FORARM_PRONATION, emgProvider->getSampleNr()));
-		BOOST_LOG_TRIVIAL(debug) << "added " << startMotions.back().second << " as center for " << printMotion(Motion::Muscle::FORARM_PRONATION);
+		startMotions.push_back(std::pair<Motion::Muscle, int>(Motion::Muscle::FOREARM_PRONATION, emgProvider->getSampleNr()));
+		BOOST_LOG_TRIVIAL(debug) << "added " << startMotions.back().second << " as center for " << printMotion(Motion::Muscle::FOREARM_PRONATION);
+		boost::this_thread::sleep(boost::posix_time::milliseconds(recordingTime));
 
 		std::cout << "Press enter before rolling the forearm away from the body (forearm supination): ";
 		std::cin.get();
-		startMotions.push_back(std::pair<Motion::Muscle, int>(Motion::Muscle::FORARM_SUPINATION, emgProvider->getSampleNr()));
-		BOOST_LOG_TRIVIAL(debug) << "added " << startMotions.back().second << " as center for " << printMotion(Motion::Muscle::FORARM_SUPINATION);
-
+		startMotions.push_back(std::pair<Motion::Muscle, int>(Motion::Muscle::FOREARM_SUPINATION, emgProvider->getSampleNr()));
+		BOOST_LOG_TRIVIAL(debug) << "added " << startMotions.back().second << " as center for " << printMotion(Motion::Muscle::FOREARM_SUPINATION);
+		boost::this_thread::sleep(boost::posix_time::milliseconds(recordingTime));
+		
 		std::cout << "Press enter before closing the hand (hand close): ";
 		std::cin.get();
 		startMotions.push_back(std::pair<Motion::Muscle, int>(Motion::Muscle::HAND_CLOSE, emgProvider->getSampleNr()));
 		BOOST_LOG_TRIVIAL(debug) << "added " << startMotions.back().second << " as center for " << printMotion(Motion::Muscle::HAND_CLOSE);
+		boost::this_thread::sleep(boost::posix_time::milliseconds(recordingTime));
 
 		std::cout << "Press enter before opening the hand (hand open): ";
 		std::cin.get();
 		startMotions.push_back(std::pair<Motion::Muscle, int>(Motion::Muscle::HAND_OPEN, emgProvider->getSampleNr()));
 		BOOST_LOG_TRIVIAL(debug) << "added " << startMotions.back().second << " as center for " << printMotion(Motion::Muscle::HAND_OPEN);
+		boost::this_thread::sleep(boost::posix_time::milliseconds(recordingTime));
+		*/
 	}
-
-	//The last recoreded Motion also has to have enough Samples after the start of the movement
-	boost::this_thread::sleep(boost::posix_time::milliseconds(5000));
 	status = Status::FINISHED;
 }
 
@@ -185,7 +188,7 @@ void Trainer::store() {
 			}
 			else {
 				if (lineNr <= it->second + windowSize) {
-					Sample *s = new Sample(config->getSampleRows(), config->getSampleColumns());
+					Sample *s = new Sample();
 					in >> *s;
 					interval->addSample(s);
 					if (interval->isFull()) {
@@ -233,7 +236,8 @@ void Trainer::load() {
 		while (!in.eof()) {
 			math::Vector vec;
 			in >> vec;
-			result.push_back(vec);
+			if (!isnan(vec.getX()))
+				result.push_back(vec);
 		}
 		svm->train(static_cast<Motion::Muscle>(i), result);
 		in.close();

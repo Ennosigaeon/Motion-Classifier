@@ -2,10 +2,8 @@
 #include <boost/log/trivial.hpp>
 #include "../h/EMGProvider.h"
 
-//sets the value of bufferWarnSize to 5, due to forbidden 'in-class initialization'.
-int EMGProvider::bufferWarnSize = 5;
-
 EMGProvider::~EMGProvider() {
+	//TODO: consumes a lot of time
 	if (lastInterval != NULL)
 		delete lastInterval;
 	clearBuffer();
@@ -19,7 +17,7 @@ Interval* EMGProvider::getInterval() {
 void EMGProvider::addInterval(Interval* const interval) {
 	intervals.push(interval);
 
-	//EMGProvider creates Intervals much faster, than they are processed
+	//EMGProvider could create Intervals much faster, than they are processed
 	if (intervals.size() > bufferWarnSize)
 		BOOST_LOG_TRIVIAL(warning) << intervals.size() << " Intervals are stored in EMGProvider";
 }
