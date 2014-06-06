@@ -9,7 +9,8 @@
 #include <locale.h>
 #include "svm.h"
 int libsvm_version = LIBSVM_VERSION;
-typedef float Qfloat;
+//Set this to double for better precision - Marc Zöller
+typedef double Qfloat;
 typedef signed char schar;
 #ifndef min
 template <class T> static inline T min(T x,T y) { return (x<y)?x:y; }
@@ -45,7 +46,7 @@ static void print_string_stdout(const char *s)
 }
 static void (*svm_print_string) (const char *) = &print_string_stdout;
 //Set this value to 1 to enable svm_train() output - Marc Zöller
-#if 0
+#if 1
 static void info(const char *fmt,...)
 {
 	char buf[BUFSIZ];
@@ -558,8 +559,10 @@ void Solver::Solve(int l, const QMatrix& Q, const double *p_, const schar *y_,
 
 	// optimization step
 
+	//TODO: This takes much time - Marc Zöller
 	int iter = 0;
-	int max_iter = max(10000000, l>INT_MAX/100 ? INT_MAX : 100*l);
+	//Original value was 10000000 - Marc Zöller
+	int max_iter = max(100000, l>INT_MAX/100 ? INT_MAX : 100*l);
 	int counter = min(l,1000)+1;
 	
 	while(iter < max_iter)

@@ -162,11 +162,18 @@ void OTBioLabClient::stop() {
 	sendCommand("stop");
 }
 
+void OTBioLabClient::shutdown() {
+	sendCommand("stop");
+	keepReading = false;
+}
+
 void OTBioLabClient::readChannels(std::vector< short >& newData) {
 
 	// wait for enough bytesToRead
-	while (socket_.available() < blockSizeInBytes_)
+	while (socket_.available() < blockSizeInBytes_ && keepReading)
 		boost::this_thread::sleep(boost::posix_time::milliseconds(1));
+	if (!keepReading)
+		return;
 
 	char block[max_length];
 	size_t reply_length = boost::asio::read(socket_,

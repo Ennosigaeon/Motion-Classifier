@@ -1,19 +1,22 @@
-
 #include <boost/log/trivial.hpp>
 #include <boost/log/expressions.hpp>
-
 #include "../h/EMGOTProvider.h"
 
 EMGOTProvider::EMGOTProvider() {
+	BOOST_LOG_TRIVIAL(info) << "Please start the Visualization in the OT BioLab. Press enter to continue...";
+	std::cin.get();
 	client = new OTBioLabClient("localhost");
+	lastInterval = new Interval();
 	//TODO: Test connection;
 };
 
 EMGOTProvider::~EMGOTProvider() {
-	send(Signal::STOP);
-	BOOST_LOG_TRIVIAL(info) << "Please stop the Visualization in the OT BioLab...";
+	send(Signal::SHUTDOWN);
+	//When socket is closed before Visualization has been stoped, you have to restart OT BioLab
+	BOOST_LOG_TRIVIAL(info) << "Please stop the Visualization in the OT BioLab. Press enter to continue...";
 	std::cin.get();
 	delete client;
+	//Intervals are deleted in EMGProvider destructor
 };
 
 void EMGOTProvider::send(const Signal& signal) {
@@ -27,9 +30,7 @@ void EMGOTProvider::send(const Signal& signal) {
 	}
 	if (signal == Signal::SHUTDOWN) {
 		status = Status::FINISHED;
-		//only needed to unblock reading process
-		client->getEMGgain();
-		client->stop();
+		client->shutdown();
 		if (thread.joinable())
 			thread.join();
 	}
@@ -40,9 +41,6 @@ void EMGOTProvider::send(const Signal& signal) {
 }
 
 void EMGOTProvider::run() {
-	AppConfig *config = AppConfig::getInstance();
-	int nrRows = config->getSampleRows();
-	int nrColumns = config->getSampleColumns();
 	while (true) {
 		if (status == Status::FINISHED) {
 			BOOST_LOG_TRIVIAL(info) << "Stopping EMGOTProvider";
@@ -50,11 +48,9 @@ void EMGOTProvider::run() {
 		}
 		std::vector<short> values;
 		client->readChannels(values);
-		Sample *s = new Sample(values, nrRows, nrColumns, sampleNr);
+		Sample *s = new Sample(values, sampleNr);
 		++sampleNr;
 
-		if (lastInterval == NULL)
-			lastInterval = new Interval();
 		lastInterval->addSample(s);
 		if (lastInterval->isFull()) {
 			BOOST_LOG_TRIVIAL(debug) << "created new Interval";

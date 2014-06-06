@@ -16,7 +16,6 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 	*/
 
-
 #ifndef OTBioLabClient_h
 #define OTBioLabClient_h
 
@@ -31,6 +30,7 @@ public:
 	~OTBioLabClient();
 	void start();
 	void stop();
+	void shutdown();
 	void readChannels(std::vector<short>& newData);
 
 	void printChannelConfiguration(std::ostream& out);
@@ -44,7 +44,6 @@ private:
 	void readData(std::vector< short >& data, unsigned numData);
 	void fromBytesToShort(char* from, std::vector<short>& to, unsigned fromLength);
 
-
 	std::string host_;
 	std::string port_;
 	unsigned short sampleRate_;
@@ -52,7 +51,7 @@ private:
 	unsigned short noAUXchannels_;
 	unsigned short nGain_;
 	std::vector< std::vector< short> > channelConfig_;
-
+	bool keepReading = true;
 
 	boost::asio::io_service io_service_;
 	boost::asio::ip::tcp::socket socket_;
