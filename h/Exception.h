@@ -4,6 +4,7 @@
 /**
   * This enum contains all Errors the Motion-Classifier can throw.
   */
+//TODO: review exception handling
 enum  Exception {
 
 	//Configuration contains wrong value

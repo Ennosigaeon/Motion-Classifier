@@ -14,7 +14,7 @@
 
 /**
   * This class computes the MuscleMotion for EMG signals. The
-  * classification process is done in an own worker Thread. To
+  * classification process is done in a own worker Thread. To
   * communicate with the worker use the member function
   * send(const Signal&).
   */
@@ -32,7 +32,7 @@ private:
 	EMGProvider *emgProvider;
 	AppConfig *config;
 	Status status = NEW;
-	int nr = 0;
+	int intervalCount = 0;
 	long time = 0;
 
 public:
@@ -52,7 +52,8 @@ public:
 	  * Returns the last stored MuscleMotion. The stored value is
 	  * deleted by this operation. When no MuscleMotion is
 	  * available, the calling Thread will be blocked until an new
-	  * MuscleMotion is available.
+	  * MuscleMotion is available. When a maximum waiting time is
+	  * defined and the timeout is reached UNKNOWN will be returned.
 	  */
 	Motion::Muscle getMuscleMotion();
 

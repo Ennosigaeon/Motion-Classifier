@@ -28,9 +28,15 @@ void MultiClassSVM::train(const Motion::Muscle& motion, const std::vector<math::
 }
 
 void MultiClassSVM::calculateSVMs() {
+	int offset = 0;
 	for (std::map<Motion::Muscle, std::vector<math::Vector>>::iterator it = trainingsData.begin(); it != trainingsData.end(); ++it) {
+		offset++;
+		if (it->second.empty())
+			continue;
+
+		int i = 0;
 		for (std::map<Motion::Muscle, std::vector<math::Vector>>::iterator it2 = trainingsData.begin(); it2 != trainingsData.end(); it2++) {
-			if (it->first == it2->first || it->second.empty() || it2->second.empty())
+			if (i++ < offset || it2->second.empty())
 				continue;
 			SupportVectorMachine *svm = new SupportVectorMachine;
 			svm->addTrainData(it->first, it->second);

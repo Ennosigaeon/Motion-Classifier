@@ -1,6 +1,5 @@
 #include <ctime>
 #include <fstream>
-#include <iostream>
 #include <string>
 #include <boost/lexical_cast.hpp>
 #include <boost/log/expressions.hpp>
@@ -18,7 +17,7 @@ Classifier::Classifier(EMGProvider* emgProvider, MultiClassSVM *svm) {
 
 Classifier::~Classifier() {
 	send(Signal::SHUTDOWN);
-	BOOST_LOG_TRIVIAL(info) << "Classified " << nr << " Samples in avg. " << time / nr << " ms";
+	BOOST_LOG_TRIVIAL(info) << "Classified " << intervalCount << " Samples in avg. " << time / intervalCount << " ms";
 	BOOST_LOG_TRIVIAL(info) << "Classifier destroyed";
 }
 
@@ -41,6 +40,8 @@ void Classifier::run() {
 			clock_t t = clock();
 			BOOST_LOG_TRIVIAL(debug) << "calculating RMS sample";
 			Sample *rms = interval->getRMSSample();
+			if (rms == NULL)
+				continue;
 
 			BOOST_LOG_TRIVIAL(debug) << "calculating Variogram";
 			std::vector<math::Vector> values = variogram.calculate(rms);
@@ -54,12 +55,11 @@ void Classifier::run() {
 			//overrides the last stored value
 			lastMuscleMotion.push(&motion);
 			t = clock() - t;
-			long tmp = (long) ((double)t) / CLOCKS_PER_SEC * 1000;
+			double tmp = ((double)t) / CLOCKS_PER_SEC * 1000;
 			BOOST_LOG_TRIVIAL(info) << "classified new Interval in " << tmp << " ms as " << printMotion(motion);
 
 			time += tmp;
-			++nr;
-
+			++intervalCount;
 			delete interval;
 		}
 		if (status == Status::WAITING) {
@@ -91,16 +91,18 @@ void Classifier::send(const Signal& signal) {
 			condition.notify_one();
 		}
 	}
-	//TODO: maybe it is good to stop EMGProvider too
-	if (signal == Signal::STOP)
+	if (signal == Signal::STOP) {
 		status = Status::WAITING;
+		emgProvider->send(Signal::STOP);
+	}
 	if (signal == Signal::SHUTDOWN) {
 		status = Status::FINISHED;
+		//release waiting thread
 		std::unique_lock<std::mutex> mlock(mutex);
 		mlock.unlock();
 		condition.notify_one();
 
-		//stops the worker thread
+		//wait for worker to stop
 		if (worker.joinable())
 			worker.join();
 
@@ -109,25 +111,26 @@ void Classifier::send(const Signal& signal) {
 	}
 }
 
+//TODO: is this really necessary?
 //TODO: no real-time plotting. Change this!
 void Classifier::plot(Sample* sample, std::vector<math::Vector>& values) {
 	//TODO: create folder if it does not exists
 	if (config->isPlotRMS()) {
 		std::ofstream sampleStream;
-		sampleStream.open(std::string("C:/Tmp/plot/") + boost::lexical_cast<std::string>(nr)+"-rms.txt");
+		sampleStream.open(std::string("C:/Tmp/plot/") + boost::lexical_cast<std::string>(intervalCount)+"-rms.txt");
 		sampleStream << *sample;
 		sampleStream.close();
 	}
 	if (config->isPlotVariogramGraph()) {
 		std::ofstream sampleStream;
-		sampleStream.open(std::string("C:/Tmp/plot/") + boost::lexical_cast<std::string>(nr) + "-graph.txt");
+		sampleStream.open(std::string("C:/Tmp/plot/") + boost::lexical_cast<std::string>(intervalCount) + "-graph.txt");
 		for (std::vector<math::Vector>::iterator it = values.begin(); it != values.end(); ++it)
 			sampleStream << it->getGroup() << "\t" << it->getLength(2) << "\t" << it->getZ() << std::endl;
 		sampleStream.close();
 	}
 	if (config->isPlotVariogramSurface()) {
 		std::ofstream sampleStream;
-		sampleStream.open(std::string("C:/Tmp/plot/") + boost::lexical_cast<std::string>(nr) + "-surface.txt");
+		sampleStream.open(std::string("C:/Tmp/plot/") + boost::lexical_cast<std::string>(intervalCount) + "-surface.txt");
 		for (std::vector<math::Vector>::iterator it = values.begin(); it != values.end(); ++it)
 			sampleStream << it->getX() << "\t" << it->getY() << "\t" << it->getZ() << std::endl;
 		sampleStream.close();

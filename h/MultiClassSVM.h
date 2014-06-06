@@ -10,7 +10,8 @@
 /**
   * This class handles the classification of EMG signals.
   * You have to train the MultiClassSVM with all possible
-  * MuscleMotions. To classify a movement just pass a the
+  * MuscleMotions. See Trainer for more information about
+  * training. To classify a movement just pass the results
   * of a Variogram to the classify(const std::vectro<math::Vector>&)
   * member function.
   */
@@ -20,16 +21,19 @@ private:
 	std::map<Motion::Muscle, std::vector<math::Vector>> trainingsData;
 
 public:
+
+	/**
+	  * Destroys the MultiClassSVM and all SupportVectorMachines.
+	  */
 	~MultiClassSVM();
 
 	/**
-	  * Train the MultiClassSVM with the given Variogram result for the
-	  * given MuscleMotion. It is recommended, that you pass multiple
-	  * variogram results for every MuscleMotion, this will improve
-	  * the accuracy of the results.
+	  * Trains the MultiClassSVM with the given Variogram result for
+	  * the given Motion::Muscle. It is recommended, that you pass
+	  * as much values as posible, because this will increase the
+	  * accuarcy.
 	  */
 	void train(const Motion::Muscle& motion, const std::vector<math::Vector>& values);
-
 
 	/**
 	  * Creates all Support Vector Machines from the trainings data.
@@ -41,8 +45,8 @@ public:
 
 	/**
 	  * Classifies the given Variogram result and returns the result as
-	  * a MuscleMotion. When the movement can not be classified, the
-	  * MuscleMotion UNKNOWN will be returned.
+	  * a Motion::Muscle. When the movement can not be classified, the
+	  * Motion::Muscle UNKNOWN will be returned.
 	  */
 	Motion::Muscle classify(std::vector<math::Vector>& values);
 };

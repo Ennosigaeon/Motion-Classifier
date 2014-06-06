@@ -87,9 +87,9 @@ Motion::Muscle SupportVectorMachine::classify(std::vector<math::Vector>& vector)
 svm_node* SupportVectorMachine::createNode(math::Vector* vector) {
 	svm_node *node = new svm_node[3];
 	node[0].index = 1;
-	node[0].value = vector->getX();
+	node[0].value = vector->getLength(2);
 	node[1].index = 2;
-	node[1].value = vector->getY();
+	node[1].value = vector->getZ();
 	node[2].index = -1;
 	node[2].value = 0;
 

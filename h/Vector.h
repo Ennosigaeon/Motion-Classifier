@@ -34,6 +34,7 @@ namespace math {
 		  * can limit the number of dimensions that are considured for the distance calculation.
 		  * The default number of dimensions is three.
 		  */
+		//TODO: unused
 		static double distance(const Vector& vector1, const Vector& vector2, int nrDimensions = 3);
 
 		/**
@@ -83,7 +84,7 @@ namespace math {
 		double getLength(const int nrDimensions = 3) const;
 
 		/**
-		  * Sets, that this Vector belongs to the given group number.
+		  * Assigns this Vector to the given group number.
 		  */
 		void setGroup(int group);
 
@@ -94,7 +95,6 @@ namespace math {
 
 		//operators
 		math::Vector operator+(const math::Vector& vector);
-		bool operator<(const math::Vector& vector) const;
 		friend std::ostream& operator<<(std::ostream & stream, const math::Vector & vector);
 	};
 

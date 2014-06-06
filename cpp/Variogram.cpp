@@ -17,7 +17,6 @@ std::vector<math::Vector> Variogram::calculate(Sample* sample) const {
 
 	int maxX = sample->getNrColumns() / 2;
 	int maxY = sample->getNrRows() / 2;
-	//distance is calculated without sqrt, therefore precision has to be squared
 	double precision = std::max(maxX, maxY) * 1.0 / nrBins;
 	clock_t t = clock();
 

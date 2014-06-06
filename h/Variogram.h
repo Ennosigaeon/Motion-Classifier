@@ -1,7 +1,6 @@
 #ifndef VARIOGRAM_H
 #define VARIOGRAM_H
 
-#include <map>
 #include <vector>
 #include "Sample.h"
 #include "Vector.h"
@@ -18,7 +17,7 @@ public:
 	Variogram();
 
 	/**
-	  * Calculates the Variogram value for the given Sample. The Variogram is
+	  * Calculates the Variogram values for the given Sample. The Variogram is
 	  * calculated for every math:Angle. The calculated values are stored as
 	  * a two dimensional vector (the actual gap, consisting out of angle and
 	  * length) and the measured value at this position.

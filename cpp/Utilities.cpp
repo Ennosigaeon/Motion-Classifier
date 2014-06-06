@@ -8,10 +8,10 @@ std::string printMotion(const Motion::Muscle& motion) {
 	switch (motion) {
 	case Motion::Muscle::REST_POSITION:
 		return "REST_POSITION";
-	case Motion::Muscle::FORARM_PRONATION:
-		return "FORARM_PRONATION";
-	case Motion::Muscle::FORARM_SUPINATION:
-		return "FORARM_SUPINATION";
+	case Motion::Muscle::FOREARM_PRONATION:
+		return "FOREARM_PRONATION";
+	case Motion::Muscle::FOREARM_SUPINATION:
+		return "FOREARM_SUPINATION";
 	case Motion::Muscle::WRIST_FLEXION:
 		return "WRIST_FLEXION";
 	case Motion::Muscle::WRIST_EXTENSION:
@@ -32,10 +32,10 @@ std::string printMotion(const Motion::Muscle& motion) {
 Motion::Muscle getMotion(const std::string& string) {
 	if (string == "REST_POSITION")
 		return Motion::Muscle::REST_POSITION;
-	if (string == "FORARM_PRONATION")
-		return Motion::Muscle::FORARM_PRONATION;
-	if (string == "FORARM_SUPINATION")
-		return Motion::Muscle::FORARM_SUPINATION;
+	if (string == "FOREARM_PRONATION")
+		return Motion::Muscle::FOREARM_PRONATION;
+	if (string == "FOREARM_SUPINATION")
+		return Motion::Muscle::FOREARM_SUPINATION;
 	if (string == "WRIST_FLEXION")
 		return Motion::Muscle::WRIST_FLEXION;
 	if (string == "WRIST_EXTENSION")

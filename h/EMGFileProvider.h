@@ -17,8 +17,6 @@ class EMGFileProvider : public EMGProvider {
 private:
 	std::ifstream fileIn;
 	void run();
-	int nrRows;
-	int nrColumns;
 	std::mutex mutex;
 	std::condition_variable condition;
 
@@ -26,21 +24,22 @@ public:
 
 	/**
 	  * Creates a new EMGFileProvider. The parameter has to
-	  * point to a valid file. In this file the measured EMG
-	  * signals are stored.
-	  * Throws: Exception::UNABLE_TO_OPEN_FILE
+	  * be a path to a valid file. This file has to contain
+	  * EMG values. See convertFile() in Utilities.h for
+	  * more information about the exact format of the file.
+	  * Throws	Exception::UNABLE_TO_OPEN_FILE
 	  */
 	EMGFileProvider(const std::string& path);
 
 	/**
-	  * Destroys the EMGFileProvider. The underlying worker
-	  * thread will be stoped and destroyed.
+	  * Destroys the EMGFileProvider. All open resources
+	  * will be closed.
 	  */
 	~EMGFileProvider();
 
 	/**
-	  * Sends a signal to the working thread.
-	  * See EMGProvider for more information.
+	  * Sends a signal to the worker thread. See EMGProvider
+	  * for more information.
 	  */
 	void send(const Signal& signal);
 };

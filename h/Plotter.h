@@ -9,6 +9,7 @@
   * This class handles all plotting commands. It uses gnuplot-iostream to send all plotting
   * commands to gnuplot.
   */
+//TODO: This class is not used. Remove it?
 class Plotter {
 private:
 	static Plotter *instance;

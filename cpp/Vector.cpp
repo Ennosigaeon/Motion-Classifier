@@ -94,10 +94,6 @@ math::Vector math::Vector::operator+(const math::Vector& vector) {
 	return vec;
 }
 
-bool math::Vector::operator<(const math::Vector& vector) const {
-	return values[0] < vector.get(0);
-}
-
 std::ostream& math::operator<<(std::ostream& stream, const math::Vector& vector) {
 	stream << vector.getX() << " " << vector.getY() << " " << vector.getZ();
 	return stream;
@@ -106,12 +102,19 @@ std::ostream& math::operator<<(std::ostream& stream, const math::Vector& vector)
 std::istream& math::operator>>(std::istream& stream, math::Vector& vector) {
 	std::string line;
 	std::getline(stream, line);
-	std::istringstream iss(line);
-	double x, y, z;
-	iss >> x >> y >> z;
-	vector.setX(x);
-	vector.setY(y);
-	vector.setZ(z);
+	if (line.empty()) {
+		vector.setX(NAN);
+		vector.setY(NAN);
+		vector.setZ(NAN);
+	}
+	else {
+		std::istringstream iss(line);
+		double x, y, z;
+		iss >> x >> y >> z;
+		vector.setX(x);
+		vector.setY(y);
+		vector.setZ(z);
+	}
 
 	return stream;
 }

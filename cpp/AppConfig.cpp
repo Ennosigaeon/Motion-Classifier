@@ -62,7 +62,6 @@ void AppConfig::load(int argc, char *argv[]) {
 	}
 	if (configPath.empty())
 		throw NO_CONFIGURATIONS_DEFINED;
-	std::cout << "using " << configPath << " as configuration file" << std::endl;
 	AppConfig::load(configPath);
 }
 
@@ -70,6 +69,7 @@ void AppConfig::load(const std::string& path) {
 	if (instance == NULL)
 		instance = new AppConfig();
 
+	std::cout << "using " << path << " as configuration file" << std::endl;
 	std::ifstream in(path);
 	if (!in.is_open())
 		throw Exception::UNABLE_TO_OPEN_FILE;
@@ -93,6 +93,8 @@ void AppConfig::load(const std::string& path) {
 
 		//store value in correct variable (according to key)
 		try {
+			if (values.at(0) == "emgProvider.bufferWarning")
+				instance->emgProviderBufferWarning = boost::lexical_cast<int>(values.at(1));
 			if (values.at(0) == "sample.rows")
 				instance->sampleRows = boost::lexical_cast<int>(values.at(1));
 			if (values.at(0) == "sample.columns")
@@ -132,6 +134,7 @@ void AppConfig::load(const std::string& path) {
 			throw Exception::UNABLE_TO_PARSE_CONFIGURATION;
 		}
 	}
+	//add slash to end of trainerBaseDir
 	char c = instance->trainerBaseDir.at(instance->trainerBaseDir.size() - 1);
 	if (c != '\\' && c != '/')
 		instance->trainerBaseDir += "/";
@@ -171,6 +174,9 @@ void AppConfig::initLogging() {
 	BOOST_LOG_TRIVIAL(info) << "set up logging system";
 }
 
+int AppConfig::getEMGProviderBufferWarning() const {
+	return emgProviderBufferWarning;
+}
 
 int AppConfig::getSampleRows() const {
 	return sampleRows;

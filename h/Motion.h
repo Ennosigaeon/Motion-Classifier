@@ -1,13 +1,14 @@
 #ifndef MUSCLE_MOTION_H
 #define MUSCLE_MOTION_H
 
-#include <string>
-
+/**
+  * This namespace contains enums with possible Motions. At the moment
+  * only the motion of a muscle is defined, but it is possible to add
+  * other motion types (like accelerometer or GPS).
+  */
 namespace Motion {
-
 	/**
-	  * This enum defines all possible motions of the arm. The result
-	  * of the classification will be an MuscleMotion.
+	  * This enum defines all possible motions of a Muscle.
 	  */
 	enum Muscle {
 		//Not possible to determine muscle motion
@@ -29,10 +30,10 @@ namespace Motion {
 		ULNAR_DEVIATION,
 
 		//Subject turns the forarm inwards
-		FORARM_PRONATION,
+		FOREARM_PRONATION,
 
 		//Subject turns the forarm outwards
-		FORARM_SUPINATION,
+		FOREARM_SUPINATION,
 
 		//Subject is opening its hand
 		HAND_OPEN,
@@ -40,7 +41,6 @@ namespace Motion {
 		//Subject is closing its hand
 		HAND_CLOSE
 	};
-
 }
 
 #endif

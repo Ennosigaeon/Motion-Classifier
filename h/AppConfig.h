@@ -6,7 +6,7 @@
 
 /**
   * This class handles the application configuration. It is implemented as
-  * a Singleton. To instantiate the instance you have to call static 
+  * a Singleton. To instantiate the instance you have to call static
   * AppConfig::load(const std::string&). You have to pass the path to the
   * configuration file as a command line argument. See AppConfig::CONFIG_ARGUMENT
   * for exact usage.
@@ -18,6 +18,7 @@ private:
 	static AppConfig *instance;
 	AppConfig();
 
+	int emgProviderBufferWarning = 5;
 	int intervalNrSamples = 1;
 	std::string gnuPlotPath = "";
 	bool plotRMS = 0;
@@ -51,24 +52,24 @@ public:
 
 	/**
 	  * Loads all configurations from the given file and stores them in
-	  * the AppConfig instance. When this function is called twice, the first
-	  * configurations will be overriden.
+	  * the AppConfig instance. When this function is called twice, the
+	  * first configurations will be overriden.
 	  * It is crucial to call release() after this function has been called
 	  * once. Otherwise you have a memory leak.
-	  * Throws Exception::UNABLE_TO_PARSE_CONFIGURATION,
-	  * Exception::UNABLE_TO_OPEN_FILE
+	  * Throws	Exception::UNABLE_TO_PARSE_CONFIGURATION,
+	  *			Exception::UNABLE_TO_OPEN_FILE
 	  */
 	static void load(const std::string& path);
 
 	/**
 	  * Parses the command line arguments and searches for the CONFIG_ARGUMENT.
 	  * Then all configurations are loaded from the given path. When this
-	  * function is called twice, the first configurations will be overriden.It
-	  * is crucial to call release() after this function has been called once.
-	  * Otherwise you will create a memory leak.
-	  * Throws Exception::UNABLE_TO_PARSE_CONFIGURATION,
-	  * Exception::UNABLE_TO_OPEN_FILE,
-	  * Exception::NO_CONFIGURATIONS_DEFINED
+	  * function is called twice, the first configurations will be overriden.
+	  * It is crucial to call release() after this function has been called
+	  * once. Otherwise you will create a memory leak.
+	  * Throws	Exception::UNABLE_TO_PARSE_CONFIGURATION,
+	  *			Exception::UNABLE_TO_OPEN_FILE,
+	  *			Exception::NO_CONFIGURATIONS_DEFINED
 	  */
 	static void load(int argc, char *argv[]);
 
@@ -80,12 +81,13 @@ public:
 	static void release();
 
 	/**
-	  * This member function initializes the Boost logging system. It sets the
-	  * log format, creates a console appender/sink and, if defined in the
-	  * configuration file, a file appender/sink.
+	  * This member function initializes the Boost logging system. It sets
+	  * the log format, creates a console appender/sink and, if defined in
+	  * the configuration file, a file appender/sink.
 	  */
 	void initLogging();
 
+	int getEMGProviderBufferWarning() const;
 	int getIntervalNrSamples() const;
 	const std::string& getGnuPlotPath() const;
 	int getSampleRows() const;
