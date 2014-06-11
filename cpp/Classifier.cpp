@@ -5,7 +5,6 @@
 #include <boost/log/expressions.hpp>
 #include <boost/log/trivial.hpp>
 #include "../h/Classifier.h"
-#include "../h/Exception.h"
 #include "../h/Utilities.h"
 
 Classifier::Classifier(EMGProvider* emgProvider, MultiClassSVM *svm) {

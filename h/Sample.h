@@ -63,6 +63,7 @@ public:
   * Loads a sample from the given stream. All values for the sample has to be in
   * a single line. The values have to be seperated by a blank. The values are
   * interpreted as columns.
+  * Throws	std::out_of_range
   */
 std::istream& operator>>(std::istream& stream, Sample& sample);
 

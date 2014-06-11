@@ -27,7 +27,7 @@ public:
 	  * be a path to a valid file. This file has to contain
 	  * EMG values. See convertFile() in Utilities.h for
 	  * more information about the exact format of the file.
-	  * Throws	Exception::UNABLE_TO_OPEN_FILE
+	  * Throws	std::invalid_argument
 	  */
 	EMGFileProvider(const std::string& path);
 

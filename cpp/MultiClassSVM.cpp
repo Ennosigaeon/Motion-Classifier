@@ -3,7 +3,6 @@
 #include <boost/filesystem.hpp>
 #include <boost/log/expressions.hpp>
 #include <boost/log/trivial.hpp>
-#include "../h/Exception.h"
 #include "../h/MultiClassSVM.h"
 #include "../h/Trainer.h"
 #include "../h/Utilities.h"

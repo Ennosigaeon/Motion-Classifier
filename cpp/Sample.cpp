@@ -1,6 +1,5 @@
 #include <sstream>
 #include "../h/AppConfig.h"
-#include "../h/Exception.h"
 #include "../h/Sample.h"
 
 Sample::Sample(long nr) : nr(nr) {
@@ -61,7 +60,7 @@ std::istream& operator>> (std::istream& stream, Sample& sample) {
 
 	int size = sample.getNrColumns() * sample.getNrRows();
 	if (tokens.size() < size)
-		throw Exception::END_OF_FILE;
+		throw std::out_of_range("line contains not enough values. Maybe reached end of file");
 
 	int x = 0, y = 0, i = 0;
 	math::Vector *entries = sample.getEntries();

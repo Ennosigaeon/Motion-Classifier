@@ -1,6 +1,5 @@
 #include <boost/log/trivial.hpp>
 #include <boost/log/expressions.hpp>
-#include "../h/Exception.h"
 #include "../h/SupportVectorMachine.h"
 #include "../h/Utilities.h"
 
@@ -29,7 +28,7 @@ void SupportVectorMachine::addTrainData(const Motion::Muscle& motion, std::vecto
 
 void SupportVectorMachine::calculateSVM() {
 	if (classA == Motion::Muscle::UNKNOWN || classB == Motion::Muscle::UNKNOWN || valuesA.empty() || valuesB.empty())
-		throw Exception::SVM_MISSING_TRAININGS_DATA;
+		throw std::domain_error("no data for at least one class");
 	BOOST_LOG_TRIVIAL(debug) << "Training SVM for MuscleMotions " << printMotion(classA) << " (" << valuesA.size() << " values) and "
 		<< printMotion(classB) << " (" << valuesA.size() << " values).";
 

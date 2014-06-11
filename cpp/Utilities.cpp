@@ -1,7 +1,6 @@
 #include <fstream>
 #include <sstream>
 #include "../h/AppConfig.h"
-#include "../h/Exception.h"
 #include "../h/Utilities.h"
 
 std::string printMotion(const Motion::Muscle& motion) {
@@ -79,7 +78,7 @@ void convertFile(const std::string& inputFile, const std::string& outputFile) {
 	std::ifstream in(inputFile, std::ifstream::in);
 	std::ofstream out(outputFile);
 	if (!in.is_open() || !out.is_open())
-		throw Exception::UNABLE_TO_OPEN_FILE;
+		throw std::invalid_argument("unable to open at least one file");
 
 	while (!in.eof()) {
 		std::getline(in, line);

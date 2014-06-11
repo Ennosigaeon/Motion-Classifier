@@ -8,7 +8,6 @@
 #include <boost/log/trivial.hpp>
 #include <boost/thread/thread.hpp>
 #include "../h/AppConfig.h"
-#include "../h/Exception.h"
 #include "../h/Trainer.h"
 #include "../h/Utilities.h"
 #include "../h/Variogram.h"
@@ -90,7 +89,7 @@ void Trainer::train() {
 	for (std::vector<std::pair<Motion::Muscle, int>>::iterator it = startMotions.begin(); it != startMotions.end(); ++it) {
 		if (abs(it->second - previous) < windowSize) {
 			BOOST_LOG_TRIVIAL(fatal) << "The beginnings of the movements are too close to each other. Please restart the training!";
-			throw Exception::INVALID_TRAINING;
+			throw std::underflow_error("beginnings of movements are too close to each other");
 		}
 		previous = it->second;
 	}
@@ -169,7 +168,7 @@ void Trainer::store() {
 
 	std::ifstream in(folder + "data.txt");
 	if (!in.is_open())
-		throw Exception::UNABLE_TO_OPEN_FILE;
+		throw std::invalid_argument("unable to open file");
 
 	//calculate Variograms for every center of movement
 	std::map<Motion::Muscle, std::vector<math::Vector>> map;
@@ -211,7 +210,7 @@ void Trainer::store() {
 		std::string s = folder + printMotion(it->first) + ".txt";
 		std::ofstream out(s);
 		if (!out.is_open())
-			throw Exception::UNABLE_TO_OPEN_FILE;
+			throw std::invalid_argument("unable to open file");
 		for (std::vector<math::Vector>::iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2)
 			out << *it2 << std::endl;
 		out.close();
@@ -220,7 +219,7 @@ void Trainer::store() {
 
 void Trainer::load() {
 	if (!boost::filesystem::is_directory(boost::filesystem::path(folder)))
-		throw Exception::UNABLE_TO_OPEN_FILE;
+		throw std::invalid_argument("unable to open file");
 
 	int nrRuns = config->getTrainerNrRuns();
 	for (int i = Motion::Muscle::REST_POSITION; i <= Motion::Muscle::HAND_CLOSE; ++i) {

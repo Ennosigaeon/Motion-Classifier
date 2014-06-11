@@ -12,7 +12,6 @@
 #include <boost/log/utility/setup/console.hpp>
 #include <boost/log/utility/setup/file.hpp>
 #include "../h/AppConfig.h"
-#include "../h/Exception.h"
 
 //sets the initial value of instance to NULL, due to forbidden 'in-class initialization'.
 AppConfig* AppConfig::instance = NULL;
@@ -61,7 +60,7 @@ void AppConfig::load(int argc, char *argv[]) {
 		}
 	}
 	if (configPath.empty())
-		throw NO_CONFIGURATIONS_DEFINED;
+		throw std::invalid_argument("no path to configuration defined.");
 	AppConfig::load(configPath);
 }
 
@@ -72,7 +71,7 @@ void AppConfig::load(const std::string& path) {
 	std::cout << "using " << path << " as configuration file" << std::endl;
 	std::ifstream in(path);
 	if (!in.is_open())
-		throw Exception::UNABLE_TO_OPEN_FILE;
+		throw std::invalid_argument("Unable to read configurations from configuration file. Not possible to open the file.");
 
 	std::string line;
 	while (!in.eof()) {
@@ -131,7 +130,7 @@ void AppConfig::load(const std::string& path) {
 				instance->param->C = boost::lexical_cast<double>(values.at(1));
 		}
 		catch (boost::bad_lexical_cast &) {
-			throw Exception::UNABLE_TO_PARSE_CONFIGURATION;
+			std::cerr << "unable to parse value for " << values.at(0) << ". Default value is used." << std::endl;
 		}
 	}
 	//add slash to end of trainerBaseDir

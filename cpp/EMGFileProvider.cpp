@@ -1,13 +1,12 @@
 #include <boost/log/expressions.hpp>
 #include <boost/log/trivial.hpp>
 #include "../h/EMGFileProvider.h"
-#include "../h/Exception.h"
 
 EMGFileProvider::EMGFileProvider(const std::string& path) {
 	fileIn.open(path, std::ios_base::in);
 	if (!fileIn.is_open()) {
 		BOOST_LOG_TRIVIAL(fatal) << "unable to read records from file. Stopping EMGFileProvider";
-		throw Exception::UNABLE_TO_OPEN_FILE;
+		throw std::invalid_argument("unable to open file");
 	}
 	lastInterval = new Interval();
 	BOOST_LOG_TRIVIAL(info) << "EMGFileProvider created";

@@ -40,7 +40,8 @@ public:
 	  * By calling this method a interactive trainings procedure will
 	  * be started. It is possible to load old trainings results from
 	  * the filesystem or create new ones.
-	  * Throws	Exception::UNABLE_TO_OPEN_FILE
+	  * Throws	std::invalid_argument
+	  *			std::underflow_error
 	  */
 	void train();
 };

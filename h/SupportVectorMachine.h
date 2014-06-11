@@ -39,7 +39,7 @@ public:
 	  * Calculates the Support Vector Machine from the given trainings data.
 	  * You have to provide trainings data for both classes before calling this
 	  * member function.
-	  * Throws	Exception::SVM_MISSING_TRAININGS_DATA
+	  * Throws	std::domain_error
 	  */
 	void calculateSVM();
 
