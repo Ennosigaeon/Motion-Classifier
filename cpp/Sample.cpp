@@ -59,12 +59,13 @@ std::istream& operator>> (std::istream& stream, Sample& sample) {
 	std::istringstream iss(line);
 	std::vector<double> tokens{ std::istream_iterator < double > {iss}, std::istream_iterator < double > {} };
 
-	if (tokens.size() != sample.getNrColumns() * sample.getNrRows())
+	int size = sample.getNrColumns() * sample.getNrRows();
+	if (tokens.size() < size)
 		throw Exception::END_OF_FILE;
 
 	int x = 0, y = 0, i = 0;
 	math::Vector *entries = sample.getEntries();
-	for (std::vector<double>::iterator it = tokens.begin(); it != tokens.end(); ++it, ++i) {
+	for (std::vector<double>::iterator it = tokens.begin(); it != tokens.end() && i < size; ++it, ++i) {
 		math::Vector vec(x, y, *it);
 		entries[i] = vec;
 		++y;

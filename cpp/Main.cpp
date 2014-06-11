@@ -1,8 +1,6 @@
 #define WIN32_LEAN_AND_MEAN
 
 #include <iostream>
-#include <boost/log/expressions.hpp>
-#include <boost/log/trivial.hpp>
 #include "../h/AppConfig.h"
 #include "../h/Classifier.h"
 #include "../h/Exception.h"
@@ -44,12 +42,12 @@ int main(int argc, char *argv[]) {
 	//Therefor I added this block, so that both are destroyed before the end
 	//of the program is reached.
 	{
-		EMGOTProvider emgProvider{};
-		//EMGFileProvider emgProvider{ path };
+		//EMGOTProvider emgProvider{};
+		EMGFileProvider emgProvider{ path };
 		MultiClassSVM svm;
 
 		Trainer trainer(&emgProvider, &svm);
-		trainer.train();
+		//trainer.train();
 
 		Classifier classifier(&emgProvider, &svm);
 		classifier.send(Signal::START);
@@ -62,7 +60,7 @@ int main(int argc, char *argv[]) {
 	AppConfig::release();
 
 	//Only used to keep the terminal still visible, when the program is finished
-	BOOST_LOG_TRIVIAL(info) << "Please press Enter to close program... ";
+	std::cout << "Please press Enter to close program... ";
 	std::cin.get();
 	return EXIT_SUCCESS;
 }
