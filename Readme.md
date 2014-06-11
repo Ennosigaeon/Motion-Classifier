@@ -105,24 +105,29 @@ Defines the costs for a mismatched item in the SVM training process.
 		
 ###5 Trouble Shooting
 
-1. 	#####Unsafe string copy
+1. 	Unsafe string copy
+
 	Microsoft implemented an own mechanism to check whether std::string copies are correctly done (no buffer overflow,...). The boost library uses other mechanisms to copy std::strings, so the msvc compiler throws a warning. To disable this warning add the flag -D_SCL_SECURE_NO_WARNINGS under Properties -> Configuration -> C/C++ -> Command Line -> additional options (Microsoft Visual Studio 2013).
 	A more detailed description is available under [Stackoverlow](http://stackoverflow.com/questions/12270224/xutility2227-warning-c4996-std-copy-impl).
 	
-2.	#####Shutdown takes a lot of time
+2.	Shutdown takes a lot of time
+
 	It takes the tripple time of defined maximal waiting time of the BlockingQueue to shut down the Classifier. I do not know why this is so, but this is only a minor issue. You just have to wait some seconds longer until all threads are finally stoped.
 	
-3.	#####Unsafe function or variable
+3.	Unsafe function or variable
+
 	libsvm-3.18 uses the function some functions that are not in the C++ standard. Therefore MSVC throws the warning 'C4996'. To disable this warning add the following to the beinning of svm.h
 	
            #pragma warning(disable : 4996)
 	
-4.	#####Training the SVMs creates output
+4.	Training the SVMs creates output
+
 	The svm_train() function of libsvm prints configuration information to the console. To disable/enable this, change the if condition in svm.cpp
 
            #if 1
            static void info(const char *fmt,...)
 
-5. #####WIN32_LEAN_AND_MEAN
+5. WIN32_LEAN_AND_MEAN
+
 	Windows.h may throw a compiler error when it is included multiple time and the preprocessor directive is not defined (happens in boost). Therefore add the following to the beginning of your main file:
            #define WIN32_LEAN_AND_MEAN
