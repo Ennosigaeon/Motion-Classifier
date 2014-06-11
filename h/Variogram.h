@@ -22,7 +22,6 @@ public:
 	  * a two dimensional vector (the actual gap, consisting out of angle and
 	  * length) and the measured value at this position.
 	  */
-	//TODO: can be optimized by the follwing header: std::map<int, double> calculate(const Sample& sample, const math::Angle& angle) const;
 	std::vector<math::Vector> calculate(Sample* sample) const;
 };
 

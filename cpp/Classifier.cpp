@@ -110,10 +110,7 @@ void Classifier::send(const Signal& signal) {
 	}
 }
 
-//TODO: is this really necessary?
-//TODO: no real-time plotting. Change this!
 void Classifier::plot(Sample* sample, std::vector<math::Vector>& values) {
-	//TODO: create folder if it does not exists
 	if (config->isPlotRMS()) {
 		std::ofstream sampleStream;
 		sampleStream.open(std::string("C:/Tmp/plot/") + boost::lexical_cast<std::string>(intervalCount)+"-rms.txt");

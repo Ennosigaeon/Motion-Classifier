@@ -46,8 +46,6 @@ std::vector<math::Vector> Variogram::calculate(Sample* sample) const {
 	return result;
 }
 
-//TODO: this is by far the slowest part of the application
-//Searches for pairs with the given offset h and calculates the variogram.
 double Variogram::calc(Sample* sample, const math::Vector& h, const double radius, int *count) const {
 	double result = 0;
 	int size = sample->getNrColumns() * sample->getNrRows();

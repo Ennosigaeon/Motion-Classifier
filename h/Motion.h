@@ -39,6 +39,7 @@ namespace Motion {
 		HAND_OPEN,
 
 		//Subject is closing its hand
+		//Note: It is important, that this element is always the last one! Index is used several times.
 		HAND_CLOSE
 	};
 }

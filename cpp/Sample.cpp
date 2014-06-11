@@ -10,9 +10,11 @@ Sample::Sample(long nr) : nr(nr) {
 }
 
 Sample::Sample(std::vector<short>& values, long nr) : Sample(nr) {
+	if (values.size() > nrRows * nrColumns)
+		throw std::out_of_range("parameter contains more values than this Sample can store");
+
 	int x = 0, y = 0, i = 0;
 	for (std::vector<short>::iterator it = values.begin(); it != values.end(); ++it, ++i) {
-		//TODO: Maybe it is necessary to scale the data
 		math::Vector vec(x, y, *it);
 		entries[i] = vec;
 		++y;

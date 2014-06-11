@@ -30,6 +30,7 @@ public:
 	  * Creates a new Sample with given number. The Sample is filled
 	  * with the given values. The parameter nr should be a incrementing
 	  * number. It is like an ID for the Sample.
+	  * Throws	std::out_of_range
 	  */
 	Sample(std::vector<short>& values, long nr = -1);
 

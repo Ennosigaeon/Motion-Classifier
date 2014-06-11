@@ -7,7 +7,7 @@ EMGOTProvider::EMGOTProvider() {
 	std::cin.get();
 	client = new OTBioLabClient("localhost");
 	lastInterval = new Interval();
-	//TODO: Test connection;
+	//TODO: Test connection with exception handling;
 };
 
 EMGOTProvider::~EMGOTProvider() {
