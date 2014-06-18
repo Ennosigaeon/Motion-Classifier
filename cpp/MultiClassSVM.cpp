@@ -8,6 +8,8 @@
 #include "../h/Utilities.h"
 #include "../h/Variogram.h"
 
+using namespace motion_classifier;
+
 MultiClassSVM::~MultiClassSVM() {
 	for (std::vector<SupportVectorMachine*>::iterator it = svms.begin(); it != svms.end(); ++it)
 		delete *it;

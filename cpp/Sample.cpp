@@ -2,6 +2,8 @@
 #include "../h/AppConfig.h"
 #include "../h/Sample.h"
 
+using namespace motion_classifier;
+
 Sample::Sample(long nr) : nr(nr) {
 	AppConfig *config = AppConfig::getInstance();
 	nrRows =config->getSampleRows();
@@ -45,7 +47,7 @@ long Sample::getNumber() const {
 	return nr;
 }
 
-std::ostream& operator<<(std::ostream& stream, const Sample& sample) {
+std::ostream& motion_classifier::operator<<(std::ostream& stream, const Sample& sample) {
 	int size = sample.getNrColumns() * sample.getNrRows();
 	math::Vector *entries = sample.entries;
 	for (int i = 0; i < size; ++i)

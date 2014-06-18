@@ -12,6 +12,8 @@
 #include "../h/Utilities.h"
 #include "../h/Variogram.h"
 
+using namespace motion_classifier;
+
 const int Trainer::recordingTime = 3000;
 
 Trainer::Trainer(EMGProvider *emgProvider, MultiClassSVM *svm) {
@@ -106,7 +108,7 @@ void Trainer::run() {
 		std::cout << "Press enter if arm is in rest position: ";
 		std::cin.get();
 		startMotions.push_back(std::pair<Motion::Muscle, int>(Motion::Muscle::REST_POSITION, emgProvider->getSampleNr()));
-		BOOST_LOG_TRIVIAL(debug) << "added " << startMotions.back().second << " as center for " << printMotion(Motion::Muscle::REST_POSITION);
+		BOOST_LOG_TRIVIAL(debug) << "added " << startMotions.back().second << " as center for " << motion_classifier::printMotion(Motion::Muscle::REST_POSITION);
 		boost::this_thread::sleep(boost::posix_time::milliseconds(recordingTime));
 
 		/*std::cout << "Press enter before rolling hand downwards (wrist flexion): ";
@@ -207,7 +209,7 @@ void Trainer::store() {
 
 	//store values in filesystem
 	for (std::map<Motion::Muscle, std::vector<math::Vector>>::iterator it = map.begin(); it != map.end(); ++it) {
-		std::string s = folder + printMotion(it->first) + ".txt";
+		std::string s = folder + motion_classifier::printMotion(it->first) + ".txt";
 		std::ofstream out(s);
 		if (!out.is_open())
 			throw std::invalid_argument("unable to open file");
@@ -223,11 +225,11 @@ void Trainer::load() {
 
 	int nrRuns = config->getTrainerNrRuns();
 	for (int i = Motion::Muscle::REST_POSITION; i <= Motion::Muscle::HAND_CLOSE; ++i) {
-		std::string file = folder + printMotion(static_cast<Motion::Muscle>(i)) + ".txt";
+		std::string file = folder + motion_classifier::printMotion(static_cast<Motion::Muscle>(i)) + ".txt";
 		std::ifstream in(file);
 		//This trainigs file does not exists
 		if (!in.is_open()) {
-			BOOST_LOG_TRIVIAL(warning) << "No trainings data for " << printMotion(static_cast<Motion::Muscle>(i)) << " available.";
+			BOOST_LOG_TRIVIAL(warning) << "No trainings data for " << motion_classifier::printMotion(static_cast<Motion::Muscle>(i)) << " available.";
 			continue;
 		}
 

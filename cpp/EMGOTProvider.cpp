@@ -2,6 +2,8 @@
 #include <boost/log/expressions.hpp>
 #include "../h/EMGOTProvider.h"
 
+using namespace motion_classifier;
+
 EMGOTProvider::EMGOTProvider() {
 	BOOST_LOG_TRIVIAL(info) << "Please start the Visualization in the OT BioLab. Press enter to continue...";
 	std::cin.get();

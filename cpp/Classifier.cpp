@@ -7,6 +7,8 @@
 #include "../h/Classifier.h"
 #include "../h/Utilities.h"
 
+using namespace motion_classifier;
+
 Classifier::Classifier(EMGProvider* emgProvider, MultiClassSVM *svm) {
 	config = AppConfig::getInstance();
 	Classifier::emgProvider = emgProvider;
@@ -55,7 +57,7 @@ void Classifier::run() {
 			lastMuscleMotion.push(&motion);
 			t = clock() - t;
 			double tmp = ((double)t) / CLOCKS_PER_SEC * 1000;
-			BOOST_LOG_TRIVIAL(info) << "classified new Interval in " << tmp << " ms as " << printMotion(motion);
+			BOOST_LOG_TRIVIAL(info) << "classified new Interval in " << tmp << " ms as " << motion_classifier::printMotion(motion);
 
 			time += tmp;
 			++intervalCount;

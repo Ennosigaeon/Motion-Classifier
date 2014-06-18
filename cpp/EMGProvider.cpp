@@ -2,6 +2,8 @@
 #include <boost/log/trivial.hpp>
 #include "../h/EMGProvider.h"
 
+using namespace motion_classifier;
+
 EMGProvider::~EMGProvider() {
 	//TODO: consumes a lot of time
 	if (lastInterval != NULL)

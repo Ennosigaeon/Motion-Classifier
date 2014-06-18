@@ -3,7 +3,9 @@
 #include "../h/AppConfig.h"
 #include "../h/Utilities.h"
 
-std::string printMotion(const Motion::Muscle& motion) {
+using namespace motion_classifier;
+
+std::string motion_classifier::printMotion(const Motion::Muscle& motion) {
 	switch (motion) {
 	case Motion::Muscle::REST_POSITION:
 		return "REST_POSITION";
@@ -50,7 +52,7 @@ Motion::Muscle getMotion(const std::string& string) {
 	return Motion::Muscle::UNKNOWN;
 }
 
-std::string printAngle(const math::Angle& angle) {
+std::string motion_classifier::printAngle(const math::Angle& angle) {
 	switch (angle) {
 	case math::Angle::DEGREE_0:
 		return "0 degree";

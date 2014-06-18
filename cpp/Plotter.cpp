@@ -1,6 +1,8 @@
 #include "../h/AppConfig.h"
 #include "../h/Plotter.h"
 
+using namespace motion_classifier;
+
 //sets the initial value of instance to NULL, due to forbidden 'in-class initialization'.
 Plotter* Plotter::instance = NULL;
 

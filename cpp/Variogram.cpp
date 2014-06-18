@@ -8,6 +8,8 @@
 #include "../h/Utilities.h"
 #include "../h/Variogram.h"
 
+using namespace motion_classifier;
+
 Variogram::Variogram() {
 	nrBins = AppConfig::getInstance()->getVariogramNrBins();
 }

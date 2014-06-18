@@ -5,6 +5,8 @@
 #include "../h/AppConfig.h"
 #include "../h/Interval.h"
 
+using namespace motion_classifier;
+
 Interval::Interval() {
 	maxNrSamples = AppConfig::getInstance()->getIntervalNrSamples();
 }

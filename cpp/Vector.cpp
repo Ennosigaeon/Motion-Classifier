@@ -4,6 +4,8 @@
 #include <boost/log/trivial.hpp>
 #include "../h/Vector.h"
 
+using namespace motion_classifier;
+
 math::Vector::Vector(double x, double y, double z) {
 	values[0] = x;
 	values[1] = y;

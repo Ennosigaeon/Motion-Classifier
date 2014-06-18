@@ -2,6 +2,8 @@
 #include <boost/log/trivial.hpp>
 #include "../h/EMGFileProvider.h"
 
+using namespace motion_classifier;
+
 EMGFileProvider::EMGFileProvider(const std::string& path) {
 	fileIn.open(path, std::ios_base::in);
 	if (!fileIn.is_open()) {
