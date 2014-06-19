@@ -1,6 +1,7 @@
 #ifndef INTERVAL_H
 #define INTERVAL_H
 
+#include "Means.h"
 #include "Sample.h"
 
 namespace motion_classifier {
@@ -14,8 +15,10 @@ namespace motion_classifier {
 	class Interval {
 	private:
 		std::vector<Sample*> samples;
-		Sample *rms = NULL;
+		Sample *mean = NULL;
 		int maxNrSamples;
+
+		static Sample* (*calcMean)(const std::vector<Sample*>& values);
 
 	public:
 		/**
@@ -35,12 +38,23 @@ namespace motion_classifier {
 		inline bool isFull() const;
 
 		/**
-		  * Calculates the Root Mean Square (RMS) over all stored
-		  * samples. The result is cached, so that a second call
-		  * will not result in a second calculation of the RMS.
-		  * Returns NULL when no Samples are stored in this Interval.
+		  * Calculates the Mean over all stored samples. You
+		  * can specify the concrete mean function by calling
+		  * setMeanFunction(). Possible functions are defined
+		  * in Means.h. The result is cached, so that a second
+		  * call will not result in a second calculation of
+		  * the mean. Returns NULL when no Samples are stored
+		  * in this Interval.
 		  */
-		Sample* getRMSSample();
+		Sample* getMeanSample();
+
+		/**
+		  * Sets the mean function that is used in getMeanSquare().
+		  * See Means.h for some examples of possible functions. The
+		  * default mean function calculates the Root Mean Square.
+		  * The mean function will be changed for all Intervals.
+		  */
+		void static setMeanFunction(Sample* (*pointer)(const std::vector<Sample*>& values));
 
 		/**
 		  * Adds a new Sample to this Interval. It is crucial that

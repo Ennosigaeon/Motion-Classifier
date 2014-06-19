@@ -7,6 +7,8 @@
 
 using namespace motion_classifier;
 
+Sample* (*Interval::calcMean)(const std::vector<Sample*>& values) = &math::getRMSMean;
+
 Interval::Interval() {
 	maxNrSamples = AppConfig::getInstance()->getIntervalNrSamples();
 }
@@ -14,8 +16,8 @@ Interval::Interval() {
 Interval::~Interval() {
 	for (std::vector<Sample*>::iterator it = samples.begin(); it != samples.end(); ++it)
 		delete *it;
-	if (rms != NULL)
-		delete rms;
+	if (mean != NULL)
+		delete mean;
 }
 
 inline bool Interval::isFull() const {
@@ -29,43 +31,21 @@ void Interval::addSample(Sample* sample) {
 	samples.push_back(sample);
 }
 
-Sample* Interval::getRMSSample() {
-	BOOST_LOG_TRIVIAL(trace) << "calculating RMS Sample";
-	if (samples.empty())
-		return NULL;
-	if (rms != NULL)
-		return rms;
+Sample* Interval::getMeanSample() {
+	BOOST_LOG_TRIVIAL(trace) << "calculating mean Sample";
+	if (mean != NULL)
+		return mean;
 
 	clock_t t = clock();
-	rms = new Sample();
-	int size = rms->getNrRows() * rms->getNrColumns();
-
-	//creates both arrays and inititalizes them with 0
-	double *value = new double[size]();
-	int *count = new int[size]();
-
-	for (std::vector<Sample*>::iterator it = samples.begin(); it != samples.end(); ++it) {
-		math::Vector* entries = (*it)->getEntries();
-		for (int i = 0; i < size; ++i) {
-			double n = entries[i].getZ();
-			if (!isnan(n)) {
-				value[i] += n * n;
-				++count[i];
-			}
-		}
-	}
-	math::Vector* entries = samples.at(0)->getEntries();
-	math::Vector* resultEntries = rms->getEntries();
-	for (int i = 0; i < size; ++i)
-		resultEntries[i] = math::Vector(entries[i].getX(), entries[i].getY(), sqrt(value[i] / count[i]));
-
-	delete[] value;
-	delete[] count;
-
+	mean = calcMean(samples);
 	t = clock() - t;
-	BOOST_LOG_TRIVIAL(debug) << "RMS calculation took " << ((double)t) / CLOCKS_PER_SEC * 1000 << " ms";
+	BOOST_LOG_TRIVIAL(debug) << "mean calculation took " << ((double)t) / CLOCKS_PER_SEC * 1000 << " ms";
 
-	return rms;
+	return mean;
+}
+
+void Interval::setMeanFunction(Sample* (*pointer)(const std::vector<Sample*>& values)) {
+	calcMean = pointer;
 }
 
 const std::vector<Sample*>& Interval::getSamples() const {
