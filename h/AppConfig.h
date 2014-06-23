@@ -23,7 +23,7 @@ namespace motion_classifier {
 		int emgProviderBufferWarning = 5;
 		int intervalNrSamples = 1;
 		std::string gnuPlotPath = "";
-		bool plotRMS = 0;
+		bool plotMean = 0;
 		bool plotVariogramSurface = 0;
 		bool plotVariogramGraph = 0;
 		int sampleRows = 0;
@@ -98,7 +98,7 @@ namespace motion_classifier {
 		int getTrainerNrRuns() const;
 		int getLoggerLevel() const;
 		const std::string& getLoggerFile() const;
-		bool isPlotRMS() const;
+		bool isPlotMean() const;
 		bool isPlotVariogramSurface() const;
 		bool isPlotVariogramGraph() const;
 		svm_parameter* getSVMParameter() const;

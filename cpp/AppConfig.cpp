@@ -104,8 +104,8 @@ void AppConfig::load(const std::string& path) {
 				instance->intervalNrSamples = boost::lexical_cast<int>(values.at(1));
 			if (values.at(0) == "gnuPlot.path")
 				instance->gnuPlotPath = values.at(1);
-			if (values.at(0) == "plot.rms")
-				instance->plotRMS = boost::lexical_cast<bool>(values.at(1));
+			if (values.at(0) == "plot.mean")
+				instance->plotMean = boost::lexical_cast<bool>(values.at(1));
 			if (values.at(0) == "plot.variogramSurface")
 				instance->plotVariogramSurface = boost::lexical_cast<bool>(values.at(1));
 			if (values.at(0) == "plot.variogramGraph")
@@ -207,9 +207,9 @@ const std::string& AppConfig::getLoggerFile() const {
 	return loggerFile;
 }
 
-bool AppConfig::isPlotRMS() const {
+bool AppConfig::isPlotMean() const {
 	//no plotting possible, when no path to gnuplot is provided
-	return plotRMS & !gnuPlotPath.empty();
+	return plotMean & !gnuPlotPath.empty();
 }
 
 bool AppConfig::isPlotVariogramSurface() const {
