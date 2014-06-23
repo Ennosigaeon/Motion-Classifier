@@ -3,8 +3,8 @@
 
 #include <vector>
 #include "../lib/libsvm-3.18/svm.h"
-#include "AppConfig.h"
 #include "Motion.h"
+#include "Properties.h"
 #include "Vector.h"
 
 namespace motion_classifier {
@@ -19,15 +19,15 @@ namespace motion_classifier {
 		Motion::Muscle classB = Motion::Muscle::UNKNOWN;
 		std::vector<math::Vector> valuesA;
 		std::vector<math::Vector> valuesB;
-		AppConfig *config;
 		svm_model *svm;
+		svm_parameter *param;
 		svm_problem problem;
 
 		svm_node* createNode(math::Vector* vector);
 
 	public:
 
-		SupportVectorMachine();
+		SupportVectorMachine(svm_parameter *param);
 		~SupportVectorMachine();
 
 		/**

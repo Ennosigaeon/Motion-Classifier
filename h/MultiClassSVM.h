@@ -20,8 +20,11 @@ namespace motion_classifier {
 	private:
 		std::vector<SupportVectorMachine*> svms;
 		std::map<Motion::Muscle, std::vector<math::Vector>> trainingsData;
+		svm_parameter *param;
 
 	public:
+
+		MultiClassSVM(Properties *prop);
 
 		/**
 		  * Destroys the MultiClassSVM and all SupportVectorMachines.

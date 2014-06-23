@@ -166,7 +166,6 @@ void Trainer::run() {
 void Trainer::parse() {
 	BOOST_LOG_TRIVIAL(info) << "parsing trainings data from recorded input. This may take some time...";
 	int windowSize = config->getTrainingsSize();
-	Variogram variogram;
 
 	std::ifstream in(folder + "data.txt");
 	if (!in.is_open())

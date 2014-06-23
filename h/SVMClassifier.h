@@ -32,15 +32,17 @@ namespace motion_classifier {
 		void storeTrainingsData();
 
 		MultiClassSVM *svm;
-		Variogram variogram;
+		Variogram *variogram;
 		EMGProvider *emgProvider;
+		Properties *prop;
 
 	public:
 		/**
 		  * Creates a new SVMClassifier with the given EMGProvider and
-		  * Multiclass Support Vector Machine.
+		  * Multiclass Support Vector Machine. Default properties are
+		  * stored in conf/svm_config.txt.
 		  */
-		SVMClassifier(EMGProvider *emgProvider, MultiClassSVM *svm);
+		SVMClassifier(EMGProvider *emgProvider, MultiClassSVM *svm, Properties *configuration);
 
 		/**
 		  * Stops the underlying worker Thread and the EMGProvider.

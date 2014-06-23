@@ -10,9 +10,30 @@
 
 using namespace motion_classifier;
 
+MultiClassSVM::MultiClassSVM(Properties *prop) {
+	param = new svm_parameter;
+	//These default values are copied from svm_train.cpp from libsvm-3.18
+	param->svm_type = prop->getInt("svm.type");
+	param->kernel_type = prop->getInt("svm.kernel");
+	param->degree = 3;
+	param->gamma = 0;
+	param->coef0 = 0;
+	param->nu = 0.5;
+	param->cache_size = 100;
+	param->C = prop->getInt("svm.cost");
+	param->eps = 1e-3;
+	param->p = 0.1;
+	param->shrinking = 1;
+	param->probability = 0;
+	param->nr_weight = 0;
+	param->weight_label = NULL;
+	param->weight = NULL;
+}
+
 MultiClassSVM::~MultiClassSVM() {
 	for (std::vector<SupportVectorMachine*>::iterator it = svms.begin(); it != svms.end(); ++it)
 		delete *it;
+	delete param;
 }
 
 void MultiClassSVM::train(const Motion::Muscle& motion, const std::vector<math::Vector>& data) {
@@ -39,7 +60,7 @@ void MultiClassSVM::calculateSVMs() {
 		for (std::map<Motion::Muscle, std::vector<math::Vector>>::iterator it2 = trainingsData.begin(); it2 != trainingsData.end(); it2++) {
 			if (i++ < offset || it2->second.empty())
 				continue;
-			SupportVectorMachine *svm = new SupportVectorMachine;
+			SupportVectorMachine *svm = new SupportVectorMachine(param);
 			svm->addTrainData(it->first, it->second);
 			svm->addTrainData(it2->first, it2->second);
 			svm->calculateSVM();

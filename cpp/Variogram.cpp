@@ -10,8 +10,8 @@
 
 using namespace motion_classifier;
 
-Variogram::Variogram() {
-	nrBins = AppConfig::getInstance()->getVariogramNrBins();
+Variogram::Variogram(int nrBins) {
+	Variogram::nrBins = nrBins;
 }
 
 std::vector<math::Vector> Variogram::calculate(Sample* sample) const {

@@ -1,8 +1,7 @@
 #ifndef APP_CONFIG_H
 #define APP_CONFIG_H
 
-#include <string>
-#include "../lib/libsvm-3.18/svm.h"
+#include "Properties.h"
 
 
 namespace motion_classifier {
@@ -20,22 +19,7 @@ namespace motion_classifier {
 		static AppConfig *instance;
 		AppConfig();
 
-		int emgProviderBufferWarning = 5;
-		int intervalNrSamples = 1;
-		std::string gnuPlotPath = "";
-		bool plotMean = 0;
-		bool plotVariogramSurface = 0;
-		bool plotVariogramGraph = 0;
-		int sampleRows = 0;
-		int sampleColumns = 0;
-		int variogramNrBins = 1;
-		int blockingQueueMaxWaitTime = -1;
-		std::string trainerBaseDir = "";
-		int trainingsSize = 1;
-		int trainerNrRuns = 1;
-		int loggerLevel = 2;
-		std::string loggerFile = "";
-		svm_parameter *param;
+		Properties prop;
 
 	public:
 
@@ -88,20 +72,12 @@ namespace motion_classifier {
 
 		int getEMGProviderBufferWarning() const;
 		int getIntervalNrSamples() const;
-		const std::string& getGnuPlotPath() const;
 		int getSampleRows() const;
 		int getSampleColumns() const;
-		int getVariogramNrBins() const;
 		int getBlockingQueueMaxWaitTime() const;
-		const std::string& getTrainerBaseDir() const;
+		std::string getTrainerBaseDir() const;
 		int getTrainingsSize() const;
 		int getTrainerNrRuns() const;
-		int getLoggerLevel() const;
-		const std::string& getLoggerFile() const;
-		bool isPlotMean() const;
-		bool isPlotVariogramSurface() const;
-		bool isPlotVariogramGraph() const;
-		svm_parameter* getSVMParameter() const;
 	};
 }
 

@@ -2,8 +2,6 @@
 #include <iostream>
 #include <limits>
 #include <vector>
-#include <boost/algorithm/string.hpp>
-#include <boost/lexical_cast.hpp>
 #include <boost/log/core.hpp>
 #include <boost/log/expressions.hpp>
 #include <boost/log/trivial.hpp>
@@ -22,23 +20,6 @@ AppConfig* AppConfig::instance = NULL;
 const std::string AppConfig::CONFIG_ARGUMENT = "motion_classifier.config";
 
 AppConfig::AppConfig() {
-	param = new svm_parameter;
-	//These default values are copied from svm_train.cpp from libsvm-3.18
-	param->svm_type = C_SVC;
-	param->kernel_type = RBF;
-	param->degree = 3;
-	param->gamma = 0;
-	param->coef0 = 0;
-	param->nu = 0.5;
-	param->cache_size = 100;
-	param->C = 1;
-	param->eps = 1e-3;
-	param->p = 0.1;
-	param->shrinking = 1;
-	param->probability = 0;
-	param->nr_weight = 0;
-	param->weight_label = NULL;
-	param->weight = NULL;
 }
 
 AppConfig* AppConfig::getInstance() {
@@ -47,7 +28,6 @@ AppConfig* AppConfig::getInstance() {
 
 void AppConfig::release() {
 	if (instance != NULL) {
-		delete instance->param;
 		delete instance;
 	}
 }
@@ -75,70 +55,13 @@ void AppConfig::load(const std::string& path) {
 	if (!in.is_open())
 		throw std::invalid_argument("Unable to read configurations from configuration file. Not possible to open the file.");
 
-	std::string line;
-	while (!in.eof()) {
-		std::vector<std::string> values;
-		std::getline(in, line);
-		boost::trim(line);
+	instance->prop.load(path);
 
-		//the line is empty or a comment, ignore it
-		if (line.empty() || line.at(0) == '#')
-			continue;
-
-		//The boost::split method creates a msvc warning. See Problems.txt->Unsafe string copy
-		boost::split(values, line, boost::is_any_of("="), boost::token_compress_on);
-		if (values.size() < 2)
-			continue;
-		boost::trim(values.at(0));
-		boost::trim(values.at(1));
-
-		//store value in correct variable (according to key)
-		try {
-			if (values.at(0) == "emgProvider.bufferWarning")
-				instance->emgProviderBufferWarning = boost::lexical_cast<int>(values.at(1));
-			if (values.at(0) == "sample.rows")
-				instance->sampleRows = boost::lexical_cast<int>(values.at(1));
-			if (values.at(0) == "sample.columns")
-				instance->sampleColumns = boost::lexical_cast<int>(values.at(1));
-			if (values.at(0) == "interval.nrSamples")
-				instance->intervalNrSamples = boost::lexical_cast<int>(values.at(1));
-			if (values.at(0) == "gnuPlot.path")
-				instance->gnuPlotPath = values.at(1);
-			if (values.at(0) == "plot.mean")
-				instance->plotMean = boost::lexical_cast<bool>(values.at(1));
-			if (values.at(0) == "plot.variogramSurface")
-				instance->plotVariogramSurface = boost::lexical_cast<bool>(values.at(1));
-			if (values.at(0) == "plot.variogramGraph")
-				instance->plotVariogramGraph = boost::lexical_cast<bool>(values.at(1));
-			if (values.at(0) == "variogram.nrBins")
-				instance->variogramNrBins = boost::lexical_cast<int>(values.at(1));
-			if (values.at(0) == "blockingQueue.maxWaitTime")
-				instance->blockingQueueMaxWaitTime = boost::lexical_cast<int>(values.at(1));
-			if (values.at(0) == "trainer.baseDir")
-				instance->trainerBaseDir = values.at(1);
-			if (values.at(0) == "trainer.trainingsSize")
-				instance->trainingsSize = boost::lexical_cast<int>(values.at(1));
-			if (values.at(0) == "trainer.nrRuns")
-				instance->trainerNrRuns = boost::lexical_cast<int>(values.at(1));
-			if (values.at(0) == "logger.level")
-				instance->loggerLevel = boost::lexical_cast<int>(values.at(1));
-			if (values.at(0) == "logger.file")
-				instance->loggerFile = values.at(1);
-			if (values.at(0) == "svm.type")
-				instance->param->svm_type = boost::lexical_cast<int>(values.at(1));
-			if (values.at(0) == "svm.kernel")
-				instance->param->kernel_type = boost::lexical_cast<int>(values.at(1));
-			if (values.at(0) == "svm.cost")
-				instance->param->C = boost::lexical_cast<double>(values.at(1));
-		}
-		catch (boost::bad_lexical_cast &) {
-			std::cerr << "unable to parse value for " << values.at(0) << ". Default value is used." << std::endl;
-		}
-	}
 	//add slash to end of trainerBaseDir
-	char c = instance->trainerBaseDir.at(instance->trainerBaseDir.size() - 1);
+	std::string s = instance->prop.get("trainer.baseDir");
+	char c = s.at(s.size() - 1);
 	if (c != '\\' && c != '/')
-		instance->trainerBaseDir += "/";
+		instance->prop.set("trainer.baseDir",  s + "/");
 }
 
 //inits the logging system
@@ -147,12 +70,12 @@ void AppConfig::initLogging() {
 	namespace keywords = boost::log::keywords;
 	namespace expr = boost::log::expressions;
 
-	logging::core::get()->set_filter(boost::log::trivial::severity >= loggerLevel);
+	logging::core::get()->set_filter(boost::log::trivial::severity >= prop.getInt("logger.level"));
 	logging::add_common_attributes();
 
-	if (!loggerFile.empty()) {
+	if (!instance->prop.get("logger.file").empty()) {
 		logging::add_file_log(
-			keywords::file_name = loggerFile,
+			keywords::file_name = prop.get("logger.file"),
 			keywords::rotation_size = 10 * 1024 * 1024,
 			keywords::format = (
 			expr::stream
@@ -176,68 +99,34 @@ void AppConfig::initLogging() {
 }
 
 int AppConfig::getEMGProviderBufferWarning() const {
-	return emgProviderBufferWarning;
+	return prop.getInt("blockingQueue.maxWaitTime");
 }
 
 int AppConfig::getSampleRows() const {
-	return sampleRows;
+	return prop.getInt("sample.rows");
 }
 
 int AppConfig::getSampleColumns() const {
-	return sampleColumns;
+	return prop.getInt("sample.columns");
 }
 
 int AppConfig::getIntervalNrSamples() const {
-	return intervalNrSamples;
-}
-
-const std::string& AppConfig::getGnuPlotPath() const {
-	return gnuPlotPath;
-}
-
-int AppConfig::getVariogramNrBins() const {
-	return variogramNrBins;
-}
-
-int AppConfig::getLoggerLevel() const {
-	return loggerLevel;
-}
-
-const std::string& AppConfig::getLoggerFile() const {
-	return loggerFile;
-}
-
-bool AppConfig::isPlotMean() const {
-	//no plotting possible, when no path to gnuplot is provided
-	return plotMean & !gnuPlotPath.empty();
-}
-
-bool AppConfig::isPlotVariogramSurface() const {
-	//no plotting possible, when no path to gnuplot is provided
-	return plotVariogramSurface && !gnuPlotPath.empty();
-}
-
-bool AppConfig::isPlotVariogramGraph() const {
-	//no plotting possible, when no path to gnuplot is provided
-	return plotVariogramGraph && !gnuPlotPath.empty();
+	return prop.getInt("interval.nrSamples");
 }
 
 int AppConfig::getBlockingQueueMaxWaitTime() const {
-	return blockingQueueMaxWaitTime;
+	return prop.getInt("blockingQueue.maxWaitTime");
 }
 
-const std::string& AppConfig::getTrainerBaseDir() const {
-	return trainerBaseDir;
+std::string AppConfig::getTrainerBaseDir() const {
+	std::string s = prop.get("trainer.baseDir");
+	return s;
 }
 
 int AppConfig::getTrainingsSize() const {
-	return trainingsSize;
+	return prop.getInt("trainer.trainingsSize");
 }
 
 int AppConfig::getTrainerNrRuns() const {
-	return trainerNrRuns;
-}
-
-svm_parameter* AppConfig::getSVMParameter() const {
-	return param;
+	return prop.getInt("trainer.nrRuns");
 }

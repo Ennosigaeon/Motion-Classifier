@@ -16,7 +16,7 @@ namespace motion_classifier {
 		int nrBins;
 
 	public:
-		Variogram();
+		Variogram(int nrBins);
 
 		/**
 		  * Calculates the Variogram values for the given Sample. The Variogram is

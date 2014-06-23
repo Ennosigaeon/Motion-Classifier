@@ -5,8 +5,8 @@
 
 using namespace motion_classifier;
 
-SupportVectorMachine::SupportVectorMachine() {
-	config = AppConfig::getInstance();
+SupportVectorMachine::SupportVectorMachine(svm_parameter *param) {
+	SupportVectorMachine::param = param;
 }
 
 SupportVectorMachine::~SupportVectorMachine() {
@@ -53,7 +53,6 @@ void SupportVectorMachine::calculateSVM() {
 	problem.x = nodes;
 
 	//creates the svm_parameters
-	svm_parameter *param = config->getSVMParameter();
 	svm_check_parameter(&problem, param);
 
 	//creates the model for the svm
