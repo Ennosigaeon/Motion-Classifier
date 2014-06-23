@@ -20,7 +20,7 @@ void MultiClassSVM::train(const Motion::Muscle& motion, const std::vector<math::
 	std::map<Motion::Muscle, std::vector<math::Vector>>::iterator search = trainingsData.find(motion);
 	if (search == trainingsData.end()) {
 		std::vector<math::Vector> vector(data);
-		trainingsData.insert(std::pair<Motion::Muscle, std::vector<math::Vector>>(motion, vector));
+		trainingsData.insert(std::make_pair(motion, vector));
 	}
 	else {
 		std::vector<math::Vector> *vector = &(search->second);

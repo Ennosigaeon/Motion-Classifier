@@ -4,25 +4,31 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/log/expressions.hpp>
 #include <boost/log/trivial.hpp>
-#include "../h/Classifier.h"
+#include "../h/SVMClassifier.h"
 #include "../h/Utilities.h"
 
 using namespace motion_classifier;
 
-Classifier::Classifier(EMGProvider* emgProvider, MultiClassSVM *svm) {
+SVMClassifier::SVMClassifier(EMGProvider* emgProvider, MultiClassSVM *svm) {
 	config = AppConfig::getInstance();
-	Classifier::emgProvider = emgProvider;
-	Classifier::svm = svm;
+	SVMClassifier::emgProvider = emgProvider;
+	SVMClassifier::svm = svm;
+	Interval::setMeanFunction(&math::getRMSMean);
 	BOOST_LOG_TRIVIAL(info) << "Classifier created";
 }
 
-Classifier::~Classifier() {
+SVMClassifier::~SVMClassifier() {
 	send(Signal::SHUTDOWN);
-	BOOST_LOG_TRIVIAL(info) << "Classified " << intervalCount << " Samples in avg. " << time / intervalCount << " ms";
+	BOOST_LOG_TRIVIAL(info) << printStatistics();
 	BOOST_LOG_TRIVIAL(info) << "Classifier destroyed";
 }
 
-Motion::Muscle Classifier::getMuscleMotion() {
+std::string SVMClassifier::printStatistics() {
+	std::string s("Classified " + boost::lexical_cast<std::string>(intervalCount) + " Samples in avg. " + boost::lexical_cast<std::string>(time / intervalCount) + " ms");
+	return s;
+}
+
+Motion::Muscle SVMClassifier::getMuscleMotion() {
 	Motion::Muscle *motion = lastMuscleMotion.pop();
 	if (motion == NULL)
 		return Motion::Muscle::UNKNOWN;
@@ -30,7 +36,7 @@ Motion::Muscle Classifier::getMuscleMotion() {
 		return *motion;
 }
 
-void Classifier::run() {
+void SVMClassifier::run() {
 	while (true) {
 		if (status == Status::RUNNING) {
 			BOOST_LOG_TRIVIAL(debug) << "waiting for new Interval";
@@ -39,19 +45,19 @@ void Classifier::run() {
 				continue;
 
 			clock_t t = clock();
-			BOOST_LOG_TRIVIAL(debug) << "calculating RMS sample";
-			Sample *rms = interval->getRMSSample();
-			if (rms == NULL)
+			BOOST_LOG_TRIVIAL(debug) << "calculating mean sample";
+			Sample *mean = interval->getMeanSample();
+			if (mean == NULL)
 				continue;
 
 			BOOST_LOG_TRIVIAL(debug) << "calculating Variogram";
-			std::vector<math::Vector> values = variogram.calculate(rms);
+			std::vector<math::Vector> values = variogram.calculate(mean);
 
 			BOOST_LOG_TRIVIAL(debug) << "classifying values";
 			Motion::Muscle motion = svm->classify(values);
 
 			//plots the calculated values
-			plot(rms, values);
+			plot(mean, values);
 
 			//overrides the last stored value
 			lastMuscleMotion.push(&motion);
@@ -69,13 +75,13 @@ void Classifier::run() {
 			condition.wait(lk);
 		}
 		if (status == Status::FINISHED) {
-			BOOST_LOG_TRIVIAL(info) << "shuting down Classifier worker";
+			BOOST_LOG_TRIVIAL(info) << "shuting down SVMClassifier worker";
 			return;
 		}
 	}
 }
 
-void Classifier::send(const Signal& signal) {
+void SVMClassifier::send(const Signal& signal) {
 	if (signal == Signal::START) {
 		if (status == Status::NEW)  {
 			//start EMGProvider
@@ -83,7 +89,7 @@ void Classifier::send(const Signal& signal) {
 
 			//start worker thread
 			status = Status::RUNNING;
-			worker = std::thread(&Classifier::run, this);
+			worker = std::thread(&SVMClassifier::run, this);
 		}
 		else {
 			status = Status::RUNNING;
@@ -112,10 +118,10 @@ void Classifier::send(const Signal& signal) {
 	}
 }
 
-void Classifier::plot(Sample* sample, std::vector<math::Vector>& values) {
-	if (config->isPlotRMS()) {
+void SVMClassifier::plot(Sample* sample, std::vector<math::Vector>& values) {
+	if (config->isPlotMean()) {
 		std::ofstream sampleStream;
-		sampleStream.open(std::string("C:/Tmp/plot/") + boost::lexical_cast<std::string>(intervalCount)+"-rms.txt");
+		sampleStream.open(std::string("C:/Tmp/plot/") + boost::lexical_cast<std::string>(intervalCount)+"-mean.txt");
 		sampleStream << *sample;
 		sampleStream.close();
 	}
@@ -133,4 +139,18 @@ void Classifier::plot(Sample* sample, std::vector<math::Vector>& values) {
 			sampleStream << it->getX() << "\t" << it->getY() << "\t" << it->getZ() << std::endl;
 		sampleStream.close();
 	}
+}
+
+void SVMClassifier::train(const std::map<Motion::Muscle, std::vector<Interval*>>& values) {
+	for (std::map<Motion::Muscle, std::vector<Interval*>>::const_iterator it = values.begin(); it != values.end(); ++it) {
+		std::vector<math::Vector> res;
+		for (std::vector<Interval*>::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2) {
+			Sample *mean = (*it2)->getMeanSample();
+			std::vector<math::Vector> vec = variogram.calculate(mean);
+			res.insert(res.end(), vec.begin(), vec.end());
+			delete mean;
+		}
+		svm->train(it->first, res);
+	}
+	svm->calculateSVMs();
 }

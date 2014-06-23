@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <iostream>
 #include <map>
+#include <thread>
 #include <boost/bind.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/filesystem/operations.hpp>
@@ -14,15 +15,17 @@
 
 using namespace motion_classifier;
 
-const int Trainer::recordingTime = 3000;
+const int Trainer::recordingTime = 30000;
 
-Trainer::Trainer(EMGProvider *emgProvider, MultiClassSVM *svm) {
-	Trainer::emgProvider = emgProvider;
-	Trainer::svm = svm;
+Trainer::Trainer() {
 	config = AppConfig::getInstance();
 }
 
-void Trainer::train() {
+std::map<Motion::Muscle, std::vector<Interval*>> Trainer::train(EMGProvider *emgProvider) {
+	startMotions.clear();
+	status = Status::NEW;
+	Trainer::emgProvider = emgProvider;
+
 	//Create folder, if it doesn't exists
 	std::string BASE_DIR = config->getTrainerBaseDir();
 	boost::filesystem::path root(BASE_DIR);
@@ -43,8 +46,7 @@ void Trainer::train() {
 		std::cin.ignore();
 		if (answer == "y") {
 			BOOST_LOG_TRIVIAL(info) << "loading trainings data from " << folder;
-			load();
-			return;
+			return load();
 		}
 		else {
 			std::cout << "Do you really want to delete old data from user " << user << " (y/n)?";
@@ -52,11 +54,9 @@ void Trainer::train() {
 			std::cin.ignore();
 			if (answer == "y")
 				boost::filesystem::remove_all(folder);
-			else {
+			else
 				//start trainig procedure again
-				train();
-				return;
-			}
+				return train(emgProvider);
 		}
 	}
 
@@ -97,9 +97,9 @@ void Trainer::train() {
 	}
 
 	//stores the trainings data
-	store();
+	parse();
 	//loads the trainings data and trains svm with them
-	load();
+	return load();
 }
 
 void Trainer::run() {
@@ -163,8 +163,8 @@ void Trainer::run() {
 	status = Status::FINISHED;
 }
 
-void Trainer::store() {
-	BOOST_LOG_TRIVIAL(info) << "calculating trainings data from recorded input. This may take some time...";
+void Trainer::parse() {
+	BOOST_LOG_TRIVIAL(info) << "parsing trainings data from recorded input. This may take some time...";
 	int windowSize = config->getTrainingsSize();
 	Variogram variogram;
 
@@ -172,13 +172,12 @@ void Trainer::store() {
 	if (!in.is_open())
 		throw std::invalid_argument("unable to open file");
 
-	//calculate Variograms for every center of movement
-	std::map<Motion::Muscle, std::vector<math::Vector>> map;
+	//extract Intervals for every start of movement
+	std::map<Motion::Muscle, std::vector<Interval*>> map;
 	int lineNr = 0;
 	for (std::vector<std::pair<Motion::Muscle, int>>::const_iterator it = startMotions.begin(); it != startMotions.end(); ++it) {
 		if (map.find(it->first) == map.end())
-			map.insert(std::pair< Motion::Muscle, std::vector<math::Vector>>(it->first, std::vector<math::Vector>()));
-		std::vector<math::Vector> *values = &(map.find(it->first)->second);
+			map.insert(std::make_pair(it->first, std::vector<Interval*>()));
 
 		Interval *interval = new Interval();
 		while (!in.eof()) {
@@ -190,12 +189,17 @@ void Trainer::store() {
 			else {
 				if (lineNr <= it->second + windowSize) {
 					Sample *s = new Sample();
-					in >> *s;
+					try {
+						in >> *s;
+					}
+					catch (std::out_of_range& ex) {
+						//Skip line, probably empty last line in file
+						delete s;
+						continue;
+					}
 					interval->addSample(s);
 					if (interval->isFull()) {
-						std::vector<math::Vector> vec = variogram.calculate(interval->getRMSSample());
-						values->insert(values->end(), vec.begin(), vec.end());
-						delete interval;
+						map.find(it->first)->second.push_back(interval);
 						interval = new Interval();
 					}
 				}
@@ -204,26 +208,27 @@ void Trainer::store() {
 			}
 			++lineNr;
 		}
+		//last interval is empty, therefore delete it
 		delete interval;
 	}
 
 	//store values in filesystem
-	for (std::map<Motion::Muscle, std::vector<math::Vector>>::iterator it = map.begin(); it != map.end(); ++it) {
-		std::string s = folder + motion_classifier::printMotion(it->first) + ".txt";
-		std::ofstream out(s);
+	for (std::map<Motion::Muscle, std::vector<Interval*>>::iterator it = map.begin(); it != map.end(); ++it) {
+		std::ofstream out(folder + motion_classifier::printMotion(it->first) + ".txt");
 		if (!out.is_open())
 			throw std::invalid_argument("unable to open file");
-		for (std::vector<math::Vector>::iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2)
-			out << *it2 << std::endl;
+		for (std::vector<Interval*>::iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2)
+			for (std::vector<Sample*>::const_iterator it3 = (*it2)->getSamples().begin(); it3 != (*it2)->getSamples().end(); ++it3)
+				out << **it3;
 		out.close();
 	}
 }
 
-void Trainer::load() {
+std::map<Motion::Muscle, std::vector<Interval*>> Trainer::load() {
 	if (!boost::filesystem::is_directory(boost::filesystem::path(folder)))
 		throw std::invalid_argument("unable to open file");
-
-	int nrRuns = config->getTrainerNrRuns();
+	
+	std::map<Motion::Muscle, std::vector<Interval*>> result;
 	for (int i = Motion::Muscle::REST_POSITION; i <= Motion::Muscle::HAND_CLOSE; ++i) {
 		std::string file = folder + motion_classifier::printMotion(static_cast<Motion::Muscle>(i)) + ".txt";
 		std::ifstream in(file);
@@ -233,18 +238,27 @@ void Trainer::load() {
 			continue;
 		}
 
-		std::vector<math::Vector> result;
+		std::vector<Interval*> vec;
+		Interval *interval = new Interval();
 		while (!in.eof()) {
-			math::Vector vec;
-			in >> vec;
-			if (!isnan(vec.getX()))
-				result.push_back(vec);
+			Sample *sample = new Sample();
+			try {
+				in >> *sample;
+			}
+			catch (std::out_of_range& ex) {
+				//Skip line, probably empty last line in file
+				delete sample;
+				continue;
+			}
+			interval->addSample(sample);
+			if (interval->isFull()) {
+				vec.push_back(interval);
+				interval = new Interval();
+			}
 		}
-		svm->train(static_cast<Motion::Muscle>(i), result);
-		in.close();
+		//last Interval is empty, therefore delete it
+		delete interval;
+		result.insert(std::make_pair(static_cast<Motion::Muscle>(i), vec));
 	}
-	svm->calculateSVMs();
-
-	BOOST_LOG_TRIVIAL(info) << "Training finished. Press Enter to continue...";
-	std::cin.get();
+	return result;
 }
