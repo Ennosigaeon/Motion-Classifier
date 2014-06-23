@@ -1,7 +1,7 @@
 #ifndef OTEMGPROVIDER_H
 #define OTEMGPROVIDER_H
 
-#include "EMGProvider.h"
+#include "EMGProviderImpl.h"
 #include "../lib/OTBioLabClient/OTBioLabClient.h"
 
 namespace motion_classifier {
@@ -12,8 +12,8 @@ namespace motion_classifier {
 	  * configure the OT BioLab software. See also EMGProvider
 	  * for more information.
 	  */
-	class EMGOTProvider : public EMGProvider {
-		friend class EMGProvider;
+	class EMGOTProvider : public EMGProviderImpl {
+		friend class EMGProviderImpl;
 	private:
 		OTBioLabClient *client;
 		void run();

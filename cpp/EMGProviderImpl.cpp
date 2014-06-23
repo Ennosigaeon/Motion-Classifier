@@ -1,22 +1,22 @@
 #include <boost/log/expressions.hpp>
 #include <boost/log/trivial.hpp>
-#include "../h/EMGProvider.h"
+#include "../h/EMGProviderImpl.h"
 
 using namespace motion_classifier;
 
-EMGProvider::~EMGProvider() {
+EMGProviderImpl::~EMGProviderImpl() {
 	//TODO: consumes a lot of time
 	if (lastInterval != NULL)
 		delete lastInterval;
 	clearBuffer();
 }
 
-Interval* EMGProvider::getInterval() {
+Interval* EMGProviderImpl::getInterval() {
 	Interval *interval = intervals.pop();
 	return interval;
 }
 
-void EMGProvider::addInterval(Interval* const interval) {
+void EMGProviderImpl::addInterval(Interval* const interval) {
 	intervals.push(interval);
 
 	//EMGProvider could create Intervals much faster, than they are processed
@@ -24,17 +24,17 @@ void EMGProvider::addInterval(Interval* const interval) {
 		BOOST_LOG_TRIVIAL(warning) << intervals.size() << " Intervals are stored in EMGProvider";
 }
 
-void EMGProvider::clearBuffer() {
+void EMGProviderImpl::clearBuffer() {
 	//This operation can take a lot of time (>30 seconds).
 	BOOST_LOG_TRIVIAL(info) << "Deleting " << intervals.size() << " stored Intervals. This may take some time...";
 	while (!intervals.empty())
 		delete intervals.pop();
 }
 
-int EMGProvider::getBufferSize() const {
+int EMGProviderImpl::getBufferSize() const {
 	return intervals.size();
 }
 
-int EMGProvider::getSampleNr() const {
+int EMGProviderImpl::getSampleNr() const {
 	return sampleNr;
 }

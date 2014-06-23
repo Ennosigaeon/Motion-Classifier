@@ -74,8 +74,8 @@ void EMGFileProvider::run() {
 
 			if (lastInterval->isFull()) {
 				BOOST_LOG_TRIVIAL(debug) << "created new Interval";
-				EMGProvider::addInterval(lastInterval);
-				EMGProvider::lastInterval = new Interval();
+				EMGProviderImpl::addInterval(lastInterval);
+				EMGProviderImpl::lastInterval = new Interval();
 			}
 		}
 	}

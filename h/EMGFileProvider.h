@@ -4,7 +4,7 @@
 #include <condition_variable>
 #include <fstream>
 #include <mutex>
-#include "EMGProvider.h"
+#include "EMGProviderImpl.h"
 
 namespace motion_classifier {
 	/**
@@ -13,8 +13,8 @@ namespace motion_classifier {
 	  * into an interval.
 	  * See EMGProvider for more information.
 	  */
-	class EMGFileProvider : public EMGProvider {
-		friend class EMGProvider;
+	class EMGFileProvider : public EMGProviderImpl {
+		friend class EMGProviderImpl;
 	private:
 		std::ifstream fileIn;
 		void run();
