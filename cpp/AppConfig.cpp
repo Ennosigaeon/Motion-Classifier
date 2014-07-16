@@ -2,13 +2,6 @@
 #include <iostream>
 #include <limits>
 #include <vector>
-#include <boost/log/core.hpp>
-#include <boost/log/expressions.hpp>
-#include <boost/log/trivial.hpp>
-#include <boost/log/support/date_time.hpp>
-#include <boost/log/utility/setup/common_attributes.hpp>
-#include <boost/log/utility/setup/console.hpp>
-#include <boost/log/utility/setup/file.hpp>
 #include "../h/AppConfig.h"
 
 using namespace motion_classifier;
@@ -47,86 +40,62 @@ void AppConfig::load(int argc, char *argv[]) {
 }
 
 void AppConfig::load(const std::string& path) {
-	if (instance == NULL)
-		instance = new AppConfig();
-
 	std::cout << "using " << path << " as configuration file" << std::endl;
 	std::ifstream in(path);
 	if (!in.is_open())
 		throw std::invalid_argument("Unable to read configurations from configuration file. Not possible to open the file.");
-
-	instance->prop.load(path);
-
-	//add slash to end of trainerBaseDir
-	std::string s = instance->prop.get("trainer.baseDir");
-	char c = s.at(s.size() - 1);
-	if (c != '\\' && c != '/')
-		instance->prop.set("trainer.baseDir",  s + "/");
+	Properties prop(path);
+	load(prop);
 }
 
-//inits the logging system
-void AppConfig::initLogging() {
-	namespace logging = boost::log;
-	namespace keywords = boost::log::keywords;
-	namespace expr = boost::log::expressions;
+void AppConfig::load(Properties& prop) {
+	if (instance == NULL)
+		instance = new AppConfig();
 
-	logging::core::get()->set_filter(boost::log::trivial::severity >= prop.getInt("logger.level"));
-	logging::add_common_attributes();
-
-	if (!instance->prop.get("logger.file").empty()) {
-		logging::add_file_log(
-			keywords::file_name = prop.get("logger.file"),
-			keywords::rotation_size = 10 * 1024 * 1024,
-			keywords::format = (
-			expr::stream
-			<< expr::format_date_time< boost::posix_time::ptime >("TimeStamp", "%H:%M:%S.%f")
-			<< ": <" << logging::trivial::severity
-			<< "> " << expr::smessage
-			)
-			);
-	}
-	logging::add_console_log(
-		std::cout,
-		keywords::format = (
-		expr::stream
-		<< expr::format_date_time< boost::posix_time::ptime >("TimeStamp", "%H:%M:%S.%f")
-		<< ": <" << logging::trivial::severity
-		<< "> " << expr::smessage
-		)
-		);
-
-	BOOST_LOG_TRIVIAL(info) << "set up logging system";
+	instance->blockingQueueMaxWaitTime = prop.getInt("blockingQueue.maxWaitTime");
+	instance->sampleRows = prop.getInt("sample.rows");
+	instance->sampleColumns = prop.getInt("sample.columns");
+	instance->intervalNrSamples = prop.getInt("interval.nrSamples");
+	instance->blockingQueueMaxWaitTime = prop.getInt("blockingQueue.maxWaitTime");
+	instance->trainingsSize = prop.getInt("trainer.trainingsSize");
+	instance->trainerNrRuns = prop.getInt("trainer.nrRuns");
+	
+	//add slash to end of trainerBaseDir
+	instance->trainerBaseDir = prop.get("trainer.baseDir");
+	char c = instance->trainerBaseDir.at(instance->trainerBaseDir.size() - 1);
+	if (c != '\\' && c != '/')
+		instance->trainerBaseDir += "/";
 }
 
 int AppConfig::getEMGProviderBufferWarning() const {
-	return prop.getInt("blockingQueue.maxWaitTime");
+	return emgProviderBufferWarning;
 }
 
 int AppConfig::getSampleRows() const {
-	return prop.getInt("sample.rows");
+	return sampleRows;
 }
 
 int AppConfig::getSampleColumns() const {
-	return prop.getInt("sample.columns");
+	return sampleColumns;
 }
 
 int AppConfig::getIntervalNrSamples() const {
-	return prop.getInt("interval.nrSamples");
+	return intervalNrSamples;
 }
 
 int AppConfig::getBlockingQueueMaxWaitTime() const {
-	return prop.getInt("blockingQueue.maxWaitTime");
+	return blockingQueueMaxWaitTime;
 }
 
 std::string AppConfig::getTrainerBaseDir() const {
-	std::string s = prop.get("trainer.baseDir");
-	return s;
+	return trainerBaseDir;
 }
 
 int AppConfig::getTrainingsSize() const {
-	return prop.getInt("trainer.trainingsSize");
+	return trainingsSize;
 }
 
 int AppConfig::getTrainerNrRuns() const {
-	return prop.getInt("trainer.nrRuns");
+	return trainerNrRuns;
 }
+

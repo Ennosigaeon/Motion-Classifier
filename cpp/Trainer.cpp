@@ -5,10 +5,9 @@
 #include <boost/bind.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/filesystem/operations.hpp>
-#include <boost/log/expressions.hpp>
-#include <boost/log/trivial.hpp>
 #include <boost/thread/thread.hpp>
 #include "../h/AppConfig.h"
+#include "../h/Logger.h"
 #include "../h/Trainer.h"
 #include "../h/Utilities.h"
 #include "../h/Variogram.h"
@@ -45,7 +44,7 @@ std::map<Motion::Muscle, std::vector<Interval*>> Trainer::train(EMGProvider *emg
 		std::cin >> answer;
 		std::cin.ignore();
 		if (answer == "y") {
-			BOOST_LOG_TRIVIAL(info) << "loading trainings data from " << folder;
+			Logger::getInstance()->info("loading trainings data from " + folder.string());
 			return load();
 		}
 		else {
@@ -90,7 +89,7 @@ std::map<Motion::Muscle, std::vector<Interval*>> Trainer::train(EMGProvider *emg
 	int previous = -windowSize;
 	for (std::vector<std::pair<Motion::Muscle, int>>::iterator it = startMotions.begin(); it != startMotions.end(); ++it) {
 		if (abs(it->second - previous) < windowSize) {
-			BOOST_LOG_TRIVIAL(fatal) << "The beginnings of the movements are too close to each other. Please restart the training!";
+			Logger::getInstance()->fatal("The beginnings of the movements are too close to each other. Please restart the training!");
 			throw std::underflow_error("beginnings of movements are too close to each other");
 		}
 		previous = it->second;
@@ -108,7 +107,7 @@ void Trainer::run() {
 		std::cout << "Press enter if arm is in rest position: ";
 		std::cin.get();
 		startMotions.push_back(std::pair<Motion::Muscle, int>(Motion::Muscle::REST_POSITION, emgProvider->getSampleNr()));
-		BOOST_LOG_TRIVIAL(debug) << "added " << startMotions.back().second << " as center for " << motion_classifier::printMotion(Motion::Muscle::REST_POSITION);
+		Logger::getInstance()->debug("added " + boost::lexical_cast<std::string>(startMotions.back().second) + " as center for " +		motion_classifier::printMotion (Motion::Muscle::REST_POSITION));
 		boost::this_thread::sleep(boost::posix_time::milliseconds(recordingTime));
 
 		/*std::cout << "Press enter before rolling hand downwards (wrist flexion): ";
@@ -164,7 +163,7 @@ void Trainer::run() {
 }
 
 void Trainer::parse() {
-	BOOST_LOG_TRIVIAL(info) << "parsing trainings data from recorded input. This may take some time...";
+	Logger::getInstance()->info("parsing trainings data from recorded input. This may take some time...");
 	int windowSize = config->getTrainingsSize();
 
 	std::ifstream in(folder + "data.txt");
@@ -233,7 +232,7 @@ std::map<Motion::Muscle, std::vector<Interval*>> Trainer::load() {
 		std::ifstream in(file);
 		//This trainigs file does not exists
 		if (!in.is_open()) {
-			BOOST_LOG_TRIVIAL(warning) << "No trainings data for " << motion_classifier::printMotion(static_cast<Motion::Muscle>(i)) << " available.";
+			Logger::getInstance()->warn("No trainings data for " + motion_classifier::printMotion(static_cast<Motion::Muscle>(i)) + " available.");
 			continue;
 		}
 

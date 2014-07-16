@@ -1,11 +1,10 @@
-#include <boost/log/trivial.hpp>
-#include <boost/log/expressions.hpp>
 #include "../h/EMGOTProvider.h"
+#include "../h/Logger.h"
 
 using namespace motion_classifier;
 
 EMGOTProvider::EMGOTProvider() {
-	BOOST_LOG_TRIVIAL(info) << "Please start the Visualization in the OT BioLab. Press enter to continue...";
+	Logger::getInstance()->info("Please start the Visualization in the OT BioLab. Press enter to continue...");
 	std::cin.get();
 	client = new OTBioLabClient("localhost");
 	lastInterval = new Interval();
@@ -15,7 +14,7 @@ EMGOTProvider::EMGOTProvider() {
 EMGOTProvider::~EMGOTProvider() {
 	send(Signal::SHUTDOWN);
 	//When socket is closed before Visualization has been stoped, you have to restart OT BioLab
-	BOOST_LOG_TRIVIAL(info) << "Please stop the Visualization in the OT BioLab. Press enter to continue...";
+	Logger::getInstance()->info("Please stop the Visualization in the OT BioLab. Press enter to continue...");
 	std::cin.get();
 	delete client;
 	//Intervals are deleted in EMGProvider destructor
@@ -43,9 +42,10 @@ void EMGOTProvider::send(const Signal& signal) {
 }
 
 void EMGOTProvider::run() {
+	Logger *logger = Logger::getInstance();
 	while (true) {
 		if (status == Status::FINISHED) {
-			BOOST_LOG_TRIVIAL(info) << "Stopping EMGOTProvider";
+			logger->info("Stopping EMGOTProvider");
 			break;
 		}
 		std::vector<short> values;
@@ -55,7 +55,7 @@ void EMGOTProvider::run() {
 
 		lastInterval->addSample(s);
 		if (lastInterval->isFull()) {
-			BOOST_LOG_TRIVIAL(debug) << "created new Interval";
+			logger->debug("created new Interval");
 			EMGProviderImpl::addInterval(lastInterval);
 			EMGProviderImpl::lastInterval = new Interval();
 		}

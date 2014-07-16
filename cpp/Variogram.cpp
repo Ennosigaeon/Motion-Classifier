@@ -2,9 +2,9 @@
 #include <cmath>
 #include <ctime>
 #include <iostream>
-#include <boost/log/expressions.hpp>
-#include <boost/log/trivial.hpp>
+#include <boost/lexical_cast.hpp>
 #include "../h/AppConfig.h"
+#include "../h/Logger.h"
 #include "../h/Utilities.h"
 #include "../h/Variogram.h"
 
@@ -15,6 +15,7 @@ Variogram::Variogram(int nrBins) {
 }
 
 std::vector<math::Vector> Variogram::calculate(Sample* sample) const {
+	Logger *logger = Logger::getInstance();
 	std::vector<math::Vector> result;
 
 	int maxX = sample->getNrColumns() / 2;
@@ -40,10 +41,10 @@ std::vector<math::Vector> Variogram::calculate(Sample* sample) const {
 			}
 			h.setLength(h.getLength() + 1);
 		}
-		BOOST_LOG_TRIVIAL(trace) << "found " << count << " pairs for math::Angle " << printAngle(angle);
+		logger->trace("found " + boost::lexical_cast<std::string>(count) + " pairs for math::Angle " + printAngle(angle));
 	}
 	t = clock() - t;
-	BOOST_LOG_TRIVIAL(debug) << "Variogram calculation took " << ((double)t) / CLOCKS_PER_SEC * 1000 << " ms. " << result.size() << " pairs found";
+	logger->debug("Variogram calculation took " + boost::lexical_cast<std::string>(((double)t) / CLOCKS_PER_SEC * 1000) + " ms. " + boost::lexical_cast<std::string>(result.size()) + " pairs found");
 
 	return result;
 }
@@ -82,7 +83,7 @@ double Variogram::calc(Sample* sample, const math::Vector& h, const double radiu
 	for (int i = 0; i < size; ++i)
 		entries[i].setGroup(-1);
 
-	BOOST_LOG_TRIVIAL(trace) << "found " << *count << " pairs for the offset " << h;
+	Logger::getInstance()->trace("found " + boost::lexical_cast<std::string>(*count) + " pairs for the offset " + boost::lexical_cast<std::string>(h));
 	if (*count == 0)
 		return NAN;
 	else

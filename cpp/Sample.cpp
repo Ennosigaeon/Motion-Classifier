@@ -6,7 +6,7 @@ using namespace motion_classifier;
 
 Sample::Sample(long nr) : nr(nr) {
 	AppConfig *config = AppConfig::getInstance();
-	nrRows =config->getSampleRows();
+	nrRows = config->getSampleRows();
 	nrColumns = config->getSampleColumns();
 	entries = new math::Vector[nrRows * nrColumns];
 }

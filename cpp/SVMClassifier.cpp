@@ -2,8 +2,7 @@
 #include <fstream>
 #include <string>
 #include <boost/lexical_cast.hpp>
-#include <boost/log/expressions.hpp>
-#include <boost/log/trivial.hpp>
+#include "../h/Logger.h"
 #include "../h/SVMClassifier.h"
 #include "../h/Utilities.h"
 
@@ -15,13 +14,13 @@ SVMClassifier::SVMClassifier(EMGProvider* emgProvider, MultiClassSVM *svm, Prope
 	Interval::setMeanFunction(&math::getRMSMean);
 	prop = configuration;
 	variogram = &Variogram(prop->getInt("variogram.nrBins"));
-	BOOST_LOG_TRIVIAL(info) << "Classifier created";
+	Logger::getInstance()->info("Classifier created");
 }
 
 SVMClassifier::~SVMClassifier() {
 	send(Signal::SHUTDOWN);
-	BOOST_LOG_TRIVIAL(info) << printStatistics();
-	BOOST_LOG_TRIVIAL(info) << "Classifier destroyed";
+	Logger::getInstance()->info(printStatistics());
+	Logger::getInstance()->info("Classifier destroyed");
 }
 
 std::string SVMClassifier::printStatistics() {
@@ -38,23 +37,24 @@ Motion::Muscle SVMClassifier::getMuscleMotion() {
 }
 
 void SVMClassifier::run() {
+	Logger *logger = Logger::getInstance();
 	while (true) {
 		if (status == Status::RUNNING) {
-			BOOST_LOG_TRIVIAL(debug) << "waiting for new Interval";
+			logger->debug("waiting for new Interval");
 			Interval *interval = emgProvider->getInterval();
 			if (interval == NULL)
 				continue;
 
 			clock_t t = clock();
-			BOOST_LOG_TRIVIAL(debug) << "calculating mean sample";
+			logger->debug("calculating mean sample");
 			Sample *mean = interval->getMeanSample();
 			if (mean == NULL)
 				continue;
 
-			BOOST_LOG_TRIVIAL(debug) << "calculating Variogram";
+			logger->debug("calculating Variogram");
 			std::vector<math::Vector> values = variogram->calculate(mean);
 
-			BOOST_LOG_TRIVIAL(debug) << "classifying values";
+			logger->debug("classifying values");
 			Motion::Muscle motion = svm->classify(values);
 
 			//plots the calculated values
@@ -64,19 +64,19 @@ void SVMClassifier::run() {
 			lastMuscleMotion.push(&motion);
 			t = clock() - t;
 			double tmp = ((double)t) / CLOCKS_PER_SEC * 1000;
-			BOOST_LOG_TRIVIAL(info) << "classified new Interval in " << tmp << " ms as " << motion_classifier::printMotion(motion);
+			logger->info("classified new Interval in " + boost::lexical_cast<std::string>(tmp) + " ms as " + motion_classifier::printMotion(motion));
 
 			time += tmp;
 			++intervalCount;
 			delete interval;
 		}
 		if (status == Status::WAITING) {
-			BOOST_LOG_TRIVIAL(debug) << "Classifier stops processing Intervals";
+			logger->debug("Classifier stops processing Intervals");
 			std::unique_lock<std::mutex> lk(mutex);
 			condition.wait(lk);
 		}
 		if (status == Status::FINISHED) {
-			BOOST_LOG_TRIVIAL(info) << "shuting down SVMClassifier worker";
+			logger->info("shuting down SVMClassifier worker");
 			return;
 		}
 	}

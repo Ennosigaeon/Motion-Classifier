@@ -1,5 +1,5 @@
-#include <boost/log/trivial.hpp>
-#include <boost/log/expressions.hpp>
+#include <boost/lexical_cast.hpp>
+#include "../h/Logger.h"
 #include "../h/SupportVectorMachine.h"
 #include "../h/Utilities.h"
 
@@ -31,8 +31,8 @@ void SupportVectorMachine::addTrainData(const Motion::Muscle& motion, std::vecto
 void SupportVectorMachine::calculateSVM() {
 	if (classA == Motion::Muscle::UNKNOWN || classB == Motion::Muscle::UNKNOWN || valuesA.empty() || valuesB.empty())
 		throw std::domain_error("no data for at least one class");
-	BOOST_LOG_TRIVIAL(debug) << "Training SVM for MuscleMotions " << motion_classifier::printMotion(classA) << " (" << valuesA.size() << " values) and "
-		<< motion_classifier::printMotion(classB) << " (" << valuesA.size() << " values).";
+	Logger::getInstance()->debug("Training SVM for MuscleMotions " + motion_classifier::printMotion(classA) + " (" + boost::lexical_cast<std::string>(valuesA.size()) + " values) and "
+		+ motion_classifier::printMotion(classB) + " (" + boost::lexical_cast<std::string>(valuesA.size()) + " values).");
 
 	//converts the two given std::vectors in a svm_problem
 	std::vector<math::Vector> list(valuesA);
@@ -57,7 +57,7 @@ void SupportVectorMachine::calculateSVM() {
 
 	//creates the model for the svm
 	svm = svm_train(&problem, param);
-	BOOST_LOG_TRIVIAL(trace) << "Trained SVM for " << printMotion(classA) << " & " << printMotion(classB);
+	Logger::getInstance()->trace("Trained SVM for " + printMotion(classA) + " & " + printMotion(classB));
 }
 
 Motion::Muscle SupportVectorMachine::classify(std::vector<math::Vector>& vector) {
@@ -72,14 +72,14 @@ Motion::Muscle SupportVectorMachine::classify(std::vector<math::Vector>& vector)
 	}
 
 	if (matchA > matchB) {
-		BOOST_LOG_TRIVIAL(trace) << "variogram assigned to " << motion_classifier::printMotion(classA);
+		Logger::getInstance()->trace("variogram assigned to " + motion_classifier::printMotion(classA));
 		return classA;
 	}
 	if (matchB > matchA) {
-		BOOST_LOG_TRIVIAL(trace) << "variogram assigned to " << motion_classifier::printMotion(classB);
+		Logger::getInstance()->trace("variogram assigned to " + motion_classifier::printMotion(classB));
 		return classB;
 	}
-	BOOST_LOG_TRIVIAL(trace) << "unable to assign variogram";
+	Logger::getInstance()->trace("unable to assign variogram");
 	return Motion::Muscle::UNKNOWN;
 }
 

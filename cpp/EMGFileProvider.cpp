@@ -1,22 +1,21 @@
-#include <boost/log/expressions.hpp>
-#include <boost/log/trivial.hpp>
 #include "../h/EMGFileProvider.h"
+#include "../h/Logger.h"
 
 using namespace motion_classifier;
 
 EMGFileProvider::EMGFileProvider(const std::string& path) {
 	fileIn.open(path, std::ios_base::in);
 	if (!fileIn.is_open()) {
-		BOOST_LOG_TRIVIAL(fatal) << "unable to read records from file. Stopping EMGFileProvider";
+		Logger::getInstance()->fatal("unable to read records from file. Stopping EMGFileProvider");
 		throw std::invalid_argument("unable to open file");
 	}
 	lastInterval = new Interval();
-	BOOST_LOG_TRIVIAL(info) << "EMGFileProvider created";
+	Logger::getInstance()->info("EMGFileProvider created");
 }
 
 EMGFileProvider::~EMGFileProvider() {
 	send(Signal::SHUTDOWN);
-	BOOST_LOG_TRIVIAL(info) << "EMGFileProvider destroyed";
+	Logger::getInstance()->info("EMGFileProvider destroyed");
 	//Intervals are deleted in EMGProvider destructor
 }
 
@@ -50,13 +49,14 @@ void EMGFileProvider::send(const Signal& signal) {
 
 //TODO: kontrollieren, ob die Werte in der richtigen Reihenfolge eingelesen werden.
 void EMGFileProvider::run() {
+	Logger *logger = Logger::getInstance();
 	while (true) {
 		if (EMGProvider::status == Status::FINISHED) {
-			BOOST_LOG_TRIVIAL(info) << "shuting down EMGFileProvider worker";
+			logger->info("shuting down EMGFileProvider worker");
 			return;
 		}
 		if (EMGProvider::status == Status::WAITING) {
-			BOOST_LOG_TRIVIAL(debug) << "EMGFileProvider stops reading from file";
+			logger->debug("EMGFileProvider stops reading from file");
 			std::unique_lock<std::mutex> lk(mutex);
 			condition.wait(lk);
 		}
@@ -67,13 +67,13 @@ void EMGFileProvider::run() {
 				lastInterval->addSample(s);
 			}
 			catch (int ex) {
-				BOOST_LOG_TRIVIAL(warning) << "EMGFileProvider reached end of file. No more intervals will be read";
+				logger->warn("EMGFileProvider reached end of file. No more intervals will be read");
 				status = Status::FINISHED;
 			}
 			++sampleNr;
 
 			if (lastInterval->isFull()) {
-				BOOST_LOG_TRIVIAL(debug) << "created new Interval";
+				logger->debug("created new Interval");
 				EMGProviderImpl::addInterval(lastInterval);
 				EMGProviderImpl::lastInterval = new Interval();
 			}

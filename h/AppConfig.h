@@ -19,7 +19,14 @@ namespace motion_classifier {
 		static AppConfig *instance;
 		AppConfig();
 
-		Properties prop;
+		int emgProviderBufferWarning;
+		int intervalNrSamples;
+		int sampleRows;
+		int sampleColumns;
+		int blockingQueueMaxWaitTime;
+		std::string trainerBaseDir;
+		int trainingsSize;
+		int trainerNrRuns;
 
 	public:
 
@@ -56,19 +63,15 @@ namespace motion_classifier {
 		  */
 		static void load(int argc, char *argv[]);
 
+		
+		static void load(Properties& prop);
+
 		/**
 		  * Deletes the AppConfig instance and frees the allocated memory again. It
 		  * is crucial to call this member function after load(const std::string&)
 		  * has been called once.
 		  */
 		static void release();
-
-		/**
-		  * This member function initializes the Boost logging system. It sets
-		  * the log format, creates a console appender/sink and, if defined in
-		  * the configuration file, a file appender/sink.
-		  */
-		void initLogging();
 
 		int getEMGProviderBufferWarning() const;
 		int getIntervalNrSamples() const;

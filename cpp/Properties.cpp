@@ -5,7 +5,7 @@
 #include "../h/Properties.h"
 
 Properties::Properties() {
-};
+}
 
 Properties::Properties(std::string path) {
 	load(path);
@@ -19,6 +19,7 @@ const std::string& Properties::find(std::string& key) const {
 }
 
 void Properties::load(std::string path) {
+	Properties::path = path;
 	std::ifstream in{ path };
 	if (!in.is_open())
 		throw std::invalid_argument{ "unable to open file" };
@@ -45,7 +46,14 @@ void Properties::load(std::string path) {
 	in.close();
 }
 
+void Properties::store() {
+	store(path);
+}
+
 void Properties::store(std::string path) {
+	if (path.empty())
+		return;
+
 	std::ofstream out{ path };
 	if (!out.is_open())
 		throw std::invalid_argument{ "unable to open file" };
@@ -57,13 +65,12 @@ void Properties::store(std::string path) {
 
 //TODO: may it is necessary to create string on heap
 void Properties::set(std::string key, std::string value) {
-	try {
-		std::string s = find(key);
-		s = value;
+	auto search = values.find(key);
+	if (search != values.end()) {
+		search->second = value;
 	}
-	catch (std::invalid_argument& ex) {
+	else
 		values.insert(std::make_pair(key, value));
-	}
 }
 
 std::string Properties::get(std::string key) const {
@@ -72,7 +79,7 @@ std::string Properties::get(std::string key) const {
 	}
 	catch (std::invalid_argument& ex) {
 		std::cerr << key << " is not stored in the properties. '' is returned as default value" << std::endl;
-		return 0;
+		return "";
 	}
 }
 
@@ -112,7 +119,7 @@ bool Properties::getBool(std::string key) const {
 	}
 	catch (std::invalid_argument& ex) {
 		std::cerr << key << " is not stored in the properties. false is returned as default value" << std::endl;
-		return 0;
+		return false;
 	}
 }
 

@@ -1,7 +1,5 @@
 #include <cmath>
 #include <sstream>
-#include <boost/log/expressions.hpp>
-#include <boost/log/trivial.hpp>
 #include "../h/Vector.h"
 
 using namespace motion_classifier;
@@ -27,7 +25,6 @@ math::Vector math::Vector::getVector(const Angle& angle) {
 	case DEGREE_150:
 		return math::Vector(-sqrt(3) / 2, 0.5, 0);
 	default:
-		BOOST_LOG_TRIVIAL(error) << "This Angle is not implemented";
 		return math::Vector();
 	}
 }

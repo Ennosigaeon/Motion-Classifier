@@ -1,8 +1,7 @@
 #include <ctime>
 #include <boost/lexical_cast.hpp>
 #include <boost/filesystem.hpp>
-#include <boost/log/expressions.hpp>
-#include <boost/log/trivial.hpp>
+#include "../h/Logger.h"
 #include "../h/MultiClassSVM.h"
 #include "../h/Trainer.h"
 #include "../h/Utilities.h"
@@ -37,7 +36,7 @@ MultiClassSVM::~MultiClassSVM() {
 }
 
 void MultiClassSVM::train(const Motion::Muscle& motion, const std::vector<math::Vector>& data) {
-	BOOST_LOG_TRIVIAL(trace) << "adding trainings data for MuscleMotion " << motion;
+	Logger::getInstance()->trace("adding trainings data for MuscleMotion " + motion_classifier::printMotion(motion));
 	std::map<Motion::Muscle, std::vector<math::Vector>>::iterator search = trainingsData.find(motion);
 	if (search == trainingsData.end()) {
 		std::vector<math::Vector> vector(data);
@@ -67,7 +66,7 @@ void MultiClassSVM::calculateSVMs() {
 			svms.push_back(svm);
 		}
 	}
-	BOOST_LOG_TRIVIAL(info) << "Calculated " << svms.size() << " Support Vector Machines for " << trainingsData.size() << " MuscleMotions.";
+	Logger::getInstance()->info("Calculated " + boost::lexical_cast<std::string>(svms.size()) + " Support Vector Machines for " + boost::lexical_cast<std::string>(trainingsData.size()) + " MuscleMotions.");
 }
 
 Motion::Muscle MultiClassSVM::classify(std::vector<math::Vector>& values) {
@@ -93,7 +92,7 @@ Motion::Muscle MultiClassSVM::classify(std::vector<math::Vector>& values) {
 	}
 
 	t = clock() - t;
-	BOOST_LOG_TRIVIAL(debug) << "classification took " << ((double)t) / CLOCKS_PER_SEC * 1000 << " ms";
+	Logger::getInstance()->debug("classification took " + boost::lexical_cast<std::string>(((double)t) / CLOCKS_PER_SEC * 1000) + " ms");
 
 	return motion;
 }

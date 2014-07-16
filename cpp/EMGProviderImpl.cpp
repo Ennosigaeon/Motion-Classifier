@@ -1,6 +1,6 @@
-#include <boost/log/expressions.hpp>
-#include <boost/log/trivial.hpp>
+#include <boost/lexical_cast.hpp>
 #include "../h/EMGProviderImpl.h"
+#include "../h/Logger.h"
 
 using namespace motion_classifier;
 
@@ -21,12 +21,12 @@ void EMGProviderImpl::addInterval(Interval* const interval) {
 
 	//EMGProvider could create Intervals much faster, than they are processed
 	if (intervals.size() > bufferWarnSize)
-		BOOST_LOG_TRIVIAL(warning) << intervals.size() << " Intervals are stored in EMGProvider";
+		Logger::getInstance()->warn(boost::lexical_cast<std::string>(intervals.size()) + " Intervals are stored in EMGProvider");
 }
 
 void EMGProviderImpl::clearBuffer() {
 	//This operation can take a lot of time (>30 seconds).
-	BOOST_LOG_TRIVIAL(info) << "Deleting " << intervals.size() << " stored Intervals. This may take some time...";
+	Logger::getInstance()->info("Deleting " + boost::lexical_cast<std::string>(intervals.size()) + " stored Intervals. This may take some time...");
 	while (!intervals.empty())
 		delete intervals.pop();
 }

@@ -1,9 +1,9 @@
 #include <cmath>
 #include <ctime>
-#include <boost/log/expressions.hpp>
-#include <boost/log/trivial.hpp>
+#include <boost/lexical_cast.hpp>
 #include "../h/AppConfig.h"
 #include "../h/Interval.h"
+#include "../h/Logger.h"
 
 using namespace motion_classifier;
 
@@ -32,14 +32,14 @@ void Interval::addSample(Sample* sample) {
 }
 
 Sample* Interval::getMeanSample() {
-	BOOST_LOG_TRIVIAL(trace) << "calculating mean Sample";
+	Logger::getInstance()->trace("calculating mean Sample");
 	if (mean != NULL)
 		return mean;
 
 	clock_t t = clock();
 	mean = calcMean(samples);
 	t = clock() - t;
-	BOOST_LOG_TRIVIAL(debug) << "mean calculation took " << ((double)t) / CLOCKS_PER_SEC * 1000 << " ms";
+	Logger::getInstance()->debug("mean calculation took " + boost::lexical_cast<std::string>(((double)t) / CLOCKS_PER_SEC * 1000) + " ms");
 
 	return mean;
 }

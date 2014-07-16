@@ -7,6 +7,7 @@
 class Properties {
 private:
 	std::map<std::string, std::string> values;
+	std::string path;
 
 	const std::string& find(std::string& key) const;
 
@@ -18,6 +19,8 @@ public:
 	void load(std::string path);
 	
 	void set(std::string key, std::string value);
+
+	void store();
 
 	void store(std::string path);
 
