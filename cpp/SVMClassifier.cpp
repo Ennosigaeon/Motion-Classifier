@@ -23,19 +23,6 @@ SVMClassifier::~SVMClassifier() {
 	Logger::getInstance()->info("Classifier destroyed");
 }
 
-std::string SVMClassifier::printStatistics() {
-	std::string s("Classified " + boost::lexical_cast<std::string>(intervalCount) + " Samples in avg. " + boost::lexical_cast<std::string>(time / intervalCount) + " ms");
-	return s;
-}
-
-Motion::Muscle SVMClassifier::getMuscleMotion() {
-	Motion::Muscle *motion = lastMuscleMotion.pop();
-	if (motion == NULL)
-		return Motion::Muscle::UNKNOWN;
-	else
-		return *motion;
-}
-
 void SVMClassifier::run() {
 	Logger *logger = Logger::getInstance();
 	while (true) {

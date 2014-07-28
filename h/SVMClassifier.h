@@ -7,7 +7,7 @@
 #include <vector>
 #include "AppConfig.h"
 #include "BlockingQueue.h"
-#include "Classifier.h"
+#include "ClassifierImpl.h"
 #include "Communication.h"
 #include "EMGProvider.h"
 #include "MultiClassSVM.h"
@@ -21,7 +21,7 @@ namespace motion_classifier {
 	  * communicate with the worker use the member function
 	  * send(const Signal&).
 	  */
-	class SVMClassifier : public Classifier {
+	class SVMClassifier : public ClassifierImpl {
 	private:
 		std::thread worker;
 		std::mutex mutex;
@@ -49,11 +49,7 @@ namespace motion_classifier {
 		  */
 		~SVMClassifier();
 
-		virtual Motion::Muscle getMuscleMotion();
-
 		virtual void send(const Signal& signal);
-
-		virtual std::string printStatistics();
 
 		/**
 		  * Trains the Classifier.

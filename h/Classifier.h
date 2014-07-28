@@ -10,19 +10,10 @@
 namespace motion_classifier {
 
 	class Classifier {
-	protected:
-		BlockingQueue<Motion::Muscle*> lastMuscleMotion{ 1, AppConfig::getInstance()->getBlockingQueueMaxWaitTime() };
-		AppConfig *config;
-		Status status = NEW;
-
-		//only needed for statistics
-		int intervalCount = 0;
-		long time = 0;
-
 	public:
 
 		/**
-	  	  * Returns the last stored MuscleMotion. The stored value is
+		  * Returns the last stored MuscleMotion. The stored value is
 		  * deleted by this operation. When no MuscleMotion is
 		  * available, the calling Thread will be blocked until an new
 		  * MuscleMotion is available. When a maximum waiting time is
