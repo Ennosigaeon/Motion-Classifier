@@ -70,34 +70,3 @@ std::string motion_classifier::printAngle(const math::Angle& angle) {
 		return "unknown angle";
 	}
 }
-
-void convertFile(const std::string& inputFile, const std::string& outputFile) {
-	AppConfig *config = AppConfig::getInstance();
-	int sampleSize = config->getSampleColumns() * config->getSampleRows();
-
-	int count = 0;
-	std::string line;
-	std::ifstream in(inputFile, std::ifstream::in);
-	std::ofstream out(outputFile);
-	if (!in.is_open() || !out.is_open())
-		throw std::invalid_argument("unable to open at least one file");
-
-	while (!in.eof()) {
-		std::getline(in, line);
-		std::istringstream splitter(line);
-		while (splitter) {
-			std::string sub;
-			splitter >> sub;
-			if (!sub.empty()) {
-				out << sub << " ";
-				++count;
-			}
-			if (count != 0 && count % sampleSize == 0) {
-				out << std::endl;
-				count = 0;
-			}
-		}
-	}
-	in.close();
-	out.close();
-}

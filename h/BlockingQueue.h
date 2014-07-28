@@ -92,6 +92,12 @@ namespace motion_classifier {
 		int size() const {
 			return queue.size();
 		}
+
+		void resize(unsigned int size) {
+			maxSize = size;
+			while (queue.size() > maxSize)
+				pop();
+		}
 	};
 }
 
