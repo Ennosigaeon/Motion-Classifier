@@ -21,21 +21,21 @@ EMGFileProvider::~EMGFileProvider() {
 
 void EMGFileProvider::send(const Signal& signal) {
 	if (signal == Signal::START) {
-		if (EMGProvider::status == Status::NEW) {
-			EMGProvider::status = Status::RUNNING;
+		if (status == Status::NEW) {
+			status = Status::RUNNING;
 			thread = std::thread(&EMGFileProvider::run, this);
 		}
 		else {
-			EMGProvider::status = Status::RUNNING;
+			status = Status::RUNNING;
 			std::unique_lock<std::mutex> mlock(mutex);
 			mlock.unlock();
 			condition.notify_one();
 		}
 	}
 	if (signal == Signal::STOP)
-		EMGProvider::status = Status::WAITING;
+		status = Status::WAITING;
 	if (signal == Signal::SHUTDOWN) {
-		EMGProvider::status = Status::FINISHED;
+		status = Status::FINISHED;
 		//release waiting thread
 		std::unique_lock<std::mutex> mlock(mutex);
 		mlock.unlock();
@@ -51,16 +51,16 @@ void EMGFileProvider::send(const Signal& signal) {
 void EMGFileProvider::run() {
 	Logger *logger = Logger::getInstance();
 	while (true) {
-		if (EMGProvider::status == Status::FINISHED) {
+		if (status == Status::FINISHED) {
 			logger->info("shuting down EMGFileProvider worker");
 			return;
 		}
-		if (EMGProvider::status == Status::WAITING) {
+		if (status == Status::WAITING) {
 			logger->debug("EMGFileProvider stops reading from file");
 			std::unique_lock<std::mutex> lk(mutex);
 			condition.wait(lk);
 		}
-		if (EMGProvider::status == Status::RUNNING) {
+		if (status == Status::RUNNING) {
 			Sample *s = new Sample(sampleNr);
 			try {
 				fileIn >> *s;

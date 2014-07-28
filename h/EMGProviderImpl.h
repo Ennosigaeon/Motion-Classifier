@@ -28,6 +28,7 @@ namespace motion_classifier {
 		//The size of cached Intervals is limited. The least recent Interval will be deleted.
 		BlockingQueue<Interval*> intervals{ 10000, AppConfig::getInstance()->getBlockingQueueMaxWaitTime() };
 		Interval *lastInterval = NULL;
+		Status status = Status::NEW;
 
 		void addInterval(Interval* const interval);
 

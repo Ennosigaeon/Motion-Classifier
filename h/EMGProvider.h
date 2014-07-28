@@ -8,7 +8,6 @@ namespace motion_classifier {
 
 	class EMGProvider {
 	protected:
-		Status status = Status::NEW;
 		long sampleNr;
 
 	public:
