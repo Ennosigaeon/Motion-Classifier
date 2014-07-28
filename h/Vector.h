@@ -2,7 +2,7 @@
 #define VECTOR_H
 
 #include <iostream>
-#include "Angle.h"
+#include "MathEnums.h"
 
 namespace motion_classifier {
 	namespace math {
@@ -13,16 +13,22 @@ namespace motion_classifier {
 		  */
 		class Vector {
 		private:
-			int group = -1;
+			int group;
 			double values[3];
 
 		public:
 
 			/**
 			  * Creates a new Vector at the given point in a three dimensional
-			  * space. The default point is (0, 0, 0).
+			  * space. The default point is (0, 0, 0). If no group is specified
+			  * the vector is assigned to group -1 (no group).
 			  */
-			Vector(double x = 0, double y = 0, double z = 0);
+			Vector(double x = 0, double y = 0, double z = 0, int group = -1);
+
+			/**
+			  * Copies the given math::Vector to this math::Vector.
+			  */
+			Vector(const math::Vector &vector);
 
 			/**
 			  * Returns a precalculated vector with length 1 and the given angle
@@ -31,17 +37,19 @@ namespace motion_classifier {
 			static math::Vector getVector(const math::Angle& angle);
 
 			/**
-			  * Calculates the square distance between the two given Vectors. If you want to you
-			  * can limit the number of dimensions that are considured for the distance calculation.
-			  * The default number of dimensions is three.
-			  */
-			//TODO: unused
-			static double distance(const Vector& vector1, const Vector& vector2, int nrDimensions = 3);
-
-			/**
 			  * Returns the stored value in the given dimension.
 			  */
 			double get(const int index) const;
+
+			/**
+			  * Stores the given value in the given dimension.
+			  */
+			void set(const int index, const double value);
+
+			/**
+			  * Returns the length of this vector.
+			  */
+			unsigned int getDimensions() const;
 
 			/**
 			  * Sets the x-value to the given value.
@@ -80,7 +88,7 @@ namespace motion_classifier {
 			void setLength(const double length, const int nrDimensions = 3);
 
 			/**
-			  * Calculates the length of the given Vector.
+			  * Calculates the length of the given math::Vector.
 			  */
 			double getLength(const int nrDimensions = 3) const;
 
@@ -95,7 +103,13 @@ namespace motion_classifier {
 			int getGroup() const;
 
 			//operators
-			math::Vector operator+(const math::Vector& vector);
+			math::Vector operator+(const math::Vector& vector) const;
+			math::Vector operator-(const math::Vector& vector) const;
+			math::Vector operator*(const double value) const;
+			math::Vector operator/(const double value) const;
+			math::Vector& operator+=(const math::Vector& vector);
+			math::Vector& operator=(const math::Vector& vector);
+			bool operator==(const math::Vector& vector);
 			friend std::ostream& operator<<(std::ostream & stream, const math::Vector & vector);
 		};
 

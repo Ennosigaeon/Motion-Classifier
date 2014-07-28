@@ -4,10 +4,17 @@
 
 using namespace motion_classifier;
 
-math::Vector::Vector(double x, double y, double z) {
+math::Vector::Vector(double x, double y, double z, int group) {
 	values[0] = x;
 	values[1] = y;
 	values[2] = z;
+	Vector::group = group;
+}
+
+math::Vector::Vector(const math::Vector &vector) {
+	for (unsigned int i = 0; i < getDimensions(); ++i)
+		values[i] = vector.get(i);
+	group = vector.getGroup();
 }
 
 math::Vector math::Vector::getVector(const Angle& angle) {
@@ -29,15 +36,16 @@ math::Vector math::Vector::getVector(const Angle& angle) {
 	}
 }
 
-double math::Vector::distance(const math::Vector& vector1, const math::Vector& vector2, int nrDimensions) {
-	double value = 0;
-	for (int i = 0; i < nrDimensions; ++i)
-		value += pow(vector1.get(i) - vector2.get(i), 2);
-	return value;
-}
-
 double math::Vector::get(const int index) const {
 	return values[index];
+}
+
+void math::Vector::set(const int index, const double value) {
+	values[index] = value;
+}
+
+unsigned int math::Vector::getDimensions() const {
+	return sizeof(values) / sizeof(values[0]);
 }
 
 double math::Vector::getX() const {
@@ -70,7 +78,7 @@ void math::Vector::setLength(const double length, const int nrDimensions) {
 		values[i] = values[i] * l;
 }
 
-double math::Vector::getLength(int nrDimensions) const {
+double math::Vector::getLength(const int nrDimensions) const {
 	double value = 0;
 	for (int i = 0; i < nrDimensions; ++i)
 		value += values[i] * values[i];
@@ -85,12 +93,52 @@ void math::Vector::setGroup(int group) {
 	Vector::group = group;
 }
 
-math::Vector math::Vector::operator+(const math::Vector& vector) {
+math::Vector math::Vector::operator+(const math::Vector& vector) const {
 	math::Vector vec;
-	vec.setX(values[0] + vector.getX());
-	vec.setY(values[1] + vector.getY());
-	vec.setZ(values[2] + vector.getZ());
+	for (int i = 0; i < getDimensions(); ++i)
+		vec.set(i, values[i] + vector.values[i]);
 	return vec;
+}
+
+math::Vector math::Vector::operator-(const math::Vector& vector) const {
+	math::Vector vec;
+	for (int i = 0; i < getDimensions(); ++i)
+		vec.set(i, values[i] - vector.values[i]);
+	return vec;
+}
+
+math::Vector math::Vector::operator*(const double value) const {
+	math::Vector vec;
+	for (int i = 0; i < getDimensions(); ++i)
+		vec.set(i, values[i] * value);
+	return vec;
+}
+
+math::Vector math::Vector::operator/(const double value) const {
+	math::Vector vec;
+	for (int i = 0; i < getDimensions(); ++i)
+		vec.set(i, values[i] / value);
+	return vec;
+}
+
+math::Vector& math::Vector::operator+=(const math::Vector& vector) {
+	for (int i = 0; i < getDimensions(); ++i)
+		set(i, values[i] + vector.values[i]);
+	return *this;
+}
+
+math::Vector& math::Vector::operator=(const math::Vector& vector) {
+	for (unsigned int i = 0; i < getDimensions(); ++i)
+		values[i] = vector.values[i];
+	group = vector.getGroup();
+	return *this;
+}
+
+bool math::Vector::operator==(const math::Vector& vector) {
+	for (unsigned int i = 0; i < getDimensions(); ++i)
+		if (values[i] != vector.values[i])
+			return false;
+	return true;
 }
 
 std::ostream& math::operator<<(std::ostream& stream, const math::Vector& vector) {

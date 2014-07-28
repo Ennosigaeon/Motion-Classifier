@@ -1,8 +1,10 @@
-#ifndef ANGLE_H
-#define ANGLE_H
+#ifndef MATHENUMS_H
+#define MATHENUMS_H
 
 namespace motion_classifier {
+
 	namespace math {
+
 		/**
 		  * This enum is used to specifiy all angles that are relevant for the calculation
 		  * of the variogram.
@@ -15,7 +17,19 @@ namespace motion_classifier {
 			DEGREE_120,
 			DEGREE_150
 		};
+
+		enum KernelType {
+			UNIFORM,
+			GAUSSIAN,
+			EPANECHNIKOV
+		};
+
+		enum Norm {
+			L1,
+			L2
+		};
 	}
 }
+
 
 #endif
