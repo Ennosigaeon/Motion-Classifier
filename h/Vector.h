@@ -68,36 +68,6 @@ namespace motion_classifier {
 			inline unsigned int getDimensions() const;
 
 			/**
-			  * Sets the x-value to the given value.
-			  */
-			inline void setX(const double x);
-
-			/**
-			  * Sets the y-value to the given value.
-			  */
-			inline void setY(const double y);
-
-			/**
-			  * Sets the z-value to the given value.
-			  */
-			inline void setZ(const double z);
-
-			/**
-			  * Returns the x-value.
-			  */
-			inline double getX() const;
-
-			/**
-			  * Returns the y-value.
-			  */
-			inline double getY() const;
-
-			/**
-			  * Returns the z-value.
-			  */
-			inline double getZ() const;
-
-			/**
 			  * Changes the Vector so, that its length is equal to the given lenght. The values in
 			  * all dimensions will be changed.
 			  */
@@ -116,7 +86,7 @@ namespace motion_classifier {
 			/**
 			  * Returns the group number of this Vector.
 			  */
-			int getGroup() const;
+			inline int getGroup() const;
 
 			//operators
 			math::Vector operator+(const math::Vector& vector) const;

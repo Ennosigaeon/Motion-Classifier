@@ -117,14 +117,14 @@ void SVMClassifier::plot(Sample* sample, std::vector<math::Vector>& values) {
 		std::ofstream sampleStream;
 		sampleStream.open(std::string("C:/Tmp/plot/") + boost::lexical_cast<std::string>(intervalCount) + "-graph.txt");
 		for (std::vector<math::Vector>::iterator it = values.begin(); it != values.end(); ++it)
-			sampleStream << it->getGroup() << "\t" << it->getLength(2) << "\t" << it->getZ() << std::endl;
+			sampleStream << it->getGroup() << "\t" << it->getLength(2) << "\t" << it->get(math::Dimension::Z) << std::endl;
 		sampleStream.close();
 	}
 	if (prop->getBool("plot.variogramSurface")) {
 		std::ofstream sampleStream;
 		sampleStream.open(std::string("C:/Tmp/plot/") + boost::lexical_cast<std::string>(intervalCount) + "-surface.txt");
 		for (std::vector<math::Vector>::iterator it = values.begin(); it != values.end(); ++it)
-			sampleStream << it->getX() << "\t" << it->getY() << "\t" << it->getZ() << std::endl;
+			sampleStream << it->get(math::Dimension::X) << "\t" << it->get(math::Dimension::Y) << "\t" << it->get(math::Dimension::Z) << std::endl;
 		sampleStream.close();
 	}
 }

@@ -36,7 +36,7 @@ std::vector<math::Vector> Variogram::calculate(Sample* sample) const {
 			if (!isnan(value)) {
 				math::Vector tmp = h;
 				tmp.setGroup(angle);
-				tmp.setZ(value);
+				tmp.set(math::Dimension::Z, value);
 				result.push_back(tmp);
 			}
 			h.setLength(h.getLength() + 1);
@@ -55,21 +55,20 @@ double Variogram::calc(Sample* sample, const math::Vector& h, const double radiu
 	math::Vector *entries = sample->getEntries();
 
 	for (int i = 0; i < size; ++i) {
-		if (entries[i].getGroup() != -1 || isnan(entries[i].getZ()))
+		if (entries[i].getGroup() != -1 || isnan(entries[i].get(math::Dimension::Z)))
 			continue;
-		math::Vector point(entries[i].getX() + h.getX(), entries[i].getY() + h.getY());
+		math::Vector point = entries[i] + h;
 
-
-		int endX = std::min(floor(point.getX() + radius), sample->getNrColumns() - 1 * 1.0);
-		int endY = std::min(floor(point.getY() + radius), sample->getNrRows() - 1 * 1.0);
-		for (int x = std::max(ceil(point.getX() - radius), 0.0); x <= endX; ++x) {
-			for (int y = std::max(ceil(point.getY() - radius), 0.0); y <= endY; ++y) {
+		int endX = std::min(floor(point.get(0) + radius), sample->getNrColumns() - 1 * 1.0);
+		int endY = std::min(floor(point.get(1) + radius), sample->getNrRows() - 1 * 1.0);
+		for (int x = std::max(ceil(point.get(0) - radius), 0.0); x <= endX; ++x) {
+			for (int y = std::max(ceil(point.get(1) - radius), 0.0); y <= endY; ++y) {
 				int index = y + x * sample->getNrRows();
 				if (index != i && entries[index].getGroup() == -1 &&
-					pow(x - point.getX(), 2) + pow(y - point.getY(), 2) <= radius * radius) {
+					pow(x - point.get(math::Dimension::X), 2) + pow(y - point.get(math::Dimension::Y), 2) <= radius * radius) {
 					entries[index].setGroup(0);
 					entries[i].setGroup(0);
-					result += pow(entries[i].getZ() - entries[index].getZ(), 2);
+					result += pow(entries[i].get(math::Dimension::Z) - entries[index].get(math::Dimension::Z), 2);
 					++(*count);
 					goto end;
 				}

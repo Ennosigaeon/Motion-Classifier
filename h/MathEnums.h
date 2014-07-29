@@ -28,6 +28,12 @@ namespace motion_classifier {
 			L1,
 			L2
 		};
+
+		enum Dimension {
+			X,
+			Y,
+			Z
+		};
 	}
 }
 

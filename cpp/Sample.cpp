@@ -51,7 +51,7 @@ std::ostream& motion_classifier::operator<<(std::ostream& stream, const Sample& 
 	int size = sample.getNrColumns() * sample.getNrRows();
 	math::Vector *entries = sample.entries;
 	for (int i = 0; i < size; ++i)
-		stream << entries[i].getZ() << " ";
+		stream << entries[i].get(math::Dimension::Z) << " ";
 	stream << std::endl;
 	return stream;
 }

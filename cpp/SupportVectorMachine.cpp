@@ -89,7 +89,7 @@ svm_node* SupportVectorMachine::createNode(math::Vector* vector) {
 	node[0].index = 1;
 	node[0].value = vector->getLength(2);
 	node[1].index = 2;
-	node[1].value = vector->getZ();
+	node[1].value = vector->get(math::Dimension::Z);
 	node[2].index = -1;
 	node[2].value = 0;
 

@@ -19,8 +19,8 @@ math::Vector::Vector(double *values, int group) : Vector(values[0], values[1], v
 
 math::Vector::Vector(const math::Vector &vector) {
 	for (unsigned int i = 0; i < DIMENSIONS; ++i)
-		values[i] = vector.get(i);
-	group = vector.getGroup();
+		values[i] = vector.values[i];
+	group = vector.group;
 }
 
 math::Vector math::Vector::getVector(const Angle& angle) {
@@ -54,32 +54,8 @@ void math::Vector::set(const int index, const double value) {
 	values[index] = value;
 }
 
-inline unsigned int math::Vector::getDimensions() const {
+unsigned int math::Vector::getDimensions() const {
 	return DIMENSIONS;
-}
-
-double math::Vector::getX() const {
-	return values[0];
-}
-
-double math::Vector::getY() const {
-	return values[1];
-}
-
-double math::Vector::getZ() const {
-	return values[2];
-}
-
-void math::Vector::setX(const double value) {
-	values[0] = value;
-}
-
-void math::Vector::setY(const double value) {
-	values[1] = value;
-}
-
-void math::Vector::setZ(const double value) {
-	values[2] = value;
 }
 
 void math::Vector::setLength(const double length, const int nrDimensions) {
@@ -157,25 +133,23 @@ bool math::Vector::operator==(const math::Vector& vector) {
 }
 
 std::ostream& math::operator<<(std::ostream& stream, const math::Vector& vector) {
-	stream << vector.getX() << " " << vector.getY() << " " << vector.getZ();
+	stream << vector.values[0]<< " " << vector.values[1] << " " << vector.values[2];
 	return stream;
 }
 
 std::istream& math::operator>>(std::istream& stream, math::Vector& vector) {
 	std::string line;
 	std::getline(stream, line);
-	if (line.empty()) {
-		vector.setX(NAN);
-		vector.setY(NAN);
-		vector.setZ(NAN);
-	}
+	if (line.empty())
+		for (int i = 0; i < DIMENSIONS; ++i)
+			vector.set(i, NAN);
 	else {
 		std::istringstream iss(line);
-		double x, y, z;
-		iss >> x >> y >> z;
-		vector.setX(x);
-		vector.setY(y);
-		vector.setZ(z);
+		for (int i = 0; i < DIMENSIONS; ++i) {
+			double d;
+			iss >> d;
+			vector.set(i, d);
+		}
 	}
 
 	return stream;
