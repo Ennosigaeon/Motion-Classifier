@@ -5,11 +5,11 @@
 
 using namespace motion_classifier;
 
-MeanShift::MeanShift(math::KernelType kernel, double epsilon, double maxCenterDist) {
+MeanShift::MeanShift(math::KernelType kernel, math::Space *space, double epsilon, double maxCenterDist) {
 	MeanShift::kernel = new math::Kernel(kernel);
 	MeanShift::epsilon = epsilon;
 	MeanShift::maxCenterDist = maxCenterDist;
-	//setSpace(space);
+	setSpace(space);
 }
 
 MeanShift::~MeanShift() {
@@ -17,9 +17,9 @@ MeanShift::~MeanShift() {
 		delete kernel;
 }
 
-//void MeanShift::setSpace(math::Space *space) {
-//	math::Vector::setSpace(space);
-//}
+void MeanShift::setSpace(math::Space *space) {
+	math::Vector::setSpace(space);
+}
 
 void MeanShift::setDataPoints(Sample *input) {
 	dataPoints = input;

@@ -3,6 +3,7 @@
 
 #include <vector>
 #include "Sample.h"
+#include "Space.h"
 #include "Kernel.h"
 #include "Vector.h"
 
@@ -16,14 +17,14 @@ namespace motion_classifier {
 		double maxCenterDist;
 
 	public:
-		MeanShift(math::KernelType kernel, double epsilon = 0.05, double maxCenterDist = 5);
+		MeanShift(math::KernelType kernel, math::Space *space, double epsilon = 0.05, double maxCenterDist = 5);
 
 		~MeanShift();
 
 		/**
 		  * Sets the math::Space for calculating distances.
 		  */
-		//void setSpace(math::Space *space);
+		void setSpace(math::Space *space);
 
 		/**
 		  * Sets the data points for the Mean Shift procedure. Use

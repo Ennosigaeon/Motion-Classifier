@@ -1,8 +1,11 @@
 #ifndef VECTOR_H
 #define VECTOR_H
 
+#define DIMENSIONS 3
+
 #include <iostream>
 #include "MathEnums.h"
+#include "Space.h"
 
 namespace motion_classifier {
 	namespace math {
@@ -13,8 +16,9 @@ namespace motion_classifier {
 		  */
 		class Vector {
 		private:
+			static Space *space;
 			int group;
-			double values[3];
+			double values[DIMENSIONS];
 
 		public:
 
@@ -26,6 +30,13 @@ namespace motion_classifier {
 			Vector(double x = 0, double y = 0, double z = 0, int group = -1);
 
 			/**
+			  * Creates a new math::Vector with the given data points. values has
+			  * to be a pointer to an array with at least three elements. The array
+			  * has to be allocated with new.
+			  */
+			Vector(double *values, int group = -1);
+
+			/**
 			  * Copies the given math::Vector to this math::Vector.
 			  */
 			Vector(const math::Vector &vector);
@@ -35,6 +46,11 @@ namespace motion_classifier {
 			  * relative to the x-axis. The Vector has a z-value of 0.
 			  */
 			static math::Vector getVector(const math::Angle& angle);
+
+			/**
+			  * Sets the given math::Space for all math::Vectors. 
+			  */
+			static void setSpace(math::Space *space);
 
 			/**
 			  * Returns the stored value in the given dimension.
@@ -49,7 +65,7 @@ namespace motion_classifier {
 			/**
 			  * Returns the length of this vector.
 			  */
-			unsigned int getDimensions() const;
+			inline unsigned int getDimensions() const;
 
 			/**
 			  * Sets the x-value to the given value.
