@@ -12,7 +12,7 @@ namespace motion_classifier {
 	class MeanShift {
 	private:
 		math::Kernel *kernel = NULL;
-		Sample *dataPoints = NULL;
+		Sample *sample = NULL;
 		double epsilon;
 		double maxCenterDist;
 

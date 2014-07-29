@@ -22,42 +22,43 @@ void MeanShift::setSpace(math::Space *space) {
 }
 
 void MeanShift::setDataPoints(Sample *input) {
-	dataPoints = input;
+	sample = input;
 }
 
 std::vector<math::Vector*>* MeanShift::calculate(double h) {
-	if (dataPoints == NULL)
+	if (sample == NULL)
 		throw std::invalid_argument("No data points defined");
 	if (h < 0)
 		throw std::invalid_argument("Bandwidth is negative. Only positive values are allowed.");
 
 	clock_t t = clock();
 	std::vector<math::Vector*> *centers = new std::vector<math::Vector*>;
-	int size = dataPoints->getNrRows() * dataPoints->getNrColumns();
-	math::Vector *vectors = dataPoints->getEntries();
+	int size = sample->getNrRows() * sample->getNrColumns();
+	math::Vector *vectors = sample->getEntries();
 	for (int i = 0; i < size; ++i) {
 		math::Vector x(vectors[i]);
 		do {
 			math::Vector numerator;
 			double denomiator = 0;
 			for (int j = 0; j < size; ++j) {
-				double val = kernel->calculate(pow((x - vectors[j]).getLength() / h, 2));
+				double val = x.getDistance(vectors[j]) / h;
+				val = kernel->calculate(val * val);
 				numerator += vectors[j] * val;
 				denomiator += val;
 			}
-			double offset = ((numerator / denomiator) - x).getLength();
-			x = numerator / denomiator;
+			math::Vector tmp = numerator / denomiator;
+			double offset = x.getDistance(tmp);
+			x = tmp;
 
 			if (offset < epsilon)
 				break;
 		} while (true);
 
 		math::Vector *closest = NULL;
-		//TODO: make configurable
 		//center has to be closer then predefined value
 		double minDist = MeanShift::maxCenterDist;
 		for (auto it2 = centers->begin(); it2 != centers->end(); ++it2) {
-			double dist = (**it2 - x).getLength();
+			double dist = x.getDistance(**it2);
 			if (dist < minDist) {
 				closest = *it2;
 				minDist = dist;

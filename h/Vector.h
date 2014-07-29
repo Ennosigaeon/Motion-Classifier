@@ -68,8 +68,13 @@ namespace motion_classifier {
 			inline unsigned int getDimensions() const;
 
 			/**
-			  * Changes the Vector so, that its length is equal to the given lenght. The values in
-			  * all dimensions will be changed.
+			  * Calculates the distance between this math::Vector and the given one.
+			  */
+			double getDistance(const math::Vector &vector) const;
+
+			/**
+			  * Changes the Vector so, that its length is equal to the given lenght.
+			  * The values in all dimensions will be changed.
 			  */
 			void setLength(const double length, const int nrDimensions = 3);
 

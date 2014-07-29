@@ -18,8 +18,10 @@ math::Vector::Vector(double *values, int group) : Vector(values[0], values[1], v
 }
 
 math::Vector::Vector(const math::Vector &vector) {
-	for (unsigned int i = 0; i < DIMENSIONS; ++i)
-		values[i] = vector.values[i];
+	//Due to better/faster runtime no loop is used
+	values[0] = vector.values[0];
+	values[1] = vector.values[1];
+	values[2] = vector.values[2];
 	group = vector.group;
 }
 
@@ -56,6 +58,13 @@ void math::Vector::set(const int index, const double value) {
 
 unsigned int math::Vector::getDimensions() const {
 	return DIMENSIONS;
+}
+
+double math::Vector::getDistance(const math::Vector &vector) const {
+	double d = 0;
+	for (int i = 0; i < DIMENSIONS; ++i)
+		d = (values[i] - vector.values[i]) * (values[i] - vector.values[i]);
+	return sqrt(d);
 }
 
 void math::Vector::setLength(const double length, const int nrDimensions) {
