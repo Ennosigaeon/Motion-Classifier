@@ -15,11 +15,10 @@ namespace motion_classifier {
 		Sample *sample = NULL;
 
 		double epsilon;
-		double maxCenterDist;
 		double threshold;
 
 	public:
-		MeanShift(math::KernelType kernel, math::Space *space, double epsilon = 0.05, double maxCenterDist = 5, double threshold = 30);
+		MeanShift(math::KernelType kernel, math::Space *space, double epsilon = 0.05, double threshold = 30);
 
 		~MeanShift();
 
@@ -39,11 +38,16 @@ namespace motion_classifier {
 		  * Each math::Vector is assigned to a cluster (group). In addition all center
 		  * of clusters are returned. The index in the returned list corresponds to
 		  * the cluster number.
-		  * h_f:	bandwidth in feature space
-		  * h_s:	bandwidth in space (grid)
-		  * M:		minimum number of data points in a cluster
+		  * h:	bandwidth
 		  */
 		std::vector<math::Vector*>* calculate(double h);
+
+		/**
+		  * Filters the given data points (see setDataPoints) with the given centers. 
+		  * All math::Vectors assigned to a given center (via its group and index) get
+		  * the same z value as the center.
+		  */
+		void filter(std::vector<math::Vector*> *centers);
 	};
 }
 

@@ -5,10 +5,9 @@
 
 using namespace motion_classifier;
 
-MeanShift::MeanShift(math::KernelType kernel, math::Space *space, double epsilon, double maxCenterDist, double threshold) {
+MeanShift::MeanShift(math::KernelType kernel, math::Space *space, double epsilon, double threshold) {
 	MeanShift::kernel = new math::Kernel(kernel);
 	MeanShift::epsilon = epsilon;
-	MeanShift::maxCenterDist = maxCenterDist;
 	MeanShift::threshold = threshold;
 	setSpace(space);
 }
@@ -43,6 +42,7 @@ std::vector<math::Vector*>* MeanShift::calculate(double h) {
 		if (x.get(math::Dimension::Z) < threshold)
 			continue;
 
+		double offset;
 		do {
 			math::Vector numerator;
 			double denomiator = 0;
@@ -53,16 +53,13 @@ std::vector<math::Vector*>* MeanShift::calculate(double h) {
 				denomiator += val;
 			}
 			math::Vector tmp = numerator / denomiator;
-			double offset = x.getDistance(tmp);
+			offset = x.getDistance(tmp);
 			x = tmp;
-
-			if (offset < epsilon)
-				break;
-		} while (true);
+		} while (offset < epsilon);
 
 		math::Vector *closest = NULL;
 		//center has to be closer then predefined value
-		double minDist = MeanShift::maxCenterDist;
+		double minDist = h;
 		for (auto it2 = centers->begin(); it2 != centers->end(); ++it2) {
 			double dist = x.getDistance(**it2);
 			if (dist < minDist) {
@@ -84,4 +81,14 @@ std::vector<math::Vector*>* MeanShift::calculate(double h) {
 	Logger::getInstance()->debug("classification took " + boost::lexical_cast<std::string>(((double)t) / CLOCKS_PER_SEC * 1000) + " ms");
 
 	return centers;
+}
+
+void MeanShift::filter(std::vector<math::Vector*> *centers) {
+	for (math::Vector *center : *centers) {
+		for (int i = 0; i < sample->getNrRows() * sample->getNrColumns(); ++i) {
+			math::Vector *vec = &sample->getEntries()[i];
+			if (vec->getGroup() == center->getGroup())
+				vec->set(math::Dimension::Z, center->get(math::Dimension::Z));
+		}
+	}
 }
