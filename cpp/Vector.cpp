@@ -63,7 +63,7 @@ unsigned int math::Vector::getDimensions() const {
 double math::Vector::getDistance(const math::Vector &vector) const {
 	double d = 0;
 	for (int i = 0; i < DIMENSIONS; ++i)
-		d = (values[i] - vector.values[i]) * (values[i] - vector.values[i]);
+		d += (values[i] - vector.values[i]) * (values[i] - vector.values[i]);
 	return sqrt(d);
 }
 

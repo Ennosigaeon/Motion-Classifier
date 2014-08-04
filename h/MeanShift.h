@@ -13,11 +13,13 @@ namespace motion_classifier {
 	private:
 		math::Kernel *kernel = NULL;
 		Sample *sample = NULL;
+
 		double epsilon;
 		double maxCenterDist;
+		double threshold;
 
 	public:
-		MeanShift(math::KernelType kernel, math::Space *space, double epsilon = 0.05, double maxCenterDist = 5);
+		MeanShift(math::KernelType kernel, math::Space *space, double epsilon = 0.05, double maxCenterDist = 5, double threshold = 30);
 
 		~MeanShift();
 
