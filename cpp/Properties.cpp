@@ -77,7 +77,7 @@ std::string Properties::get(std::string key) const {
 	try {
 		return find(key);
 	}
-	catch (std::invalid_argument& ex) {
+	catch (const std::exception& ex) {
 		std::cerr << key << " is not stored in the properties. '' is returned as default value" << std::endl;
 		return "";
 	}
@@ -87,9 +87,9 @@ int Properties::getInt(std::string key) const {
 	try {
 		return boost::lexical_cast<int>(find(key));
 	}
-	catch (std::invalid_argument& ex) {
-		std::cerr << key << " is not stored in the properties. 0 is returned as default value" << std::endl;
-		return 0;
+	catch (const std::exception& ex) {
+		std::cerr << key << " is not stored in the properties. NAN is returned as default value" << std::endl;
+		return NAN;
 	}
 }
 
@@ -97,9 +97,9 @@ long Properties::getLong(std::string key) const {
 	try {
 		return boost::lexical_cast<long>(find(key));
 	}
-	catch (std::invalid_argument& ex) {
-		std::cerr << key << " is not stored in the properties. 0 is returned as default value" << std::endl;
-		return 0;
+	catch (const std::exception& ex) {
+		std::cerr << key << " is not stored in the properties. NAN is returned as default value" << std::endl;
+		return NAN;
 	}
 }
 
@@ -107,9 +107,9 @@ double Properties::getDouble(std::string key) const {
 	try {
 		return boost::lexical_cast<double>(find(key));
 	}
-	catch (std::invalid_argument& ex) {
-		std::cerr << key << " is not stored in the properties. 0 is returned as default value" << std::endl;
-		return 0;
+	catch (const std::exception& ex) {
+		std::cerr << key << " is not stored in the properties. NAN is returned as default value" << std::endl;
+		return NAN;
 	}
 }
 
@@ -117,7 +117,7 @@ bool Properties::getBool(std::string key) const {
 	try {
 		return boost::lexical_cast<bool>(find(key));
 	}
-	catch (std::invalid_argument& ex) {
+	catch (const std::exception& ex) {
 		std::cerr << key << " is not stored in the properties. false is returned as default value" << std::endl;
 		return false;
 	}
