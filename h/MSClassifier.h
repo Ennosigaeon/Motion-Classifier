@@ -13,6 +13,9 @@ namespace motion_classifier {
 	class MSClassifier : public ClassifierImpl {
 	private:
 		MeanShift *msAlgo;
+		double h;
+		std::map<Motion::Muscle, std::vector<math::Vector*>*> trainingsData;
+
 		void run();
 
 	public:
@@ -25,7 +28,14 @@ namespace motion_classifier {
 		~MSClassifier();
 
 		virtual void send(const Signal& signal);
+
+		void train(std::map<Motion::Muscle, std::vector<Interval*>*>* traingsData);
+
+		//TODO: remove again
+		std::map<Motion::Muscle, std::vector<math::Vector*>*>* getTrainingsData();
+		std::map< Motion::Muscle, std::vector<Interval*>*>* extractTrainingsData(std::string folder);
 	};
+
 }
 
 #endif

@@ -1,0 +1,12 @@
+ms.h = 10
+#Uniform = 0, Gaussian = 1, Epanechnikov = 2
+ms.kernel = 2
+ms.epsilon = 0.05
+ms.threshold = 0
+ms.filtering = 0
+#L1 = 0, L2 = 1
+space.norm = 1
+space.x.min = 
+space.x.max = 
+space.y.max = 
+space.y.min = 
