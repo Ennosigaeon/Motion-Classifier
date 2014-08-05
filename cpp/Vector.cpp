@@ -45,6 +45,8 @@ math::Vector math::Vector::getVector(const Angle& angle) {
 }
 
 void math::Vector::setSpace(math::Space *space) {
+	if (space != NULL)
+		delete space;
 	Vector::space = space;
 }
 
@@ -62,8 +64,10 @@ unsigned int math::Vector::getDimensions() const {
 
 double math::Vector::getDistance(const math::Vector &vector) const {
 	double d = 0;
-	for (int i = 0; i < DIMENSIONS; ++i)
-		d += (values[i] - vector.values[i]) * (values[i] - vector.values[i]);
+	d += (values[0] - vector.values[0]) * (values[0] - vector.values[0]);
+	d += (values[1] - vector.values[1]) * (values[1] - vector.values[1]);
+	//TODO: THIS IS CHANGED
+	d += (values[2] - vector.values[2]) * (values[2] - vector.values[2]);// / 100;
 	return sqrt(d);
 }
 
@@ -124,6 +128,12 @@ math::Vector& math::Vector::operator+=(const math::Vector& vector) {
 	for (int i = 0; i < DIMENSIONS; ++i)
 		values[i] += vector.values[i];
 	//*this = math::Vector(space->addition(values, vector.values));
+	return *this;
+}
+
+math::Vector& math::Vector::operator/=(const double value) {
+	for (int i = 0; i < DIMENSIONS; ++i)
+		values[i] /= value;
 	return *this;
 }
 

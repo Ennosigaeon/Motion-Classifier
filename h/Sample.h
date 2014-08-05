@@ -45,7 +45,12 @@ namespace motion_classifier {
 		/**
 		  * Returns the number of columns in this Sample.
 		  */
-		inline int getNrColumns() const;
+		int getNrColumns() const;
+
+		/**
+		  * Returns the total number of values in this Sample.
+		  */
+		inline int getSize() const;
 
 		/**
 		  * Returns the number of this Sample.

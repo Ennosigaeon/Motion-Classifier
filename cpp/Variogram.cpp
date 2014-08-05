@@ -51,10 +51,9 @@ std::vector<math::Vector> Variogram::calculate(Sample* sample) const {
 
 double Variogram::calc(Sample* sample, const math::Vector& h, const double radius, int *count) const {
 	double result = 0;
-	int size = sample->getNrColumns() * sample->getNrRows();
 	math::Vector *entries = sample->getEntries();
 
-	for (int i = 0; i < size; ++i) {
+	for (int i = 0; i < sample->getSize(); ++i) {
 		if (entries[i].getGroup() != -1 || isnan(entries[i].get(math::Dimension::Z)))
 			continue;
 		math::Vector point = entries[i] + h;
@@ -79,7 +78,7 @@ double Variogram::calc(Sample* sample, const math::Vector& h, const double radiu
 	}
 
 	//reset for next run
-	for (int i = 0; i < size; ++i)
+	for (int i = 0; i < sample->getSize(); ++i)
 		entries[i].setGroup(-1);
 
 	Logger::getInstance()->trace("found " + boost::lexical_cast<std::string>(*count) + " pairs for the offset " + boost::lexical_cast<std::string>(h));

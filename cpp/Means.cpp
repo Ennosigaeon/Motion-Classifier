@@ -8,7 +8,7 @@ Sample* motion_classifier::math::getRMSMean(const std::vector<Sample*>& values) 
 		return NULL;
 
 	Sample *result = new Sample();
-	int size = result->getNrRows() * result->getNrColumns();
+	int size = result->getSize();
 
 	//creates both arrays and inititalizes them with 0
 	double *value = new double[size]();
@@ -39,7 +39,7 @@ Sample* math::getArithmeticMean(const std::vector<Sample*>& values) {
 		return NULL;
 
 	Sample *result = new Sample();
-	int size = result->getNrRows() * result->getNrColumns();
+	int size = result->getSize();
 
 	//creates both arrays and inititalizes them with 0
 	double *value = new double[size]();
@@ -70,7 +70,7 @@ Sample* math::getGeometricMean(const std::vector<Sample*>& values) {
 		return NULL;
 
 	Sample *result = new Sample();
-	int size = result->getNrRows() * result->getNrColumns();
+	int size = result->getSize();
 
 	//creates both arrays and inititalizes them with 0
 	double *value = new double[size]();
@@ -104,7 +104,7 @@ Sample* math::getHarmonicMean(const std::vector<Sample*>& values) {
 		return NULL;
 
 	Sample *result = new Sample();
-	int size = result->getNrRows() * result->getNrColumns();
+	int size = result->getSize();
 
 	//creates both arrays and inititalizes them with 0
 	double *value = new double[size]();

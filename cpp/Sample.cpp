@@ -43,14 +43,17 @@ int Sample::getNrColumns() const {
 	return nrColumns;
 }
 
+int Sample::getSize() const {
+	return nrColumns * nrRows;
+}
+
 long Sample::getNumber() const {
 	return nr;
 }
 
 std::ostream& motion_classifier::operator<<(std::ostream& stream, const Sample& sample) {
-	int size = sample.getNrColumns() * sample.getNrRows();
 	math::Vector *entries = sample.entries;
-	for (int i = 0; i < size; ++i)
+	for (int i = 0; i < sample.getSize(); ++i)
 		stream << entries[i].get(math::Dimension::Z) << " ";
 	stream << std::endl;
 	return stream;
@@ -62,7 +65,7 @@ std::istream& operator>> (std::istream& stream, Sample& sample) {
 	std::istringstream iss(line);
 	std::vector<double> tokens{ std::istream_iterator < double > {iss}, std::istream_iterator < double > {} };
 
-	int size = sample.getNrColumns() * sample.getNrRows();
+	int size = sample.getSize();
 	if (tokens.size() < size)
 		throw std::out_of_range("line contains not enough values. Maybe reached end of file");
 
