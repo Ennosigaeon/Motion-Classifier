@@ -3,6 +3,7 @@
 #include <limits>
 #include <vector>
 #include "../h/AppConfig.h"
+#include "../h/Logger.h"
 
 using namespace motion_classifier;
 
@@ -56,15 +57,18 @@ void AppConfig::load(Properties& prop) {
 	instance->sampleRows = prop.getInt("sample.rows");
 	instance->sampleColumns = prop.getInt("sample.columns");
 	instance->intervalNrSamples = prop.getInt("interval.nrSamples");
-	instance->blockingQueueMaxWaitTime = prop.getInt("blockingQueue.maxWaitTime");
+	instance->emgProviderBufferWarning = prop.getInt("emgProvider.bufferWarning");
 	instance->trainingsSize = prop.getInt("trainer.trainingsSize");
 	instance->trainerNrRuns = prop.getInt("trainer.nrRuns");
+
 	
 	//add slash to end of trainerBaseDir
 	instance->trainerBaseDir = prop.get("trainer.baseDir");
 	char c = instance->trainerBaseDir.at(instance->trainerBaseDir.size() - 1);
 	if (c != '\\' && c != '/')
 		instance->trainerBaseDir += "/";
+
+	Logger::init(prop.getInt("logger.level"), prop.get("logger.file"));
 }
 
 int AppConfig::getEMGProviderBufferWarning() const {
