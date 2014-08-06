@@ -35,8 +35,6 @@ void SVMClassifier::run() {
 			clock_t t = clock();
 			logger->debug("calculating mean sample");
 			Sample *mean = interval->getMeanSample();
-			if (mean == NULL)
-				continue;
 
 			logger->debug("calculating Variogram");
 			std::vector<math::Vector> values = variogram->calculate(mean);

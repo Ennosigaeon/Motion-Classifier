@@ -78,9 +78,10 @@ std::istream& operator>> (std::istream& stream, Sample& sample) {
 	if (tokens.size() < sample.getSize())
 		throw std::out_of_range("line contains not enough values. Maybe reached end of file");
 
+	math::Vector *entries = sample.getEntries();
 	int x = 0, y = 0, i = 0;
 	for (const double z : tokens) {
-		sample.getEntries()[i] = math::Vector(x, y, z);
+		entries[i++] = math::Vector(x, y, z);
 		++y;
 		if (y == sample.getNrRows()) {
 			y = 0;

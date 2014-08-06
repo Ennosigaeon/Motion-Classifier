@@ -2,6 +2,8 @@
 #ifndef MSCLASSIFIER_H
 #define MSCLASSIFIER_H
 
+#include <thread>
+
 #include "ClassifierImpl.h"
 #include "EMGProvider.h"
 #include "Kernel.h"
@@ -12,12 +14,17 @@ namespace motion_classifier {
 
 	class MSClassifier : public ClassifierImpl {
 	private:
+		Logger *logger;
 		MeanShift *msAlgo;
 		double h;
 		std::map<Motion::Muscle, std::vector<math::Vector*>*> trainingsData;
 
-		void run();
+		EMGProvider *emgProvider;
+		std::thread worker;
+		std::mutex mutex;
+		std::condition_variable condition;
 
+		void run();
 	public:
 
 		/**

@@ -13,8 +13,7 @@ MeanShift::MeanShift(math::KernelType kernel, math::Space *space, double epsilon
 }
 
 MeanShift::~MeanShift() {
-	if (kernel != NULL)
-		delete kernel;
+	delete kernel;
 }
 
 void MeanShift::setDataPoints(math::Vector* input, int size) {
@@ -77,7 +76,7 @@ std::vector<math::Vector*>* MeanShift::calculate(double h) {
 	}
 
 	t = clock() - t;
-	Logger::getInstance()->debug("classification took " + boost::lexical_cast<std::string>(((double)t) / CLOCKS_PER_SEC * 1000) + " ms");
+	Logger::getInstance()->debug("Mean Shift took " + boost::lexical_cast<std::string>(((double)t) / CLOCKS_PER_SEC * 1000) + " ms");
 
 	return centers;
 }
