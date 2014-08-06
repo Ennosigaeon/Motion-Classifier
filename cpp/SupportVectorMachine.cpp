@@ -48,8 +48,8 @@ void SupportVectorMachine::calculateSVM() {
 
 	svm_node **nodes = new svm_node*[problem.l];
 	int i = 0;
-	for (std::vector<math::Vector>::iterator it = list.begin(); it != list.end(); ++it, ++i)
-		nodes[i] = createNode(&(*it));
+	for (math::Vector &vector : list)
+		nodes[i] = createNode(&vector);
 	problem.x = nodes;
 
 	//creates the svm_parameters
@@ -64,8 +64,8 @@ Motion::Muscle SupportVectorMachine::classify(std::vector<math::Vector>& vector)
 	int matchA = 0;
 	int matchB = 0;
 
-	for (std::vector<math::Vector>::iterator it = vector.begin(); it != vector.end(); ++it) {
-		svm_node *node = createNode(&(*it));
+	for (math::Vector &vector : vector) {
+		svm_node *node = createNode(&vector);
 		double result = svm_predict(svm, node);
 		result == -1 ? ++matchA : ++matchB;
 		delete[] node;

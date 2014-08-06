@@ -5,7 +5,6 @@
 using namespace motion_classifier;
 
 EMGProviderImpl::~EMGProviderImpl() {
-	//TODO: consumes a lot of time
 	if (lastInterval != NULL)
 		delete lastInterval;
 	clearBuffer();

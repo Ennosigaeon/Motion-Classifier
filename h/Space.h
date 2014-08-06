@@ -7,6 +7,7 @@
 #include <limits>
 #include "MathEnums.h"
 
+//TODO: review Space concept. Space is not used
 namespace motion_classifier {
 
 	namespace math {

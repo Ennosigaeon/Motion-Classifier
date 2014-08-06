@@ -103,13 +103,12 @@ std::map< Motion::Muscle, std::vector<Interval*>*>* MSClassifier::extractTrainin
 	auto data = new std::map<Motion::Muscle, std::vector<Interval*>*>;
 
 	std::array<std::string, 9> movements = { "pronation", "supination", "extension", "flexion", "open", "close", "rest", "ulnar", "radial" };
-	for (auto movement : movements) {
+	for (auto &movement : movements) {
 		std::vector<Interval*> *list = new std::vector < Interval* >;
 		for (int i = 1; i < 5; ++i) {
-
 			std::ifstream in(folder + movement + "-" + boost::lexical_cast<std::string>(i)+".txt");
 			//Skip intervals
-			for (int j = 0; j < 15 - NR_INTERVALS; ++j) {
+			for (int j = 0; j < 14 - NR_INTERVALS; ++j) {
 				std::string s;
 				std::getline(in, s);
 			}

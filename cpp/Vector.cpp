@@ -151,6 +151,10 @@ bool math::Vector::operator==(const math::Vector& vector) {
 	return true;
 }
 
+bool math::Vector::operator!=(const math::Vector& vector) {
+	return !operator==(vector);
+}
+
 std::ostream& math::operator<<(std::ostream& stream, const math::Vector& vector) {
 	stream << vector.values[0]<< " " << vector.values[1] << " " << vector.values[2];
 	return stream;

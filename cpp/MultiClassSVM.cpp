@@ -30,8 +30,8 @@ MultiClassSVM::MultiClassSVM(Properties *prop) {
 }
 
 MultiClassSVM::~MultiClassSVM() {
-	for (std::vector<SupportVectorMachine*>::iterator it = svms.begin(); it != svms.end(); ++it)
-		delete *it;
+	for (auto &svm : svms)
+		delete svm;
 	delete param;
 }
 
@@ -50,9 +50,9 @@ void MultiClassSVM::train(const Motion::Muscle& motion, const std::vector<math::
 
 void MultiClassSVM::calculateSVMs() {
 	int offset = 0;
-	for (std::map<Motion::Muscle, std::vector<math::Vector>>::iterator it = trainingsData.begin(); it != trainingsData.end(); ++it) {
+	for (auto &pair : trainingsData) {
 		offset++;
-		if (it->second.empty())
+		if (pair.second.empty())
 			continue;
 
 		int i = 0;
@@ -60,7 +60,7 @@ void MultiClassSVM::calculateSVMs() {
 			if (i++ < offset || it2->second.empty())
 				continue;
 			SupportVectorMachine *svm = new SupportVectorMachine(param);
-			svm->addTrainData(it->first, it->second);
+			svm->addTrainData(pair.first, pair.second);
 			svm->addTrainData(it2->first, it2->second);
 			svm->calculateSVM();
 			svms.push_back(svm);
@@ -73,13 +73,9 @@ Motion::Muscle MultiClassSVM::classify(std::vector<math::Vector>& values) {
 	Motion::Muscle motion = Motion::Muscle::UNKNOWN;
 	clock_t t = clock();
 
-	int count[Motion::Muscle::HAND_CLOSE];
-	for (int i = 0; i < Motion::Muscle::HAND_CLOSE; ++i)
-		count[i] = 0;
-
-	int length = sizeof(count) / sizeof(count[0]);
-	for (std::vector<SupportVectorMachine*>::iterator it = svms.begin(); it != svms.end(); ++it) {
-		Motion::Muscle result = (*it)->classify(values);
+	int count[Motion::Muscle::HAND_CLOSE] = {};
+	for (auto &svm : svms) {
+		Motion::Muscle result = svm->classify(values);
 		++count[result];
 	}
 

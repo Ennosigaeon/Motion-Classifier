@@ -6,6 +6,7 @@
 #include "Classifier.h"
 #include "EMGProvider.h"
 
+//TODO: review whole Trainings process
 namespace motion_classifier {
 	/**
 	  * This class handels the task to train a Classifier with

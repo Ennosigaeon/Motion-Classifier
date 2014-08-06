@@ -63,7 +63,11 @@ namespace motion_classifier {
 		  */
 		static void load(int argc, char *argv[]);
 
-		
+		/*
+		 * Initializes the application configuration from the given properties file.
+		 * It is crucial to call release() after this function has been called
+		 * once. Otherwise you will create a memory leak.
+		 */
 		static void load(Properties& prop);
 
 		/**

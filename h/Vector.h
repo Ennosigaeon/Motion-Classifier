@@ -102,6 +102,7 @@ namespace motion_classifier {
 			math::Vector& operator/=(const double value);
 			math::Vector& operator=(const math::Vector& vector);
 			bool operator==(const math::Vector& vector);
+			bool operator!=(const math::Vector& vector);
 			friend std::ostream& operator<<(std::ostream & stream, const math::Vector & vector);
 		};
 
