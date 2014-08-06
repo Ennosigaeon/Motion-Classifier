@@ -35,6 +35,13 @@ namespace motion_classifier {
 		  */
 		Sample(std::vector<short>& values, long nr = -1);
 
+		/**
+		  * Creates a new Sample with the given number. The sample is filled
+		  * with the given values. The array has to have the same size as
+		  * the Sample size defined in the configuration file.
+		  **/
+		Sample(double* values, long nr = -1);
+
 		~Sample();
 
 		/**

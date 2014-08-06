@@ -16,9 +16,20 @@ Sample::Sample(std::vector<short>& values, long nr) : Sample(nr) {
 		throw std::out_of_range("parameter contains more values than this Sample can store");
 
 	int x = 0, y = 0, i = 0;
-	for (std::vector<short>::iterator it = values.begin(); it != values.end(); ++it, ++i) {
-		math::Vector vec(x, y, *it);
-		entries[i] = vec;
+	for (const auto z : values) {
+		entries[i++] = math::Vector(x, y, z);
+		++y;
+		if (y == nrRows) {
+			y = 0;
+			++x;
+		}
+	}
+}
+
+Sample::Sample(double* values, long nr) : Sample(nr) {
+	int x = 0, y = 0;
+	for (int i = 0; i < nrColumns * nrRows; i++) {
+		entries[i] = math::Vector(x, y, values[i]);
 		++y;
 		if (y == nrRows) {
 			y = 0;
@@ -52,9 +63,8 @@ long Sample::getNumber() const {
 }
 
 std::ostream& motion_classifier::operator<<(std::ostream& stream, const Sample& sample) {
-	math::Vector *entries = sample.entries;
 	for (int i = 0; i < sample.getSize(); ++i)
-		stream << entries[i].get(math::Dimension::Z) << " ";
+		stream << sample.entries[i].get(math::Dimension::Z) << " ";
 	stream << std::endl;
 	return stream;
 }
@@ -65,15 +75,12 @@ std::istream& operator>> (std::istream& stream, Sample& sample) {
 	std::istringstream iss(line);
 	std::vector<double> tokens{ std::istream_iterator < double > {iss}, std::istream_iterator < double > {} };
 
-	int size = sample.getSize();
-	if (tokens.size() < size)
+	if (tokens.size() < sample.getSize())
 		throw std::out_of_range("line contains not enough values. Maybe reached end of file");
 
 	int x = 0, y = 0, i = 0;
-	math::Vector *entries = sample.getEntries();
-	for (std::vector<double>::iterator it = tokens.begin(); it != tokens.end() && i < size; ++it, ++i) {
-		math::Vector vec(x, y, *it);
-		entries[i] = vec;
+	for (const double z : tokens) {
+		sample.getEntries()[i] = math::Vector(x, y, z);
 		++y;
 		if (y == sample.getNrRows()) {
 			y = 0;

@@ -17,8 +17,9 @@ MeanShift::~MeanShift() {
 		delete kernel;
 }
 
-void MeanShift::setDataPoints(math::Vector *input) {
+void MeanShift::setDataPoints(math::Vector* input, int size) {
 	MeanShift::input = input;
+	MeanShift::size = size;
 }
 
 void MeanShift::setFiltering(bool doFilter) {
@@ -33,9 +34,8 @@ std::vector<math::Vector*>* MeanShift::calculate(double h) {
 
 	clock_t t = clock();
 	std::vector<math::Vector*> *centers = new std::vector<math::Vector*>;
-	for (int i = 0; i < sizeof(input) / sizeof(input[0]); ++i) {
+	for (int i = 0; i < size; ++i) {
 		math::Vector x(input[i]);
-
 		//If EMG value is samller then threshold, it is ignored => Rest Position has no centers
 		if (x.get(math::Dimension::Z) < threshold)
 			continue;
@@ -44,7 +44,7 @@ std::vector<math::Vector*>* MeanShift::calculate(double h) {
 		do {
 			math::Vector numerator;
 			double denomiator = 0;
-			for (int j = 0; j < sizeof(input) / sizeof(input[0]); ++j) {
+			for (int j = 0; j < size; ++j) {
 				double val = x.getDistance(input[j]) / h;
 				val = kernel->calculate(val * val);
 				numerator += input[j] * val;
@@ -58,10 +58,10 @@ std::vector<math::Vector*>* MeanShift::calculate(double h) {
 		math::Vector *closest = NULL;
 		//center has to be closer then predefined value
 		double minDist = h;
-		for (auto it2 = centers->begin(); it2 != centers->end(); ++it2) {
-			double dist = x.getDistance(**it2);
+		for (auto &center : *centers) {
+			double dist = x.getDistance(*center);
 			if (dist < minDist) {
-				closest = *it2;
+				closest = center;
 				minDist = dist;
 			}
 		}

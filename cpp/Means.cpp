@@ -7,15 +7,13 @@ Sample* motion_classifier::math::getRMSMean(const std::vector<Sample*>& values) 
 	if (values.empty())
 		return NULL;
 
-	Sample *result = new Sample();
-	int size = result->getSize();
-
+	int size = values.at(0)->getSize();
 	//creates both arrays and inititalizes them with 0
 	double *value = new double[size]();
 	int *count = new int[size]();
 
-	for (std::vector<Sample*>::const_iterator it = values.begin(); it != values.end(); ++it) {
-		math::Vector* entries = (*it)->getEntries();
+	for (Sample *sample : values) {
+		math::Vector *entries = sample->getEntries();
 		for (int i = 0; i < size; ++i) {
 			double n = entries[i].get(math::Dimension::Z);
 			if (!isnan(n)) {
@@ -24,10 +22,11 @@ Sample* motion_classifier::math::getRMSMean(const std::vector<Sample*>& values) 
 			}
 		}
 	}
-	math::Vector* entries = values.at(0)->getEntries();
-	math::Vector* resultEntries = result->getEntries();
+
 	for (int i = 0; i < size; ++i)
-		resultEntries[i] = math::Vector(entries[i].get(math::Dimension::X), entries[i].get(math::Dimension::Y), sqrt(value[i] / count[i]));
+		value[i] = sqrt(value[i] / count[i]);
+	
+	Sample *result = new Sample(value, size);
 
 	delete[] value;
 	delete[] count;
@@ -38,15 +37,13 @@ Sample* math::getArithmeticMean(const std::vector<Sample*>& values) {
 	if (values.empty())
 		return NULL;
 
-	Sample *result = new Sample();
-	int size = result->getSize();
-
+	int size = values.at(0)->getSize();
 	//creates both arrays and inititalizes them with 0
 	double *value = new double[size]();
 	int *count = new int[size]();
 
-	for (std::vector<Sample*>::const_iterator it = values.begin(); it != values.end(); ++it) {
-		math::Vector* entries = (*it)->getEntries();
+	for (Sample *sample : values) {
+		math::Vector *entries = sample->getEntries();
 		for (int i = 0; i < size; ++i) {
 			double n = entries[i].get(math::Dimension::Z);
 			if (!isnan(n)) {
@@ -55,10 +52,11 @@ Sample* math::getArithmeticMean(const std::vector<Sample*>& values) {
 			}
 		}
 	}
-	math::Vector* entries = values.at(0)->getEntries();
-	math::Vector* resultEntries = result->getEntries();
+
 	for (int i = 0; i < size; ++i)
-		resultEntries[i] = math::Vector(entries[i].get(math::Dimension::X), entries[i].get(math::Dimension::Y), value[i] / count[i]);
+		value[i] /= count[i];
+
+	Sample *result = new Sample(value, size);
 
 	delete[] value;
 	delete[] count;
@@ -69,15 +67,13 @@ Sample* math::getGeometricMean(const std::vector<Sample*>& values) {
 	if (values.empty())
 		return NULL;
 
-	Sample *result = new Sample();
-	int size = result->getSize();
-
+	int size = values.at(0)->getSize();
 	//creates both arrays and inititalizes them with 0
 	double *value = new double[size]();
 	int *count = new int[size]();
 
-	for (std::vector<Sample*>::const_iterator it = values.begin(); it != values.end(); ++it) {
-		math::Vector* entries = (*it)->getEntries();
+	for (Sample *sample : values) {
+		math::Vector *entries = sample->getEntries();
 		for (int i = 0; i < size; ++i) {
 			double n = entries[i].get(math::Dimension::Z);
 			if (!isnan(n)) {
@@ -89,10 +85,11 @@ Sample* math::getGeometricMean(const std::vector<Sample*>& values) {
 			}
 		}
 	}
-	math::Vector* entries = values.at(0)->getEntries();
-	math::Vector* resultEntries = result->getEntries();
+
 	for (int i = 0; i < size; ++i)
-		resultEntries[i] = math::Vector(entries[i].get(math::Dimension::X), entries[i].get(math::Dimension::Y), pow(value[i], 1.0 / count[i]));
+		value[i] = pow(value[i], 1.0 / count[i]);
+
+	Sample *result = new Sample(value, size);
 
 	delete[] value;
 	delete[] count;
@@ -103,15 +100,13 @@ Sample* math::getHarmonicMean(const std::vector<Sample*>& values) {
 	if (values.empty())
 		return NULL;
 
-	Sample *result = new Sample();
-	int size = result->getSize();
-
+	int size = values.at(0)->getSize();
 	//creates both arrays and inititalizes them with 0
 	double *value = new double[size]();
 	int *count = new int[size]();
 
-	for (std::vector<Sample*>::const_iterator it = values.begin(); it != values.end(); ++it) {
-		math::Vector* entries = (*it)->getEntries();
+	for (Sample *sample : values) {
+		math::Vector *entries = sample->getEntries();
 		for (int i = 0; i < size; ++i) {
 			double n = entries[i].get(math::Dimension::Z);
 			if (!isnan(n)) {
@@ -120,10 +115,11 @@ Sample* math::getHarmonicMean(const std::vector<Sample*>& values) {
 			}
 		}
 	}
-	math::Vector* entries = values.at(0)->getEntries();
-	math::Vector* resultEntries = result->getEntries();
+
 	for (int i = 0; i < size; ++i)
-		resultEntries[i] = math::Vector(entries[i].get(math::Dimension::X), entries[i].get(math::Dimension::Y), count[i] / value[i]);
+		value[i] = count[i] / value[i];
+
+	Sample *result = new Sample(value, size);
 
 	delete[] value;
 	delete[] count;

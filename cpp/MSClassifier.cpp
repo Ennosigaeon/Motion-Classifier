@@ -13,8 +13,8 @@ using namespace motion_classifier;
 MSClassifier::MSClassifier(EMGProvider *emg, Properties *configuration) {
 	h = configuration->getDouble("ms.h");
 
-	double minX = configuration->getDouble("space.x.min"), maxX = configuration->getDouble(""), minY = configuration->getDouble(""),
-		maxY = configuration->getDouble("");
+	double minX = configuration->getDouble("space.x.min"), maxX = configuration->getDouble("space.x.max"), minY = configuration->getDouble("space.y.min"),
+		maxY = configuration->getDouble("space.x.max");
 	if (isnan(minX))
 		minX = -std::numeric_limits<double>::infinity();
 	if (isnan(maxX))
@@ -61,11 +61,11 @@ void MSClassifier::send(const Signal& signal) {
 }
 
 void MSClassifier::train(std::map<Motion::Muscle, std::vector<Interval*>*>* training) {
-	for (auto pair : *training) {
+	for (auto &pair : *training) {
 		std::vector<math::Vector*> *allCenters = new std::vector < math::Vector* > ;
 		for (Interval *interval : *pair.second) {
 			Sample *mean = interval->getMeanSample();
-			msAlgo->setDataPoints(mean->getEntries());
+			msAlgo->setDataPoints(mean->getEntries(), mean->getSize());
 			std::vector<math::Vector*> *centers = msAlgo->calculate(h);
 			allCenters->insert(allCenters->end(), centers->begin(), centers->end());
 		}
@@ -91,7 +91,7 @@ void MSClassifier::train(std::map<Motion::Muscle, std::vector<Interval*>*>* trai
 
 		trainingsData.insert(std::make_pair(pair.first, allCenters));
 	}
-	msAlgo->setDataPoints(NULL);
+	msAlgo->setDataPoints(NULL, 0);
 }
 
 std::map<Motion::Muscle, std::vector<math::Vector*>*>* MSClassifier::getTrainingsData() {

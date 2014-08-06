@@ -13,6 +13,7 @@ namespace motion_classifier {
 	private:
 		math::Kernel *kernel = NULL;
 		math::Vector *input = NULL;
+		int size;
 
 		bool filter = false;
 		double epsilon;
@@ -38,7 +39,7 @@ namespace motion_classifier {
 		  * Sets the data points for the Mean Shift procedure. Use
 		  * MeanShift::calculate(double) to calculate the clusters.
 		  */
-		void setDataPoints(math::Vector *input);
+		void setDataPoints(math::Vector *input, int size);
 
 		/**
 		  * When set to true, the given data points (see setDataPoints) are filtered.
