@@ -1,15 +1,9 @@
 #ifndef SVMCLASSIFIER_H
 #define SVMCLASSIFIER_H
 
-#include <condition_variable>
-#include <mutex>
-#include <thread>
 #include <vector>
 #include "AppConfig.h"
-#include "BlockingQueue.h"
 #include "ClassifierImpl.h"
-#include "Communication.h"
-#include "EMGProvider.h"
 #include "MultiClassSVM.h"
 #include "Variogram.h"
 
@@ -23,18 +17,16 @@ namespace motion_classifier {
 	  */
 	class SVMClassifier : public ClassifierImpl {
 	private:
-		std::thread worker;
-		std::mutex mutex;
-		std::condition_variable condition;
-		void run();
 		void plot(Sample* sample, std::vector<math::Vector>& values);
 		void loadTrainingsData();
 		void storeTrainingsData();
 
 		MultiClassSVM *svm;
 		Variogram *variogram;
-		EMGProvider *emgProvider;
 		Properties *prop;
+
+	protected:
+		virtual Motion::Muscle classify(Interval *interval);
 
 	public:
 		/**
@@ -48,8 +40,6 @@ namespace motion_classifier {
 		  * Stops the underlying worker Thread and the EMGProvider.
 		  */
 		~SVMClassifier();
-
-		virtual void send(const Signal& signal);
 
 		/**
 		  * Trains the Classifier.

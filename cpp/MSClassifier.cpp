@@ -1,9 +1,8 @@
-#include "../h/Logger.h"
-#include "../h/MSClassifier.h"
 
 #include <array>
 #include <boost/lexical_cast.hpp>
 #include <fstream>
+#include "../h/MSClassifier.h"
 #include "../h/Utilities.h"
 
 #define NR_INTERVALS 1
@@ -12,7 +11,6 @@ using namespace motion_classifier;
 
 MSClassifier::MSClassifier(EMGProvider *emg, Properties *configuration) {
 	MSClassifier::emgProvider = emg;
-	logger = Logger::getInstance();
 	h = configuration->getDouble("ms.h");
 
 	double minX = configuration->getDouble("space.x.min"), maxX = configuration->getDouble("space.x.max"), minY = configuration->getDouble("space.y.min"),
@@ -44,86 +42,6 @@ MSClassifier::~MSClassifier() {
 	math::Vector::setSpace(new math::Space);
 }
 
-void MSClassifier::send(const Signal& signal) {
-	if (signal == Signal::START) {
-		if (status == Status::NEW) {
-			//start EMGProvider
-			emgProvider->send(Signal::START);
-
-			//start worker thread
-			status = Status::RUNNING;
-			worker = std::thread(&MSClassifier::run, this);
-		}
-		else {
-			status = Status::RUNNING;
-			std::unique_lock<std::mutex> mlock(mutex);
-			mlock.unlock();
-			condition.notify_one();
-		}
-	}
-	if (signal == Signal::STOP) {
-		status = Status::WAITING;
-		emgProvider->send(Signal::STOP);
-	}
-	if (signal == Signal::SHUTDOWN) {
-		status = Status::FINISHED;
-		//release waiting thread
-		std::unique_lock<std::mutex> mlock(mutex);
-		mlock.unlock();
-		condition.notify_one();
-
-		//wait for worker to stop
-		if (worker.joinable())
-			worker.join();
-
-		//stop the EMGProvider
-		emgProvider->send(Signal::SHUTDOWN);
-	}
-}
-
-void MSClassifier::run() {
-	Logger *logger = Logger::getInstance();
-	while (true) {
-		if (status == Status::RUNNING) {
-			logger->debug("waiting for new Interval");
-			Interval *interval = emgProvider->getInterval();
-			if (interval == NULL)
-				continue;
-
-			clock_t t = clock();
-			logger->debug("calculating mean sample");
-			Sample *mean = interval->getMeanSample();
-
-			logger->debug("calculating cluster centers");
-			msAlgo->setDataPoints(mean->getEntries(), mean->getSize());
-			auto *centers = msAlgo->calculate(h);
-
-			logger->debug("matching clusters");
-			//TODO: Classify vectors
-			Motion::Muscle motion = Motion::Muscle::UNKNOWN;
-
-			t = clock() - t;
-			double tmp = ((double)t) / CLOCKS_PER_SEC * 1000;
-			logger->info("classified new Interval in " + boost::lexical_cast<std::string>(tmp)+" ms as " + motion_classifier::printMotion(motion));
-			
-
-			for (auto &vec : *centers)
-				delete vec;
-			delete centers;
-			delete interval;
-		}
-		if (status == Status::WAITING) {
-			logger->debug("Classifier stops processing Intervals");
-			std::unique_lock<std::mutex> lk(mutex);
-			condition.wait(lk);
-		}
-		if (status == Status::FINISHED) {
-			logger->info("shutting down MSClassifier worker");
-			return;
-		}
-	}
-}
-
 void MSClassifier::train(std::string folder) {
 	auto training = extractTrainingsData(folder);
 
@@ -151,8 +69,7 @@ std::map<Motion::Muscle, std::vector<math::Vector*>*>* MSClassifier::getTraining
 	return &trainingsData;
 }
 
-//Only used to develop algorithm. HAS TO BE REMOVED!!!
-std::vector<math::Vector*>* MSClassifier::classify(Interval *interval) {
+Motion::Muscle MSClassifier::classify(Interval *interval) {
 	logger->debug("calculating mean sample");
 	Sample *mean = interval->getMeanSample();
 
@@ -161,9 +78,31 @@ std::vector<math::Vector*>* MSClassifier::classify(Interval *interval) {
 	auto centers = msAlgo->calculate(h);
 
 	logger->debug("matching clusters");
-	//TODO: Classify vectors
 
-	return centers;
+
+	std::vector<std::pair<Motion::Muscle, double>> distances;
+	for (const auto &pair : trainingsData) {
+		double similarity = 0;
+		for (const auto &center : *centers) {
+			double min = std::numeric_limits<double>::max();
+			for (const auto &vector : *pair.second) {
+				double  d = center->getDistance(*vector);
+				if (d < min)
+					min = d;
+			}
+			similarity += min;
+		}
+		similarity /= centers->size();
+		distances.push_back(std::make_pair(pair.first, similarity));
+	}
+	if (distances.empty())
+		return Motion::Muscle::UNKNOWN;
+
+	std::sort(distances.begin(), distances.end(), [](const std::pair<Motion::Muscle, double> &a, const std::pair<Motion::Muscle, double> &b) {
+		return a.second < b.second;
+	});
+
+	return distances.at(0).first;
 }
 
 //This function is only used to extract data from the HDD and convert them into the right format. HAS TO BE REMOVED!!!

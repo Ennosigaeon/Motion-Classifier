@@ -1,10 +1,7 @@
-#include <ctime>
 #include <fstream>
 #include <string>
 #include <boost/lexical_cast.hpp>
-#include "../h/Logger.h"
 #include "../h/SVMClassifier.h"
-#include "../h/Utilities.h"
 
 using namespace motion_classifier;
 
@@ -14,100 +11,35 @@ SVMClassifier::SVMClassifier(EMGProvider* emgProvider, MultiClassSVM *svm, Prope
 	Interval::setMeanFunction(&math::getRMSMean);
 	prop = configuration;
 	variogram = &Variogram(prop->getInt("variogram.nrBins"));
-	Logger::getInstance()->info("Classifier created");
+	logger->info("Classifier created");
 }
 
 SVMClassifier::~SVMClassifier() {
 	send(Signal::SHUTDOWN);
-	Logger::getInstance()->info(printStatistics());
-	Logger::getInstance()->info("Classifier destroyed");
+	logger->info(printStatistics());
+	logger->info("Classifier destroyed");
 }
 
-void SVMClassifier::run() {
-	Logger *logger = Logger::getInstance();
-	while (true) {
-		if (status == Status::RUNNING) {
-			logger->debug("waiting for new Interval");
-			Interval *interval = emgProvider->getInterval();
-			if (interval == NULL)
-				continue;
+Motion::Muscle SVMClassifier::classify(Interval *interval) {
+	logger->debug("calculating mean sample");
+	Sample *mean = interval->getMeanSample();
 
-			clock_t t = clock();
-			logger->debug("calculating mean sample");
-			Sample *mean = interval->getMeanSample();
+	logger->debug("calculating Variogram");
+	std::vector<math::Vector> values = variogram->calculate(mean);
 
-			logger->debug("calculating Variogram");
-			std::vector<math::Vector> values = variogram->calculate(mean);
+	logger->debug("classifying values");
+	Motion::Muscle motion = svm->classify(values);
 
-			logger->debug("classifying values");
-			Motion::Muscle motion = svm->classify(values);
+	//plots the calculated values
+	plot(mean, values);
 
-			//plots the calculated values
-			plot(mean, values);
-
-			//overrides the last stored value
-			lastMuscleMotion.push(&motion);
-			t = clock() - t;
-			double tmp = ((double)t) / CLOCKS_PER_SEC * 1000;
-			logger->info("classified new Interval in " + boost::lexical_cast<std::string>(tmp) + " ms as " + motion_classifier::printMotion(motion));
-
-			time += tmp;
-			++intervalCount;
-			delete interval;
-		}
-		if (status == Status::WAITING) {
-			logger->debug("Classifier stops processing Intervals");
-			std::unique_lock<std::mutex> lk(mutex);
-			condition.wait(lk);
-		}
-		if (status == Status::FINISHED) {
-			logger->info("shuting down SVMClassifier worker");
-			return;
-		}
-	}
-}
-
-void SVMClassifier::send(const Signal& signal) {
-	if (signal == Signal::START) {
-		if (status == Status::NEW)  {
-			//start EMGProvider
-			emgProvider->send(Signal::START);
-
-			//start worker thread
-			status = Status::RUNNING;
-			worker = std::thread(&SVMClassifier::run, this);
-		}
-		else {
-			status = Status::RUNNING;
-			std::unique_lock<std::mutex> mlock(mutex);
-			mlock.unlock();
-			condition.notify_one();
-		}
-	}
-	if (signal == Signal::STOP) {
-		status = Status::WAITING;
-		emgProvider->send(Signal::STOP);
-	}
-	if (signal == Signal::SHUTDOWN) {
-		status = Status::FINISHED;
-		//release waiting thread
-		std::unique_lock<std::mutex> mlock(mutex);
-		mlock.unlock();
-		condition.notify_one();
-
-		//wait for worker to stop
-		if (worker.joinable())
-			worker.join();
-
-		//stop the EMGProvider
-		emgProvider->send(Signal::SHUTDOWN);
-	}
+	return motion;
 }
 
 void SVMClassifier::plot(Sample* sample, std::vector<math::Vector>& values) {
 	if (prop->getBool("plot.mean")) {
 		std::ofstream sampleStream;
-		sampleStream.open(std::string("C:/Tmp/plot/") + boost::lexical_cast<std::string>(intervalCount)+"-mean.txt");
+		sampleStream.open(std::string("C:/Tmp/plot/") + boost::lexical_cast<std::string>(intervalCount) + "-mean.txt");
 		sampleStream << *sample;
 		sampleStream.close();
 	}
