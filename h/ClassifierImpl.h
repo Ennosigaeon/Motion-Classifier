@@ -13,6 +13,8 @@
 namespace motion_classifier {
 
 	class ClassifierImpl : public Classifier {
+		friend class CrossCorrelation;
+
 	protected:
 		BlockingQueue<Motion::Muscle*> lastMuscleMotion{ 1, AppConfig::getInstance()->getBlockingQueueMaxWaitTime() };
 		Status status = NEW;
