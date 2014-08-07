@@ -5,11 +5,10 @@
 
 using namespace motion_classifier;
 
-MeanShift::MeanShift(math::KernelType kernel, math::Space *space, double epsilon, double threshold) {
+MeanShift::MeanShift(math::KernelType kernel, double epsilon, double threshold) {
 	MeanShift::kernel = new math::Kernel(kernel);
 	MeanShift::epsilon = epsilon;
 	MeanShift::threshold = threshold;
-	math::Vector::setSpace(space);
 }
 
 MeanShift::~MeanShift() {

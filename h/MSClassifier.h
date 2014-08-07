@@ -25,6 +25,7 @@ namespace motion_classifier {
 		std::condition_variable condition;
 
 		void run();
+		std::map< Motion::Muscle, std::vector<Interval*>*>* extractTrainingsData(std::string folder);
 	public:
 
 		/**
@@ -36,11 +37,11 @@ namespace motion_classifier {
 
 		virtual void send(const Signal& signal);
 
-		void train(std::map<Motion::Muscle, std::vector<Interval*>*>* traingsData);
+		void train(std::string folder);
 
 		//TODO: remove again
 		std::map<Motion::Muscle, std::vector<math::Vector*>*>* getTrainingsData();
-		std::map< Motion::Muscle, std::vector<Interval*>*>* extractTrainingsData(std::string folder);
+		std::vector<math::Vector*>* MSClassifier::classify(Interval *interval);
 	};
 
 }

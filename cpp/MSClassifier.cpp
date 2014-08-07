@@ -27,9 +27,10 @@ MSClassifier::MSClassifier(EMGProvider *emg, Properties *configuration) {
 		maxY = std::numeric_limits<double>::infinity();
 	math::Space *space = new math::Space(minX, maxX, minY, maxY);
 	space->setNorm(static_cast<math::Norm>(configuration->getInt("space.norm")));
+	math::Vector::setSpace(space);
 	
 	msAlgo = new MeanShift(static_cast<math::KernelType>(configuration->getInt("ms.kernel")),
-		space, configuration->getDouble("ms.epsilon"), configuration->getDouble("ms.threshold"));
+		configuration->getDouble("ms.epsilon"), configuration->getDouble("ms.threshold"));
 	msAlgo->setFiltering(configuration->getBool("ms.filtering"));
 }
 
@@ -95,9 +96,16 @@ void MSClassifier::run() {
 
 			logger->debug("calculating cluster centers");
 			msAlgo->setDataPoints(mean->getEntries(), mean->getSize());
-			std::vector<math::Vector*> *centers = msAlgo->calculate(h);
+			auto *centers = msAlgo->calculate(h);
 
+			logger->debug("matching clusters");
 			//TODO: Classify vectors
+			Motion::Muscle motion = Motion::Muscle::UNKNOWN;
+
+			t = clock() - t;
+			double tmp = ((double)t) / CLOCKS_PER_SEC * 1000;
+			logger->info("classified new Interval in " + boost::lexical_cast<std::string>(tmp)+" ms as " + motion_classifier::printMotion(motion));
+			
 
 			for (auto &vec : *centers)
 				delete vec;
@@ -116,7 +124,9 @@ void MSClassifier::run() {
 	}
 }
 
-void MSClassifier::train(std::map<Motion::Muscle, std::vector<Interval*>*>* training) {
+void MSClassifier::train(std::string folder) {
+	auto training = extractTrainingsData(folder);
+
 	logger->info("starting trainings procedure");
 	for (auto &pair : *training) {
 		std::vector<math::Vector*> *allCenters = new std::vector < math::Vector* > ;
@@ -127,33 +137,33 @@ void MSClassifier::train(std::map<Motion::Muscle, std::vector<Interval*>*>* trai
 			allCenters->insert(allCenters->end(), centers->begin(), centers->end());
 		}
 
-		//TODO: center pruning is not good, too much centers left
-		auto it = allCenters->begin();
-		while (it != allCenters->end()) {
-			if ((**it).getGroup() == -1) {
-				it = allCenters->erase(it);
-				continue;
-			}
-
-			auto it2 = it;
-			it2++;
-			for (; it2 != allCenters->end(); ++it2) {
-				if ((**it).getDistance(**it2) < h) {
-					**it += **it2;
-					**it /= 2;
-					(**it2).setGroup(-1);
-				}
-			}
-			it++;
-		}
-
-		trainingsData.insert(std::make_pair(pair.first, allCenters));
+		math::Vector *vectors = new math::Vector[allCenters->size()];
+		int i = 0;
+		for (math::Vector *vec : *allCenters)
+			vectors[i++] = *vec;
+		msAlgo->setDataPoints(vectors, allCenters->size());
+		trainingsData.insert(std::make_pair(pair.first, msAlgo->calculate(h)));
 	}
 	msAlgo->setDataPoints(NULL, 0);
 }
 
 std::map<Motion::Muscle, std::vector<math::Vector*>*>* MSClassifier::getTrainingsData() {
 	return &trainingsData;
+}
+
+//Only used to develop algorithm. HAS TO BE REMOVED!!!
+std::vector<math::Vector*>* MSClassifier::classify(Interval *interval) {
+	logger->debug("calculating mean sample");
+	Sample *mean = interval->getMeanSample();
+
+	logger->debug("calculating cluster centers");
+	msAlgo->setDataPoints(mean->getEntries(), mean->getSize());
+	auto centers = msAlgo->calculate(h);
+
+	logger->debug("matching clusters");
+	//TODO: Classify vectors
+
+	return centers;
 }
 
 //This function is only used to extract data from the HDD and convert them into the right format. HAS TO BE REMOVED!!!
