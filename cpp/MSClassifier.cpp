@@ -82,7 +82,7 @@ Motion::Muscle MSClassifier::classify(Interval *interval) {
 
 	std::vector<std::pair<Motion::Muscle, double>> distances;
 	for (const auto &pair : trainingsData) {
-		double similarity = 0;
+		std::vector<double> similarity;
 		for (const auto &center : *centers) {
 			double min = std::numeric_limits<double>::max();
 			for (const auto &vector : *pair.second) {
@@ -90,10 +90,15 @@ Motion::Muscle MSClassifier::classify(Interval *interval) {
 				if (d < min)
 					min = d;
 			}
-			similarity += min;
+			similarity.push_back(min);
 		}
-		similarity /= centers->size();
-		distances.push_back(std::make_pair(pair.first, similarity));
+
+		double res = 0;
+		for (double d : similarity)
+			res += 1 / d;
+		res = similarity.size() / res;
+
+		distances.push_back(std::make_pair(pair.first, res));
 	}
 	if (distances.empty())
 		return Motion::Muscle::UNKNOWN;
