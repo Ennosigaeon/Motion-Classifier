@@ -45,9 +45,11 @@ math::Vector math::Vector::getVector(const Angle& angle) {
 }
 
 void math::Vector::setSpace(math::Space *space) {
-	if (space != NULL)
-		delete space;
 	Vector::space = space;
+}
+
+math::Space* math::Vector::getSpace() {
+	return Vector::space;
 }
 
 double math::Vector::get(const int index) const {
@@ -55,7 +57,8 @@ double math::Vector::get(const int index) const {
 }
 
 void math::Vector::set(const int index, const double value) {
-	values[index] = value;
+	if (value >= space->getMin(static_cast<math::Dimension>(index)) && value <= space->getMin(static_cast<math::Dimension>(index)))
+		values[index] = value;
 }
 
 unsigned int math::Vector::getDimensions() const {
@@ -97,7 +100,6 @@ math::Vector math::Vector::operator+(const math::Vector& vector) const {
 	for (int i = 0; i < DIMENSIONS; ++i)
 		vec.values[i] = values[i] + vector.values[i];
 	return vec;
-	//return math::Vector(space->addition(values, vector.values));
 }
 
 math::Vector math::Vector::operator-(const math::Vector& vector) const {
@@ -105,7 +107,6 @@ math::Vector math::Vector::operator-(const math::Vector& vector) const {
 	for (int i = 0; i < DIMENSIONS; ++i)
 		vec.values[i] = values[i] - vector.values[i];
 	return vec;
-	//return math::Vector(space->subtraction(values, vector.values));
 }
 
 math::Vector math::Vector::operator*(const double value) const {
@@ -113,7 +114,6 @@ math::Vector math::Vector::operator*(const double value) const {
 	for (int i = 0; i < DIMENSIONS; ++i)
 		vec.values[i] = values[i] * value;
 	return vec;
-	//return math::Vector(space->multiplication(values, value));
 }
 
 math::Vector math::Vector::operator/(const double value) const {
@@ -121,13 +121,11 @@ math::Vector math::Vector::operator/(const double value) const {
 	for (int i = 0; i < DIMENSIONS; ++i)
 		vec.values[i] = values[i] / value;
 	return vec;
-	//return math::Vector(space->division(values, value));
 }
 
 math::Vector& math::Vector::operator+=(const math::Vector& vector) {
 	for (int i = 0; i < DIMENSIONS; ++i)
 		values[i] += vector.values[i];
-	//*this = math::Vector(space->addition(values, vector.values));
 	return *this;
 }
 

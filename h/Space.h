@@ -7,36 +7,26 @@
 #include <limits>
 #include "MathEnums.h"
 
-//TODO: review Space concept. Space is not used
 namespace motion_classifier {
-
 	namespace math {
 
 		/**
-		  * Defines a three dimensional vector space. The x and y dimensions are treated as a infinite
-		  * pan, i.e. when the vector leaves the plane on the left side it enters it again on the right
-		  * side and vice versa. By default the plane has inifite size.
-		  */
+		  * Defines a (limited) Space for vector operations.
+		  **/
 		class Space {
 		private:
 			static Norm norm;
-			double *min = new double[2];
-			double *max = new double[2];
+			double min[DIMENSIONS];
+			double max[DIMENSIONS];
 
-			//Normalizes only first two dimensions, i.e. x and y.
-			double* normalize(double *values);
 		public:
-			Space(double minX = -std::numeric_limits<double>::infinity(), double maxX = std::numeric_limits<double>::infinity(), double minY = -std::numeric_limits<double>::infinity(), double maxY = std::numeric_limits<double>::infinity());
-			~Space();
+			Space(double minX = -std::numeric_limits<double>::infinity(), double maxX = std::numeric_limits<double>::infinity(),
+				double minY = -std::numeric_limits<double>::infinity(), double maxY = std::numeric_limits<double>::infinity(),
+				double minZ = -std::numeric_limits<double>::infinity(), double maxZ = std::numeric_limits<double>::infinity());
 
-			void setNorm(math::Norm norm);
+			double getMin(math::Dimension dimension) const;
 
-			double* addition(const double *left, const double *right);
-			double* subtraction(const double *left, const double *right);
-			double* multiplication(const double *left, double value);
-			double* division(const double *left, double value);
-			double distance(const double *left, const double *right);
-			double length(const double *values, const int nrDimensions = DIMENSIONS);
+			double getMax(math::Dimension dimension) const;
 		};
 	}
 }

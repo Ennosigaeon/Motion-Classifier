@@ -2,6 +2,7 @@
 #include <array>
 #include <boost/lexical_cast.hpp>
 #include <fstream>
+#include "../h/Matrix.h"
 #include "../h/MSClassifier.h"
 #include "../h/Utilities.h"
 
@@ -13,8 +14,9 @@ MSClassifier::MSClassifier(EMGProvider *emg, Properties *configuration) {
 	MSClassifier::emgProvider = emg;
 	h = configuration->getDouble("ms.h");
 
-	double minX = configuration->getDouble("space.x.min"), maxX = configuration->getDouble("space.x.max"), minY = configuration->getDouble("space.y.min"),
-		maxY = configuration->getDouble("space.x.max");
+	double minX = configuration->getDouble("space.x.min"), maxX = configuration->getDouble("space.x.max"),
+		minY = configuration->getDouble("space.y.min"), maxY = configuration->getDouble("space.x.max"),
+		minZ = configuration->getDouble("space.z.min"), maxZ = configuration->getDouble("space.z.max");
 	if (isnan(minX))
 		minX = -std::numeric_limits<double>::infinity();
 	if (isnan(maxX))
@@ -23,10 +25,13 @@ MSClassifier::MSClassifier(EMGProvider *emg, Properties *configuration) {
 		minY = -std::numeric_limits<double>::infinity();
 	if (isnan(maxY))
 		maxY = std::numeric_limits<double>::infinity();
-	math::Space *space = new math::Space(minX, maxX, minY, maxY);
-	space->setNorm(static_cast<math::Norm>(configuration->getInt("space.norm")));
+	if (isnan(minZ))
+		minY = -std::numeric_limits<double>::infinity();
+	if (isnan(maxZ))
+		maxY = std::numeric_limits<double>::infinity();
+	math::Space *space = new math::Space(minX, maxX, minY, maxY, minZ, maxZ);
 	math::Vector::setSpace(space);
-	
+
 	msAlgo = new MeanShift(static_cast<math::KernelType>(configuration->getInt("ms.kernel")),
 		configuration->getDouble("ms.epsilon"), configuration->getDouble("ms.threshold"));
 	msAlgo->setFiltering(configuration->getBool("ms.filtering"));
@@ -78,28 +83,44 @@ Motion::Muscle MSClassifier::classify(Interval *interval) {
 	auto centers = msAlgo->calculate(h);
 
 	logger->debug("matching clusters");
-
-
 	std::vector<std::pair<Motion::Muscle, double>> distances;
+
+	math::Matrix ref(_A, _B, _C);
+	for (const auto &vec : *centers)
+		ref.assignToBucket(*vec);
+	ref.normalize();
+
 	for (const auto &pair : trainingsData) {
-		std::vector<double> similarity;
-		for (const auto &center : *centers) {
-			double min = std::numeric_limits<double>::max();
-			for (const auto &vector : *pair.second) {
-				double  d = center->getDistance(*vector);
-				if (d < min)
-					min = d;
-			}
-			similarity.push_back(min);
-		}
-
-		double res = 0;
-		for (double d : similarity)
-			res += 1 / d;
-		res = similarity.size() / res;
-
-		distances.push_back(std::make_pair(pair.first, res));
+		math::Matrix m(_A, _B, _C);
+		for (auto it = pair.second->begin(); it != pair.second->end(); ++it)
+			m.assignToBucket(**it);
+		m.normalize();
+		distances.push_back(std::make_pair(pair.first, ref.getDistance(m)));
 	}
+
+
+	/*
+	for (const auto &pair : trainingsData) {
+	std::vector<double> similarity;
+	for (const auto &center : *centers) {
+	double min = std::numeric_limits<double>::max();
+	for (const auto &vector : *pair.second) {
+	double  d = center->getDistance(*vector);
+	if (d < min)
+	min = d;
+	}
+	similarity.push_back(min);
+	}
+
+	double res = 0;
+	for (double d : similarity)
+	res += 1 / d;
+	res = similarity.size() / res;
+
+	distances.push_back(std::make_pair(pair.first, res));
+	}
+	*/
+
 	if (distances.empty())
 		return Motion::Muscle::UNKNOWN;
 
@@ -107,6 +128,7 @@ Motion::Muscle MSClassifier::classify(Interval *interval) {
 		return a.second < b.second;
 	});
 
+	logger->trace("minimum distance: " + boost::lexical_cast<std::string>(distances.at(0).second));
 	return distances.at(0).first;
 }
 

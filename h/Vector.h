@@ -53,6 +53,11 @@ namespace motion_classifier {
 			static void setSpace(math::Space *space);
 
 			/**
+			  * Returns the math::Space.
+			  */
+			static math::Space* getSpace();
+
+			/**
 			  * Returns the stored value in the given dimension.
 			  */
 			double get(const int index) const;
