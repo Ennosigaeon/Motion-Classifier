@@ -6,7 +6,13 @@ ms.threshold = 0
 ms.filtering = 0
 #L1 = 0, L2 = 1
 space.norm = 1
-space.x.min = 
-space.x.max = 
-space.y.max = 
-space.y.min = 
+space.x.min = 0
+space.x.max = 24
+space.y.min = 0
+space.y.max = 8
+space.z.min = 0
+space.z.max = 400
+#m = rows, n = columns, p = dimensions
+matrix.m = 4
+matrix.n = 8
+matrix.p = 16

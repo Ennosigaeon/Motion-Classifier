@@ -14,6 +14,10 @@ MSClassifier::MSClassifier(EMGProvider *emg, Properties *configuration) {
 	MSClassifier::emgProvider = emg;
 	h = configuration->getDouble("ms.h");
 
+	m = configuration->getDouble("matrix.m");
+	n = configuration->getDouble("matrix.n");
+	p = configuration->getDouble("matrix.p");
+
 	double minX = configuration->getDouble("space.x.min"), maxX = configuration->getDouble("space.x.max"),
 		minY = configuration->getDouble("space.y.min"), maxY = configuration->getDouble("space.x.max"),
 		minZ = configuration->getDouble("space.z.min"), maxZ = configuration->getDouble("space.z.max");
@@ -85,13 +89,13 @@ Motion::Muscle MSClassifier::classify(Interval *interval) {
 	logger->debug("matching clusters");
 	std::vector<std::pair<Motion::Muscle, double>> distances;
 
-	math::Matrix ref(_A, _B, _C);
+	math::Matrix ref(m, n, p);
 	for (const auto &vec : *centers)
 		ref.assignToBucket(*vec);
 	ref.normalize();
 
 	for (const auto &pair : trainingsData) {
-		math::Matrix m(_A, _B, _C);
+		math::Matrix m(m, n, p);
 		for (auto it = pair.second->begin(); it != pair.second->end(); ++it)
 			m.assignToBucket(**it);
 		m.normalize();

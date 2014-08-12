@@ -11,7 +11,14 @@ namespace motion_classifier {
 	class MSClassifier : public ClassifierImpl {
 	private:
 		MeanShift *msAlgo;
+		//Bandwidth for MeanShift
 		double h;
+
+		//Number buckets for classification matrix
+		double m;
+		double n;
+		double p;
+
 		std::map<Motion::Muscle, std::vector<math::Vector*>*> trainingsData;
 
 		std::map< Motion::Muscle, std::vector<Interval*>*>* extractTrainingsData(std::string folder);

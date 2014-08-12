@@ -34,13 +34,6 @@ namespace motion_classifier {
 
 	public:
 
-
-		//TODO: remove
-		int _A;
-		int _B;
-		int _C;
-
-
 		virtual std::string printStatistics();
 		virtual Motion::Muscle getMuscleMotion();
 		virtual void send(const Signal& signal);

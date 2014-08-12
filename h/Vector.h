@@ -1,8 +1,6 @@
 #ifndef VECTOR_H
 #define VECTOR_H
 
-#define DIMENSIONS 3
-
 #include <iostream>
 #include "MathEnums.h"
 #include "Space.h"
