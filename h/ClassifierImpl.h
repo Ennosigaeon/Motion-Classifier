@@ -29,7 +29,6 @@ namespace motion_classifier {
 		//only needed for statistics
 		int intervalCount = 0;
 		long time = 0;
-		virtual Motion::Muscle classify(Interval *interval) = NULL;
 		void run();
 
 	public:

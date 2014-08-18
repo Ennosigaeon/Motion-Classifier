@@ -10,6 +10,13 @@
 namespace motion_classifier {
 
 	class Classifier {
+	protected:
+
+		/**
+		  * Classifies the given Interval.
+		  */
+		virtual Motion::Muscle classify(Interval *interval) = NULL;
+
 	public:
 
 		/**
