@@ -2,24 +2,20 @@
 #include <array>
 #include <boost/lexical_cast.hpp>
 #include <fstream>
-#include "../h/Matrix.h"
 #include "../h/MSClassifier.h"
 #include "../h/Utilities.h"
-
-#define NR_INTERVALS 1
 
 using namespace motion_classifier;
 
 MSClassifier::MSClassifier(EMGProvider *emg, Properties *configuration) {
 	MSClassifier::emgProvider = emg;
 	h = configuration->getDouble("ms.h");
-
-	m = configuration->getDouble("matrix.m");
-	n = configuration->getDouble("matrix.n");
-	p = configuration->getDouble("matrix.p");
+	m = configuration->getInt("matrix.m");
+	n = configuration->getInt("matrix.n");
+	p = configuration->getInt("matrix.p");
 
 	double minX = configuration->getDouble("space.x.min"), maxX = configuration->getDouble("space.x.max"),
-		minY = configuration->getDouble("space.y.min"), maxY = configuration->getDouble("space.x.max"),
+		minY = configuration->getDouble("space.y.min"), maxY = configuration->getDouble("space.y.max"),
 		minZ = configuration->getDouble("space.z.min"), maxZ = configuration->getDouble("space.z.max");
 	if (isnan(minX))
 		minX = -std::numeric_limits<double>::infinity();
@@ -42,8 +38,10 @@ MSClassifier::MSClassifier(EMGProvider *emg, Properties *configuration) {
 }
 
 MSClassifier::~MSClassifier() {
-	for (auto pair : trainingsData) {
-		for (auto vector : *pair.second)
+	for (auto &pair : trainingsData)
+		delete pair.second;
+	for (auto &pair : trainingsVectors) {
+		for (auto &vector : *pair.second)
 			delete vector;
 		delete pair.second;
 	}
@@ -51,31 +49,45 @@ MSClassifier::~MSClassifier() {
 	math::Vector::setSpace(new math::Space);
 }
 
+
 void MSClassifier::train(std::string folder) {
 	auto training = extractTrainingsData(folder);
 
 	logger->info("starting trainings procedure");
 	for (auto &pair : *training) {
-		std::vector<math::Vector*> *allCenters = new std::vector < math::Vector* > ;
+		std::vector<math::Vector*> allCenters;
 		for (Interval *interval : *pair.second) {
 			Sample *mean = interval->getMeanSample();
 			msAlgo->setDataPoints(mean->getEntries(), mean->getSize());
 			std::vector<math::Vector*> *centers = msAlgo->calculate(h);
-			allCenters->insert(allCenters->end(), centers->begin(), centers->end());
+			allCenters.insert(allCenters.end(), centers->begin(), centers->end());
 		}
 
-		math::Vector *vectors = new math::Vector[allCenters->size()];
+		math::Vector *vectors = new math::Vector[allCenters.size()];
 		int i = 0;
-		for (math::Vector *vec : *allCenters)
+		for (auto &vec : allCenters)
 			vectors[i++] = *vec;
-		msAlgo->setDataPoints(vectors, allCenters->size());
-		trainingsData.insert(std::make_pair(pair.first, msAlgo->calculate(h)));
+		msAlgo->setDataPoints(vectors, allCenters.size());
+		trainingsVectors.insert(std::make_pair(pair.first, msAlgo->calculate(h)));
+
+		delete[] vectors;
 	}
 	msAlgo->setDataPoints(NULL, 0);
-}
+	calcTrainingsMatrix();
 
-std::map<Motion::Muscle, std::vector<math::Vector*>*>* MSClassifier::getTrainingsData() {
-	return &trainingsData;
+//	for (const auto &pair : trainingsVectors) {
+//		std::ofstream out("C:/Tmp/MS\ Centers/" + printMotion(pair.first) + ".txt");
+//		for (const auto & vector : *pair.second)
+//			out << *vector << std::endl;
+//		out.close();
+//	}
+
+	for (auto &pair : *training) {
+		for (auto &interval : *pair.second)
+			delete interval;
+		delete pair.second;
+	}
+	delete training;
 }
 
 Motion::Muscle MSClassifier::classify(Interval *interval) {
@@ -94,36 +106,8 @@ Motion::Muscle MSClassifier::classify(Interval *interval) {
 		ref.assignToBucket(*vec);
 	ref.normalize();
 
-	for (const auto &pair : trainingsData) {
-		math::Matrix m(m, n, p);
-		for (auto it = pair.second->begin(); it != pair.second->end(); ++it)
-			m.assignToBucket(**it);
-		m.normalize();
-		distances.push_back(std::make_pair(pair.first, ref.getDistance(m)));
-	}
-
-
-	/*
-	for (const auto &pair : trainingsData) {
-	std::vector<double> similarity;
-	for (const auto &center : *centers) {
-	double min = std::numeric_limits<double>::max();
-	for (const auto &vector : *pair.second) {
-	double  d = center->getDistance(*vector);
-	if (d < min)
-	min = d;
-	}
-	similarity.push_back(min);
-	}
-
-	double res = 0;
-	for (double d : similarity)
-	res += 1 / d;
-	res = similarity.size() / res;
-
-	distances.push_back(std::make_pair(pair.first, res));
-	}
-	*/
+	for (const auto &pair : trainingsData)
+		distances.push_back(std::make_pair(pair.first, ref.getDistance(*pair.second)));
 
 	if (distances.empty())
 		return Motion::Muscle::UNKNOWN;
@@ -134,6 +118,21 @@ Motion::Muscle MSClassifier::classify(Interval *interval) {
 
 	logger->trace("minimum distance: " + boost::lexical_cast<std::string>(distances.at(0).second));
 	return distances.at(0).first;
+}
+
+//This code has to be in a seperate function so it can be invoked from CrossCorrelation.
+void MSClassifier::calcTrainingsMatrix() {
+	for (const auto &pair : trainingsData)
+		delete pair.second;
+	trainingsData.clear();
+
+	for (const auto &pair : trainingsVectors) {
+		math::Matrix *mat = new math::Matrix(m, n, p);
+		for (const auto &vec : *pair.second)
+			mat->assignToBucket(*vec);
+		mat->normalize();
+		trainingsData.insert(std::make_pair(pair.first, mat));
+	}
 }
 
 //This function is only used to extract data from the HDD and convert them into the right format. HAS TO BE REMOVED!!!

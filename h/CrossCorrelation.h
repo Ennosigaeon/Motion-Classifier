@@ -2,21 +2,31 @@
 #ifndef CROSSCORRELATION_H
 #define CROSSCORRELATION_H
 
-#include "ClassifierImpl.h"
+#include "MSClassifier.h"
 #include "Logger.h"
 
 namespace motion_classifier {
+
+	struct Entry {
+		int x;
+		int y;
+		int z;
+		double error;
+	};
+
 
 	class CrossCorrelation {
 
 	private:
 		Logger *logger;
-		ClassifierImpl *classifier;
+		MSClassifier *classifier;
 
 	public:
-		CrossCorrelation(ClassifierImpl *classifier);
+		CrossCorrelation(MSClassifier *classifier);
 
-		void testClassifier(std::map<Motion::Muscle, std::vector<Interval*>*>* data);
+		double testClassifier(std::map<Motion::Muscle, std::vector<Interval*>*>* data);
+
+		void findParameter(std::map<Motion::Muscle, std::vector<Interval*>*>* data);
 
 		std::map<Motion::Muscle, std::vector<Interval*>*>* loadData(std::string folder, int size);
 	};
