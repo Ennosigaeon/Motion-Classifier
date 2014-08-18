@@ -116,7 +116,7 @@ math::Matrix* math::Matrix::getTransformationMatrix(math::Matrix &matrix) const 
 
 std::ostream& math::operator<<(std::ostream & stream, const math::Matrix & matrix) {
 	for (int k = 0; k < matrix.getP(); ++k) {
-		for (int i = 0; i < matrix.getM(); ++i) {
+		for (int i = matrix.getM() - 1; i >= 0; --i) {
 			for (int j = 0; j < matrix.getN(); ++j)
 				stream << matrix.get(i, j, k) << "\t";
 			stream << std::endl;

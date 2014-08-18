@@ -75,7 +75,7 @@ std::vector<math::Vector*>* MeanShift::calculate(double h) {
 	}
 
 	t = clock() - t;
-	Logger::getInstance()->debug("Mean Shift took " + boost::lexical_cast<std::string>(((double)t) / CLOCKS_PER_SEC * 1000) + " ms");
+	Logger::getInstance()->trace("Mean Shift took " + boost::lexical_cast<std::string>(((double)t) / CLOCKS_PER_SEC * 1000) + " ms");
 
 	return centers;
 }

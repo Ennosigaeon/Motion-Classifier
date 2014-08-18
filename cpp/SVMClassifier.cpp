@@ -21,13 +21,13 @@ SVMClassifier::~SVMClassifier() {
 }
 
 Motion::Muscle SVMClassifier::classify(Interval *interval) {
-	logger->debug("calculating mean sample");
+	logger->trace("calculating mean sample");
 	Sample *mean = interval->getMeanSample();
 
-	logger->debug("calculating Variogram");
+	logger->trace("calculating Variogram");
 	std::vector<math::Vector> values = variogram->calculate(mean);
 
-	logger->debug("classifying values");
+	logger->trace("classifying values");
 	Motion::Muscle motion = svm->classify(values);
 
 	//plots the calculated values

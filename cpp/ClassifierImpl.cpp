@@ -77,7 +77,7 @@ void ClassifierImpl::run() {
 			delete interval;
 		}
 		if (status == Status::WAITING) {
-			logger->debug("Classifier stops processing Intervals");
+			logger->info("Classifier stops processing Intervals");
 			std::unique_lock<std::mutex> lk(mutex);
 			condition.wait(lk);
 		}

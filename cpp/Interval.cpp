@@ -39,7 +39,7 @@ Sample* Interval::getMeanSample() {
 	clock_t t = clock();
 	mean = calcMean(samples);
 	t = clock() - t;
-	Logger::getInstance()->debug("mean calculation took " + boost::lexical_cast<std::string>(((double)t) / CLOCKS_PER_SEC * 1000) + " ms");
+	Logger::getInstance()->trace("mean calculation took " + boost::lexical_cast<std::string>(((double)t) / CLOCKS_PER_SEC * 1000) + " ms");
 
 	return mean;
 }

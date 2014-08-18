@@ -91,14 +91,14 @@ void MSClassifier::train(std::string folder) {
 }
 
 Motion::Muscle MSClassifier::classify(Interval *interval) {
-	logger->debug("calculating mean sample");
+	logger->trace("calculating mean sample");
 	Sample *mean = interval->getMeanSample();
 
-	logger->debug("calculating cluster centers");
+	logger->trace("calculating cluster centers");
 	msAlgo->setDataPoints(mean->getEntries(), mean->getSize());
 	auto centers = msAlgo->calculate(h);
 
-	logger->debug("matching clusters");
+	logger->trace("matching clusters");
 	std::vector<std::pair<Motion::Muscle, double>> distances;
 
 	math::Matrix ref(m, n, p);
