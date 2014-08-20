@@ -42,6 +42,8 @@ namespace motion_classifier {
 		  **/
 		Sample(double* values, long nr = -1);
 
+		Sample(const Sample &sample);
+
 		~Sample();
 
 		/**

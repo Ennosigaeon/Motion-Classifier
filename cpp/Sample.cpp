@@ -38,6 +38,11 @@ Sample::Sample(double* values, long nr) : Sample(nr) {
 	}
 }
 
+Sample::Sample(const Sample &sample) : Sample(sample.nr) {
+	for (int i = 0; i < sample.getSize(); ++i)
+		entries[i] = sample.entries[i];
+}
+
 Sample::~Sample() {
 	delete[] entries;
 }

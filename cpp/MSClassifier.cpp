@@ -50,9 +50,7 @@ MSClassifier::~MSClassifier() {
 }
 
 
-void MSClassifier::train(std::string folder) {
-	auto training = extractTrainingsData(folder);
-
+void MSClassifier::train(std::map< Motion::Muscle, std::vector<Interval*>*>* training) {
 	logger->info("starting trainings procedure");
 	for (auto &pair : *training) {
 		std::vector<math::Vector*> allCenters;
@@ -81,13 +79,6 @@ void MSClassifier::train(std::string folder) {
 //			out << *vector << std::endl;
 //		out.close();
 //	}
-
-	for (auto &pair : *training) {
-		for (auto &interval : *pair.second)
-			delete interval;
-		delete pair.second;
-	}
-	delete training;
 }
 
 Motion::Muscle MSClassifier::classify(Interval *interval) {
@@ -133,32 +124,4 @@ void MSClassifier::calcTrainingsMatrix() {
 		mat->normalize();
 		trainingsData.insert(std::make_pair(pair.first, mat));
 	}
-}
-
-//This function is only used to extract data from the HDD and convert them into the right format. HAS TO BE REMOVED!!!
-std::map< Motion::Muscle, std::vector<Interval*>*>* MSClassifier::extractTrainingsData(std::string folder) {
-	logger->info("loading trainings data for MSClassifier");
-	auto data = new std::map<Motion::Muscle, std::vector<Interval*>*>;
-
-	std::array<std::string, 9> movements = { "pronation", "supination", "extension", "flexion", "open", "close", "rest", "ulnar", "radial" };
-	for (auto &movement : movements) {
-		std::vector<Interval*> *list = new std::vector < Interval* >;
-		for (int i = 1; i < 5; ++i) {
-			std::ifstream in(folder + movement + "-" + boost::lexical_cast<std::string>(i)+".txt");
-			//Skip intervals
-			for (int j = 0; j < 14 - NR_INTERVALS; ++j) {
-				std::string s;
-				std::getline(in, s);
-			}
-			for (int j = 0; j < NR_INTERVALS * 2 + 1; ++j) {
-				Interval *interval = new Interval;
-				Sample *s = new Sample;
-				in >> *s;
-				interval->addSample(s);
-				list->push_back(interval);
-			}
-		}
-		data->insert(std::make_pair(motion_classifier::getMotion(movement), list));
-	}
-	return data;
 }

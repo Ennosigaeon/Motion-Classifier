@@ -78,29 +78,3 @@ void CrossCorrelation::findParameter(std::map<Motion::Muscle, std::vector<Interv
 		out2 << entry.x << "\t" << entry.y << "\t" << entry.z << "\t" << entry.error << std::endl;
 	out2.close();
 }
-
-std::map<Motion::Muscle, std::vector<Interval*>*>* CrossCorrelation::loadData(std::string folder, int size) {
-	auto data = new std::map < Motion::Muscle, std::vector<Interval*>* > ;
-
-	std::array<std::string, 9> movements = { "pronation", "supination", "extension", "flexion", "open", "close", "rest", "ulnar", "radial" };
-	for (auto &movement : movements) {
-		std::vector<Interval*> *list = new std::vector < Interval* > ;
-		for (int i = 1; i < 5; ++i) {
-			std::ifstream in(folder + movement + "-" + boost::lexical_cast<std::string>(i)+".txt");
-			//Skip intervals
-			for (int j = 0; j < 14 - size; ++j) {
-				std::string s;
-				std::getline(in, s);
-			}
-			for (int j = 0; j < size * 2 + 1; ++j) {
-				Interval *interval = new Interval;
-				Sample *s = new Sample;
-				in >> *s;
-				interval->addSample(s);
-				list->push_back(interval);
-			}
-		}
-		data->insert(std::make_pair(motion_classifier::getMotion(movement), list));
-	}
-	return data;
-}

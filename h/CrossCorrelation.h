@@ -27,8 +27,6 @@ namespace motion_classifier {
 		double testClassifier(std::map<Motion::Muscle, std::vector<Interval*>*>* data);
 
 		void findParameter(std::map<Motion::Muscle, std::vector<Interval*>*>* data);
-
-		std::map<Motion::Muscle, std::vector<Interval*>*>* loadData(std::string folder, int size);
 	};
 }
 
