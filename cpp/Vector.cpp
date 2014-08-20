@@ -57,7 +57,8 @@ double math::Vector::get(const int index) const {
 }
 
 void math::Vector::set(const int index, const double value) {
-	if (value >= space->getMin(static_cast<math::Dimension>(index)) && value <= space->getMin(static_cast<math::Dimension>(index)))
+	if (value >= space->getMin(static_cast<math::Dimension>(index)) && value <= space->getMin(static_cast<math::Dimension>(index))
+		|| isnan(value))
 		values[index] = value;
 }
 

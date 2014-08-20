@@ -33,6 +33,9 @@ std::vector<math::Vector*>* MeanShift::calculate(double h) {
 	clock_t t = clock();
 	std::vector<math::Vector*> *centers = new std::vector<math::Vector*>;
 	for (int i = 0; i < size; ++i) {
+		if (isnan(input[i].get(math::Dimension::Z)))
+			continue;
+
 		math::Vector x(input[i]);
 		//If EMG value is samller then threshold, it is ignored => Rest Position has no centers
 		if (x.get(math::Dimension::Z) < threshold)
@@ -43,6 +46,9 @@ std::vector<math::Vector*>* MeanShift::calculate(double h) {
 			math::Vector numerator;
 			double denomiator = 0;
 			for (int j = 0; j < size; ++j) {
+				if (isnan(input[j].get(math::Dimension::Z)))
+					continue;
+
 				double val = x.getDistance(input[j]) / h;
 				val = kernel->calculate(val * val);
 				numerator += input[j] * val;

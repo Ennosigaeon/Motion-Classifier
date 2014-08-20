@@ -4,12 +4,14 @@
 #include <map>
 #include <random>
 #include "EMGProviderImpl.h"
+#include "Logger.h"
 #include "Motion.h"
 
 namespace motion_classifier {
 
 	class DirProvider : public EMGProviderImpl {
 	private:
+		Logger *logger = Logger::getInstance();
 		std::string folder;
 		double electrodeLost = 0;
 		bool transversalShift = false;

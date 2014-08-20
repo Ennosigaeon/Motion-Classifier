@@ -35,7 +35,24 @@ Motion::Muscle DirProvider::getMotionForLastInterval() const{
 }
 
 std::map<Motion::Muscle, std::vector<Interval*>*>* DirProvider::getIntervalSubset(int start, int end) {
+	logger->debug("Creating interval subset");
 	auto *result = new std::map < Motion::Muscle, std::vector<Interval*>* > ;
+
+	//init electrode lost
+	AppConfig *config = AppConfig::getInstance();
+	int sampleSize = config->getSampleColumns() * config->getSampleRows();
+	std::uniform_int_distribution<int> lostRnd(0, sampleSize - 1);
+	std::vector<int> lost;
+	for (int i = 0; i < (int)round(electrodeLost * sampleSize); ++i) {
+		int index;
+		do {
+			index = lostRnd(generator);
+			auto it = std::find(lost.begin(), lost.end(), index);
+			if (it == lost.end())
+				break;
+		} while (true);
+		lost.push_back(index);
+	}
 
 	for (const auto &pair : intervals) {
 		auto list = new std::vector < Interval* > ;
@@ -43,8 +60,15 @@ std::map<Motion::Muscle, std::vector<Interval*>*>* DirProvider::getIntervalSubse
 			auto it = l->begin();
 			it = std::next(it, start);
 			for (int i = start; i < end; ++i) {
+				Sample *s = new Sample(*(**it).getMeanSample());
+
+				for (const auto &i : lost)
+					s->getEntries()[i].set(math::Dimension::Z, NAN);
+
+				//TODO: Handle shift here
+
 				Interval *interval = new Interval;
-				interval->addSample(new Sample(*(**it).getMeanSample()));
+				interval->addSample(s);
 				list->push_back(interval);
 				++it;
 			}
@@ -65,6 +89,7 @@ void DirProvider::releaseIntervalSubset(std::map<Motion::Muscle, std::vector<Int
 }
 
 void DirProvider::loadIntervals(int count) {
+	logger->debug("Loading intervals");
 	for (const auto &pair : intervals) {
 		for (const auto &interval : *pair.second)
 			delete interval;
@@ -84,9 +109,6 @@ void DirProvider::loadIntervals(int count) {
 				Sample *s = new Sample;
 				try {
 					in >> *s;
-
-					//TODO: handle electrode lost and shift here
-
 					interval->addSample(s);
 					list2->push_back(interval);
 				}

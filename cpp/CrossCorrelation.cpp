@@ -43,6 +43,36 @@ double CrossCorrelation::testClassifier(std::map<Motion::Muscle, std::vector<Int
 	return result;
 }
 
+void CrossCorrelation::testElectrodeLost(DirProvider *provider) {
+	std::array<double, 20> results;
+	for (int i = 0; i < 5; i++) {
+		int n = 0;
+		for (double d = 0; d < 1; d += 0.05) {
+			logger->info("Setting electrode lost to " + boost::lexical_cast<std::string>(d));
+
+			provider->setElectrodeLost(d);
+			auto test = provider->getIntervalSubset(14, 15);
+
+			double res = testClassifier(test);
+			if (i == 0)
+				results[n] = res;
+			else
+				results[n] += res;
+			++n;
+
+			provider->releaseIntervalSubset(test);
+		}
+	}
+
+	std::ofstream out("C:/Tmp/electrode_lost.txt");
+	double d = 0;
+	for (double r : results) {
+		out << d << "\t" << r / 5 << std::endl;
+		d += 0.05;
+	}
+	out.close();
+}
+
 void CrossCorrelation::findParameter(std::map<Motion::Muscle, std::vector<Interval*>*>* data) {
 	logger->info("Searching for optimal parameters...");
 	std::string file = "C:/Tmp/parameters.txt";

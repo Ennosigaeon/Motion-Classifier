@@ -2,6 +2,7 @@
 #ifndef CROSSCORRELATION_H
 #define CROSSCORRELATION_H
 
+#include "DirProvider.h"
 #include "MSClassifier.h"
 #include "Logger.h"
 
@@ -25,6 +26,8 @@ namespace motion_classifier {
 		CrossCorrelation(MSClassifier *classifier);
 
 		double testClassifier(std::map<Motion::Muscle, std::vector<Interval*>*>* data);
+
+		void testElectrodeLost(DirProvider *provider);
 
 		void findParameter(std::map<Motion::Muscle, std::vector<Interval*>*>* data);
 	};
