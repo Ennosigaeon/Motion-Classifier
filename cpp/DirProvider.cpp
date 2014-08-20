@@ -5,8 +5,8 @@
 
 using namespace motion_classifier;
 
-DirProvider::DirProvider(std::string folder, double electrodeLost, bool longitudinalShift, bool transversalShift) :
-folder(folder), electrodeLost(electrodeLost), longitudinalShift(longitudinalShift), transversalShift(transversalShift) {
+DirProvider::DirProvider(std::string folder, double electrodeLost, Shift shift) :
+folder(folder), electrodeLost(electrodeLost), shift(shift) {
 }
 
 DirProvider::~DirProvider() {
@@ -62,10 +62,38 @@ std::map<Motion::Muscle, std::vector<Interval*>*>* DirProvider::getIntervalSubse
 			for (int i = start; i < end; ++i) {
 				Sample *s = new Sample(*(**it).getMeanSample());
 
+				//apply electrode lost
 				for (const auto &i : lost)
 					s->getEntries()[i].set(math::Dimension::Z, NAN);
 
-				//TODO: Handle shift here
+				//apply shift
+				switch (shift) {
+				case LONGITUDINAL_DOWN:
+					//first, thrid, ... row
+					for (int x = 0; x < s->getNrColumns(); ++x) {
+						for (int y = 1; y < s->getNrRows(); y += 2)
+							s->getEntries()[x * s->getNrRows() + y].set(math::Dimension::Z, NAN);
+					}
+					break;
+				case LONGITUDINAL_UP:
+					//second, fourth ... row
+					if (shift == LONGITUDINAL_UP)
+						for (int x = 0; x < s->getNrColumns(); ++x)
+							for (int y = 0; y < s->getNrRows(); y += 2)
+								s->getEntries()[x * s->getNrRows() + y].set(math::Dimension::Z, NAN);
+					break;
+				case TRANSVERSAL_INWARDS:
+					//frist, third, ... column
+					for (int x = 1; x < s->getNrColumns(); x += 2)
+						for (int y = 0; y < s->getNrRows(); ++y)
+							s->getEntries()[x * s->getNrRows() + y].set(math::Dimension::Z, NAN);
+					break;
+				case TRANSVERSAL_OUTWARDS:
+					//second, fourth, ... column
+					for (int x = 0; x < s->getNrColumns(); x += 2)
+						for (int y = 0; y < s->getNrRows(); ++y)
+							s->getEntries()[x * s->getNrRows() + y].set(math::Dimension::Z, NAN);
+				}
 
 				Interval *interval = new Interval;
 				interval->addSample(s);
@@ -137,22 +165,15 @@ double DirProvider::getElectrodeLost() const {
 	return electrodeLost;
 }
 
-bool DirProvider::getTransversalShift() const {
-	return transversalShift;
+Shift DirProvider::getShift() const {
+	return shift;
 }
 
-bool DirProvider::getLongitudinalShift() const {
-	return longitudinalShift;
-}
 
 void DirProvider::setElectrodeLost(double lost) {
 	DirProvider::electrodeLost = lost;
 }
 
-void DirProvider::setLongitudinalShift(bool shift) {
-	DirProvider::longitudinalShift = shift;
-}
-
-void DirProvider::setTransversalShift(bool shift) {
-	DirProvider::transversalShift = shift;
+void DirProvider::setShift(const Shift shift) {
+	DirProvider::shift = shift;
 }

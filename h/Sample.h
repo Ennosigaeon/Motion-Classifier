@@ -77,10 +77,12 @@ namespace motion_classifier {
 }
 
 /**
-  * Loads a sample from the given stream. All values for the sample has to be in
-  * a single line. The values have to be seperated by a blank. The values are
-  * interpreted as columns.
-  * Throws	std::out_of_range
+  * The values are all stored in one line. Start is with sensor at position (0/0)
+  * corresponding to left bottom. Then the first column is filled from up to down.
+  * This means the second value is at position (0/1), ... until (0/7). Then the
+  * second column is filled, again from bottom to top, i.e. (1/0),....(1/7). 
+  * Seperator has to be a tab or blank.
+  * Throws: std::out_of_range
   */
 std::istream& operator>>(std::istream& stream, motion_classifier::Sample& sample);
 

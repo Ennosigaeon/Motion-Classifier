@@ -9,13 +9,29 @@
 
 namespace motion_classifier {
 
+	enum Shift {
+		//Uses all electrodes
+		NO,
+
+		//Uses the second, fourth, ... row from bottom contains values
+		LONGITUDINAL_UP,
+
+		//Uses the first, thrid, ... row from bottom contains values
+		LONGITUDINAL_DOWN,
+
+		//Defined for the right hand. Uses first, third, ... column contains values
+		TRANSVERSAL_INWARDS,
+
+		//Defined for the right hand. Uses second, fourth, ... column contains values
+		TRANSVERSAL_OUTWARDS
+	};
+
 	class DirProvider : public EMGProviderImpl {
 	private:
 		Logger *logger = Logger::getInstance();
 		std::string folder;
 		double electrodeLost = 0;
-		bool transversalShift = false;
-		bool longitudinalShift = false;
+		Shift shift = Shift::NO;
 
 
 		std::map<Motion::Muscle, std::vector<std::vector<Interval*>*>*> intervals;
@@ -27,7 +43,7 @@ namespace motion_classifier {
 		std::uniform_int_distribution<int> *intervalRnd = NULL;
 
 	public:
-		DirProvider(std::string folder, double electrodeLost = 0, bool longitudinalShift = false, bool transversalShift = false);
+		DirProvider(std::string folder, double electrodeLost = 0, Shift shift = Shift::NO);
 
 		~DirProvider();
 
@@ -53,11 +69,10 @@ namespace motion_classifier {
 		void releaseIntervalSubset(std::map<Motion::Muscle, std::vector<Interval*>*>* data);
 
 		/**
-		  * Loads all Intervals from the specified folder. Parameters like electrode
-		  * lost or shift are applied to all loaded Intervals. All Intervals for a
+		  * Loads all Intervals from the specified folder. All Intervals for a
 		  * movement have to be stored in a file named as specified in Utilities::
-		  * getMotion(). Otherwise the Intervals are assigned to the movement UNKNOWN.
-		  * The expected file format is "<DIR>/<MOTION>-<1,...,count>.txt"
+		  * getMotion(). Otherwise the Intervals are assigned to the movement
+		  * UNKNOWN. The expected file format is "<DIR>/<MOTION>-<1,...,count>.txt"
 		  */
 		void loadIntervals(int count);
 
@@ -72,29 +87,20 @@ namespace motion_classifier {
 		double getElectrodeLost() const;
 
 		/**
-		  * Returns the status of transversal shift.
+		  * Returns the status of shift.
 		  */
-		bool getTransversalShift() const;
+		Shift getShift() const;
 
 		/**
-		  * Returns the status of longitudinal shift.
-		  */
-		bool getLongitudinalShift() const;
-
-		/**
-		  * Sets the electrode lost. Use loadIntervals() to	apply the change.
+		  * Sets the electrode lost.
 		  */
 		void setElectrodeLost(double lost);
 
-		/**
-		  * Sets the longitudinal shift. Use loadIntervals() to	apply the change.
-		  */
-		void setLongitudinalShift(bool shift);
 
 		/**
-		  * Sets the transversal shift. Use loadIntervals() to	apply the change.
+		  * Sets the shift.
 		  */
-		void setTransversalShift(bool shift);
+		void setShift(const Shift shift);
 	};
 
 }
