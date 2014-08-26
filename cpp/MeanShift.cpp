@@ -1,5 +1,6 @@
 #include <ctime>
 #include <boost/lexical_cast.hpp>
+#include <thread>
 #include "../h/MeanShift.h"
 #include "../h/Logger.h"
 
@@ -20,19 +21,9 @@ void MeanShift::setDataPoints(math::Vector* input, int size) {
 	MeanShift::size = size;
 }
 
-void MeanShift::setFiltering(bool doFilter) {
-	MeanShift::filter = doFilter;
-}
+void MeanShift::calc(int start, int end, double h, std::vector<math::Vector*> *result) {
 
-std::vector<math::Vector*>* MeanShift::calculate(double h) {
-	if (input == NULL)
-		throw std::invalid_argument("No data points defined");
-	if (h < 0)
-		throw std::invalid_argument("Bandwidth is negative. Only positive values are allowed.");
-
-	clock_t t = clock();
-	std::vector<math::Vector*> *centers = new std::vector<math::Vector*>;
-	for (int i = 0; i < size; ++i) {
+	for (int i = start; i < end; ++i) {
 		if (isnan(input[i].get(math::Dimension::Z)))
 			continue;
 
@@ -61,27 +52,57 @@ std::vector<math::Vector*>* MeanShift::calculate(double h) {
 
 		math::Vector *closest = NULL;
 		//center has to be closer then predefined value
-		double minDist = h;
-		for (auto &center : *centers) {
+		for (auto &center : *result) {
 			double dist = x.getDistance(*center);
-			if (dist < minDist) {
+			if (dist < h) {
 				closest = center;
-				minDist = dist;
+				break;
 			}
 		}
-		if (closest == NULL) {
-			closest = new math::Vector(x);
-			closest->setGroup(centers->size());
-			centers->push_back(closest);
-		}
+		if (closest == NULL)
+			result->push_back(new math::Vector(x));
+	}
+}
 
-		input[i].setGroup(closest->getGroup());
-		if (filter)
-			input[i].set(math::Dimension::Z, closest->get(math::Dimension::Z));
+std::vector<math::Vector*>* MeanShift::calculate(double h) {
+	if (input == NULL)
+		throw std::invalid_argument("No data points defined");
+	if (h < 0)
+		throw std::invalid_argument("Bandwidth is negative. Only positive values are allowed.");
+
+	clock_t t = clock();
+	std::vector<math::Vector*> *centers = new std::vector<math::Vector*>;
+
+	int middle = size / 2;
+
+	std::vector<math::Vector*> centers1;
+	std::vector<math::Vector*> centers2;
+	std::thread t1(&MeanShift::calc, this, 0, middle, h, &centers1);
+	std::thread t2(&MeanShift::calc, this, middle + 1, size, h, &centers2);
+	t1.join();
+	t2.join();
+
+	centers->insert(centers->end(), centers1.begin(), centers1.end());
+	centers->insert(centers->end(), centers2.begin(), centers2.end());
+
+	//remove possible duplicates
+	for (auto it = centers->begin(); it != centers->end();) {
+		if ((**it).getGroup() == 1)
+			it = centers->erase(it);
+		else {
+			auto it2 = it;
+			for (it2++; it2 != centers->end(); ++it2) {
+				if ((**it2).getGroup() == 1)
+					continue;
+				double dist = (**it2).getDistance(**it);
+				if (dist < h)
+					(**it2).setGroup(1);
+			}
+			++it;
+		}
 	}
 
 	t = clock() - t;
 	Logger::getInstance()->trace("Mean Shift took " + boost::lexical_cast<std::string>(((double)t) / CLOCKS_PER_SEC * 1000) + " ms");
-
 	return centers;
 }

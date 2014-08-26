@@ -15,9 +15,11 @@ namespace motion_classifier {
 		math::Vector *input = NULL;
 		int size;
 
-		bool filter = false;
 		double epsilon;
 		double threshold;
+
+		//Used for multithreading calculation
+		void calc(int start, int end, double h, std::vector<math::Vector*> *result);
 
 	public:
 
@@ -40,15 +42,6 @@ namespace motion_classifier {
 		  * MeanShift::calculate(double) to calculate the clusters.
 		  */
 		void setDataPoints(math::Vector *input, int size);
-
-		/**
-		  * When set to true, the given data points (see setDataPoints) are filtered.
-		  * This means, that the z value of every single data point will be replaced
-		  * with the z value of the corresponding center. All math::Vectors assigned
-		  * to a given center (via its group and index) get the same z value as the
-		  * center. Otherwise, the data point will keep its orginal z value.
-		  */
-		void setFiltering(bool doFilter);
 
 		/**
 		  * Performs the Mean Shift algorithm on the given data points (see setDataPoints).
