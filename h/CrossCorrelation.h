@@ -30,10 +30,6 @@ namespace motion_classifier {
 
 		void testElectrodeLost(DirProvider *provider);
 
-		void findSpaceParameter(std::map<Motion::Muscle, std::vector<Interval*>*>* data);
-
-		void findBandwidth(std::map<Motion::Muscle, std::vector<Interval*>*>* data);
-
 		void findAllParameters(std::map < Motion::Muscle, std::vector<Interval*>*>* train, std::map < Motion::Muscle, std::vector<Interval*>*>* test, int nr);
 	};
 }

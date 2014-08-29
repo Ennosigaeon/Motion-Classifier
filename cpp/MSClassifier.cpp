@@ -83,13 +83,6 @@ void MSClassifier::train(std::map< Motion::Muscle, std::vector<Interval*>*>* tra
 	}
 	msAlgo->setDataPoints(NULL, 0);
 	calcTrainingsMatrix();
-
-	for (const auto &pair : trainingsVectors) {
-		std::ofstream out("C:/Tmp/MS\ Centers/" + printMotion(pair.first) + ".txt");
-		for (const auto &vec : *pair.second)
-			out << *vec << std::endl;
-		out.close();
-	}
 }
 
 Motion::Muscle MSClassifier::classify(Interval *interval) {
@@ -118,11 +111,9 @@ Motion::Muscle MSClassifier::classify(Interval *interval) {
 		return a.second < b.second;
 	});
 
-
 	for (const auto &vec : *centers)
 		delete vec;
 	delete centers;
-
 
 	logger->trace("minimum distance: " + boost::lexical_cast<std::string>(distances.at(0).second));
 	return distances.at(0).first;
