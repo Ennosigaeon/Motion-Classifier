@@ -34,7 +34,6 @@ MSClassifier::MSClassifier(EMGProvider *emg, Properties *configuration) {
 
 	msAlgo = new MeanShift(static_cast<math::KernelType>(configuration->getInt("ms.kernel")),
 		configuration->getDouble("ms.epsilon"), configuration->getDouble("ms.threshold"));
-	msAlgo->setFiltering(configuration->getBool("ms.filtering"));
 }
 
 MSClassifier::~MSClassifier() {
@@ -52,6 +51,14 @@ MSClassifier::~MSClassifier() {
 
 void MSClassifier::train(std::map< Motion::Muscle, std::vector<Interval*>*>* training) {
 	logger->info("starting trainings procedure");
+
+	for (auto &pair : trainingsVectors) {
+		for (auto &vector : *pair.second)
+			delete vector;
+		delete pair.second;
+	}
+	trainingsVectors.clear();
+
 	for (auto &pair : *training) {
 		std::vector<math::Vector*> allCenters;
 		for (Interval *interval : *pair.second) {
@@ -59,6 +66,8 @@ void MSClassifier::train(std::map< Motion::Muscle, std::vector<Interval*>*>* tra
 			msAlgo->setDataPoints(mean->getEntries(), mean->getSize());
 			std::vector<math::Vector*> *centers = msAlgo->calculate(h);
 			allCenters.insert(allCenters.end(), centers->begin(), centers->end());
+
+			delete centers;
 		}
 
 		math::Vector *vectors = new math::Vector[allCenters.size()];
@@ -69,16 +78,18 @@ void MSClassifier::train(std::map< Motion::Muscle, std::vector<Interval*>*>* tra
 		trainingsVectors.insert(std::make_pair(pair.first, msAlgo->calculate(h)));
 
 		delete[] vectors;
+		for (auto const &vec : allCenters)
+			delete vec;
 	}
 	msAlgo->setDataPoints(NULL, 0);
 	calcTrainingsMatrix();
 
-//	for (const auto &pair : trainingsVectors) {
-//		std::ofstream out("C:/Tmp/MS\ Centers/" + printMotion(pair.first) + ".txt");
-//		for (const auto & vector : *pair.second)
-//			out << *vector << std::endl;
-//		out.close();
-//	}
+	for (const auto &pair : trainingsVectors) {
+		std::ofstream out("C:/Tmp/MS\ Centers/" + printMotion(pair.first) + ".txt");
+		for (const auto &vec : *pair.second)
+			out << *vec << std::endl;
+		out.close();
+	}
 }
 
 Motion::Muscle MSClassifier::classify(Interval *interval) {
@@ -106,6 +117,12 @@ Motion::Muscle MSClassifier::classify(Interval *interval) {
 	std::sort(distances.begin(), distances.end(), [](const std::pair<Motion::Muscle, double> &a, const std::pair<Motion::Muscle, double> &b) {
 		return a.second < b.second;
 	});
+
+
+	for (const auto &vec : *centers)
+		delete vec;
+	delete centers;
+
 
 	logger->trace("minimum distance: " + boost::lexical_cast<std::string>(distances.at(0).second));
 	return distances.at(0).first;

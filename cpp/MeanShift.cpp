@@ -22,7 +22,6 @@ void MeanShift::setDataPoints(math::Vector* input, int size) {
 }
 
 void MeanShift::calc(int start, int end, double h, std::vector<math::Vector*> *result) {
-
 	for (int i = start; i < end; ++i) {
 		if (isnan(input[i].get(math::Dimension::Z)))
 			continue;
@@ -87,8 +86,10 @@ std::vector<math::Vector*>* MeanShift::calculate(double h) {
 
 	//remove possible duplicates
 	for (auto it = centers->begin(); it != centers->end();) {
-		if ((**it).getGroup() == 1)
+		if ((**it).getGroup() == 1) {
+			delete *it;
 			it = centers->erase(it);
+		}
 		else {
 			auto it2 = it;
 			for (it2++; it2 != centers->end(); ++it2) {

@@ -58,7 +58,7 @@ std::map<Motion::Muscle, std::vector<Interval*>*>* DirProvider::getIntervalSubse
 		auto list = new std::vector < Interval* > ;
 		for (const auto &l : *pair.second) {
 			auto it = l->begin();
-			it = std::next(it, start);
+			it = std::next(it, start - 1);
 			for (int i = start; i < end; ++i) {
 				Sample *s = new Sample(*(**it).getMeanSample());
 

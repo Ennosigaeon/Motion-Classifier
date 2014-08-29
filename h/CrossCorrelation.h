@@ -9,6 +9,7 @@
 namespace motion_classifier {
 
 	struct Entry {
+		int h;
 		int x;
 		int y;
 		int z;
@@ -29,7 +30,11 @@ namespace motion_classifier {
 
 		void testElectrodeLost(DirProvider *provider);
 
-		void findParameter(std::map<Motion::Muscle, std::vector<Interval*>*>* data);
+		void findSpaceParameter(std::map<Motion::Muscle, std::vector<Interval*>*>* data);
+
+		void findBandwidth(std::map<Motion::Muscle, std::vector<Interval*>*>* data);
+
+		void findAllParameters(std::map < Motion::Muscle, std::vector<Interval*>*>* train, std::map < Motion::Muscle, std::vector<Interval*>*>* test, int nr);
 	};
 }
 

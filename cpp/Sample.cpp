@@ -40,7 +40,7 @@ Sample::Sample(double* values, long nr) : Sample(nr) {
 
 Sample::Sample(const Sample &sample) : Sample(sample.nr) {
 	for (int i = 0; i < sample.getSize(); ++i)
-		entries[i] = sample.entries[i];
+		entries[i] = math::Vector(sample.entries[i].get(0), sample.entries[i].get(1), sample.entries[i].get(2));
 }
 
 Sample::~Sample() {

@@ -39,7 +39,7 @@ double CrossCorrelation::testClassifier(std::map<Motion::Muscle, std::vector<Int
 		boost::lexical_cast<std::string>(totalFailed * 1.0 / total));
 
 	double result = totalFailed * 1.0 / total;
-	std::cout << classifier->m << "\t" << classifier->n << "\t" << classifier->p << "\t" << result << std::endl;
+	std::cout << classifier->h << "\t" << classifier->m << "\t" << classifier->n << "\t" << classifier->p << "\t" << result << std::endl;
 	return result;
 }
 
@@ -73,9 +73,78 @@ void CrossCorrelation::testElectrodeLost(DirProvider *provider) {
 	out.close();
 }
 
-void CrossCorrelation::findParameter(std::map<Motion::Muscle, std::vector<Interval*>*>* data) {
+
+void CrossCorrelation::findAllParameters(std::map<Motion::Muscle, std::vector<Interval*>*>* train, std::map < Motion::Muscle, std::vector<Interval*>*>* test, int nr) {
 	logger->info("Searching for optimal parameters...");
-	std::string file = "C:/Tmp/parameters.txt";
+	std::ofstream out("C:/Tmp/parameters-" + boost::lexical_cast<std::string>(nr)+".txt");
+	std::vector<Entry> entries;
+
+	int a[4] = { 1, 2, 4, 8 };
+	int b[8] = { 1, 2, 3, 4, 6, 8, 12, 24 };
+	int c[15] = { 1, 2, 4, 5, 8, 10, 16, 20, 25, 40, 50, 80, 100, 200, 400 };
+	//int h[11] = { 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
+	int h[2] = { 3, 4 };
+
+	int startA;
+	int endA;
+	if (nr == 0) {
+		startA = 0;
+		endA = 2;
+	}
+	if (nr == 1) {
+		startA = 2;
+		endA = 4;
+	}
+	if (nr == -1) {
+		startA = 0;
+		endA = 4;
+	}
+
+	for (int i = startA; i < endA; ++i) {
+		for (int j = 1; j < 8; ++j) {
+			for (int k = 1; k < 12; ++k) {
+				classifier->m = a[i];
+				classifier->n = b[j];
+				classifier->p = c[k];
+				
+				for (int l = 0; l < 2; ++l) {
+					classifier->h = h[l];
+					classifier->train(train);
+
+					int n = 0, failed = 0;
+					for (const auto &pair : *test) {
+						for (const auto &interval : *pair.second) {
+							Motion::Muscle motion = classifier->classify(interval);
+							if (motion != pair.first)
+								failed++;
+							n++;
+						}
+					}
+
+					double result = failed * 1.0 / n;
+
+					std::cout << classifier->h << "\t" << classifier->m << "\t" << classifier->n << "\t" << classifier->p << "\t" << result << std::endl;
+					out << classifier->h << "\t" << classifier->m << "\t" << classifier->n << "\t" << classifier->p << "\t" << result << std::endl;
+
+					entries.push_back({ classifier->h, classifier->m, classifier->n, classifier->p, result });
+				}
+			}
+		}
+	}
+	out.close();
+
+	std::sort(entries.begin(), entries.end(), [](const Entry &left, const Entry &right) {
+		return left.error < right.error;
+	});
+	std::ofstream out2("C:/Tmp/ordered_parameters-" + boost::lexical_cast<std::string>(nr)+".txt");
+	for (const auto &entry : entries)
+		out2 << entry.h << "\t" << entry.x << "\t" << entry.y << "\t" << entry.z << "\t" << entry.error << std::endl;
+	out2.close();
+}
+
+void CrossCorrelation::findSpaceParameter(std::map<Motion::Muscle, std::vector<Interval*>*>* data) {
+	logger->info("Searching for optimal space parameters...");
+	std::string file = "C:/Tmp/spaceParameters.txt";
 	std::vector<Entry> entries;
 
 	int a[4] = { 1, 2, 4, 8 };
@@ -89,7 +158,7 @@ void CrossCorrelation::findParameter(std::map<Motion::Muscle, std::vector<Interv
 				classifier->n = b[j];
 				classifier->p = c[k];
 				double result = testClassifier(data);
-				entries.push_back({ a[i], b[j], c[k], result });
+				entries.push_back({0, a[i], b[j], c[k], result });
 			}
 		}
 	}
@@ -107,4 +176,16 @@ void CrossCorrelation::findParameter(std::map<Motion::Muscle, std::vector<Interv
 	for (const auto &entry : entries)
 		out2 << entry.x << "\t" << entry.y << "\t" << entry.z << "\t" << entry.error << std::endl;
 	out2.close();
+}
+
+void CrossCorrelation::findBandwidth(std::map<Motion::Muscle, std::vector<Interval*>*>* data) {
+	std::ofstream out("C:/Tmp/bandwidth.txt");
+	for (int i = 0; i < 25; ++i) {
+		logger->info("Settings bandwidth to " + boost::lexical_cast<std::string>(i));
+		classifier->h = i;
+		classifier->train(data);
+		double result = testClassifier(data);
+		out << i << "\t" << result << std::endl;
+	}
+	out.close();
 }
