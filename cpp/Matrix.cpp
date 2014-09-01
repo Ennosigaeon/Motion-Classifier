@@ -103,9 +103,6 @@ void math::Matrix::assignToBucket(math::Vector &vector) {
 		row--;
 	if (dimension == space->getMax(math::Dimension::Z))
 		dimension--;
-	if (dimension == 1) {
-		int a = 0;
-	}
 
 	values[row][column][dimension]++;
 }

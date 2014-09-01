@@ -28,7 +28,7 @@ namespace motion_classifier {
 
 		double testClassifier(std::map<Motion::Muscle, std::vector<Interval*>*>* data);
 
-		void testElectrodeLost(DirProvider *provider);
+		void testElectrodeLost(DirProvider *provider, int count, int start, int end);
 
 		void findAllParameters(std::map < Motion::Muscle, std::vector<Interval*>*>* train, std::map < Motion::Muscle, std::vector<Interval*>*>* test, int nr);
 	};

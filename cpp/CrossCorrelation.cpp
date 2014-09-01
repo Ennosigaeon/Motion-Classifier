@@ -36,15 +36,15 @@ double CrossCorrelation::testClassifier(std::map<Motion::Muscle, std::vector<Int
 	return result;
 }
 
-void CrossCorrelation::testElectrodeLost(DirProvider *provider) {
+void CrossCorrelation::testElectrodeLost(DirProvider *provider, int count, int start, int end) {
 	std::array<double, 20> results;
-	for (int i = 0; i < 5; i++) {
+	for (int i = 0; i < count; i++) {
 		int n = 0;
 		for (double d = 0; d < 1; d += 0.05) {
 			logger->info("Setting electrode lost to " + boost::lexical_cast<std::string>(d));
 
 			provider->setElectrodeLost(d);
-			auto test = provider->getIntervalSubset(14, 15);
+			auto test = provider->getIntervalSubset(start, end);
 
 			double res = testClassifier(test);
 			if (i == 0)
@@ -60,7 +60,7 @@ void CrossCorrelation::testElectrodeLost(DirProvider *provider) {
 	std::ofstream out("C:/Tmp/electrode_lost.txt");
 	double d = 0;
 	for (double r : results) {
-		out << d << "\t" << r / 5 << std::endl;
+		out << d << "\t" << r / count << std::endl;
 		d += 0.05;
 	}
 	out.close();
