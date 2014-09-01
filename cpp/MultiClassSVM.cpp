@@ -73,14 +73,14 @@ Motion::Muscle MultiClassSVM::classify(std::vector<math::Vector>& values) {
 	Motion::Muscle motion = Motion::Muscle::UNKNOWN;
 	clock_t t = clock();
 
-	int count[Motion::Muscle::HAND_CLOSE] = {};
+	int count[Motion::Muscle::HAND_CLOSED] = {};
 	for (auto &svm : svms) {
 		Motion::Muscle result = svm->classify(values);
 		++count[result];
 	}
 
 	int max = 0;
-	for (int i = 0; i < Motion::Muscle::HAND_CLOSE; ++i) {
+	for (int i = 0; i < Motion::Muscle::HAND_CLOSED; ++i) {
 		if (count[i] > max) {
 			max = count[i];
 			motion = static_cast<Motion::Muscle>(i);

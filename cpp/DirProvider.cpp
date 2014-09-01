@@ -125,7 +125,7 @@ void DirProvider::loadIntervals(int count) {
 	}
 	intervals.clear();
 
-	for (int i = Motion::Muscle::REST_POSITION; i <= Motion::Muscle::HAND_CLOSE; ++i) {
+	for (int i = Motion::Muscle::REST_POSITION; i <= Motion::Muscle::HAND_CLOSED; ++i) {
 		Motion::Muscle movement = static_cast<Motion::Muscle>(i);
 		auto *list = new std::vector<std::vector<Interval*>*>;
 		for (int i = 1; i < count; ++i) {

@@ -19,8 +19,8 @@ namespace motion_classifier {
 			return "WRIST_EXTENSION";
 		case Motion::Muscle::HAND_OPEN:
 			return "HAND_OPEN";
-		case Motion::Muscle::HAND_CLOSE:
-			return "HAND_CLOSE";
+		case Motion::Muscle::HAND_CLOSED:
+			return "HAND_CLOSED";
 		case Motion::Muscle::RADIAL_DEVIATION:
 			return "RADIAL_DEVIATION";
 		case Motion::Muscle::ULNAR_DEVIATION:
@@ -43,8 +43,8 @@ namespace motion_classifier {
 			return Motion::Muscle::WRIST_EXTENSION;
 		if (string == "HAND_OPEN" || string == "open")
 			return Motion::Muscle::HAND_OPEN;
-		if (string == "HAND_CLOSE" || string == "close")
-			return Motion::Muscle::HAND_CLOSE;
+		if (string == "HAND_CLOSE" || string == "HAND_CLOSED" || string == "close")
+			return Motion::Muscle::HAND_CLOSED;
 		if (string == "RADIAL_DEVIATION" || string == "radial")
 			return Motion::Muscle::RADIAL_DEVIATION;
 		if (string == "ULNAR_DEVIATION" || string == "ulnar")

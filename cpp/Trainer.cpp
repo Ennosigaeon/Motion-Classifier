@@ -227,7 +227,7 @@ std::map<Motion::Muscle, std::vector<Interval*>> Trainer::load() {
 		throw std::invalid_argument("unable to open file");
 	
 	std::map<Motion::Muscle, std::vector<Interval*>> result;
-	for (int i = Motion::Muscle::REST_POSITION; i <= Motion::Muscle::HAND_CLOSE; ++i) {
+	for (int i = Motion::Muscle::REST_POSITION; i <= Motion::Muscle::HAND_CLOSED; ++i) {
 		std::string file = folder + motion_classifier::printMotion(static_cast<Motion::Muscle>(i)) + ".txt";
 		std::ifstream in(file);
 		//This trainigs file does not exists

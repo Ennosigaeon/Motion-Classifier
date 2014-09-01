@@ -42,7 +42,7 @@ namespace motion_classifier {
 
 			//Subject is closing its hand
 			//Note: It is important, that this element is always the last one! Index is used several times.
-			HAND_CLOSE
+			HAND_CLOSED
 		};
 	}
 }
