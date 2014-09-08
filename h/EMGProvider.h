@@ -8,7 +8,7 @@ namespace motion_classifier {
 
 	class EMGProvider {
 	protected:
-		long sampleNr;
+		int sampleNr = 0;
 
 	public:
 

@@ -37,10 +37,11 @@ double CrossCorrelation::testClassifier(std::map<Motion::Muscle, std::vector<Int
 }
 
 void CrossCorrelation::testElectrodeLost(DirProvider *provider, int count, int start, int end) {
-	std::array<double, 20> results;
+	std::ofstream out("C:/Tmp/lost.txt");
+	std::array<std::vector<double>, 100> result;
 	for (int i = 0; i < count; i++) {
 		int n = 0;
-		for (double d = 0; d < 1; d += 0.05) {
+		for (double d = 0; d < 1; d += 0.01) {
 			logger->info("Setting electrode lost to " + boost::lexical_cast<std::string>(d));
 
 			provider->setElectrodeLost(d);
@@ -48,22 +49,32 @@ void CrossCorrelation::testElectrodeLost(DirProvider *provider, int count, int s
 
 			double res = testClassifier(test);
 			if (i == 0)
-				results[n] = res;
-			else
-				results[n] += res;
-			++n;
+				result[n] = std::vector < double >() ;
+			result[n].push_back(res);
+
+			out << d << "\t" << res << std::endl;
 
 			provider->releaseIntervalSubset(test);
 		}
 	}
 
-	std::ofstream out("C:/Tmp/electrode_lost.txt");
-	double d = 0;
-	for (double r : results) {
-		out << d << "\t" << r / count << std::endl;
-		d += 0.05;
+	std::ofstream out2("C:/Tmp/electrode_lost.txt");
+	double lost = 0;
+	for (const auto &list : result) {
+		double avg = 0;
+		for (const auto &d : list)
+			avg += d;
+		avg /= list.size();
+
+		double tmp = 0;
+		for (const auto &d : list)
+			tmp += (d - avg) * (d - avg);
+		double deviation = sqrt(1 / (list.size() - 1) * tmp);
+
+		out2 << lost << "\t" << avg << "\t" << deviation << std::endl;
+		lost += 0.01;
 	}
-	out.close();
+
 }
 
 

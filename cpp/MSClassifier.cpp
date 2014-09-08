@@ -32,8 +32,7 @@ MSClassifier::MSClassifier(EMGProvider *emg, Properties *configuration) {
 	math::Space *space = new math::Space(minX, maxX, minY, maxY, minZ, maxZ);
 	math::Vector::setSpace(space);
 
-	msAlgo = new MeanShift(static_cast<math::KernelType>(configuration->getInt("ms.kernel")),
-		configuration->getDouble("ms.epsilon"), configuration->getDouble("ms.threshold"));
+	msAlgo = new MeanShift(static_cast<math::KernelType>(configuration->getInt("ms.kernel")), configuration->getDouble("ms.epsilon"));
 }
 
 MSClassifier::~MSClassifier() {

@@ -6,10 +6,9 @@
 
 using namespace motion_classifier;
 
-MeanShift::MeanShift(math::KernelType kernel, double epsilon, double threshold) {
+MeanShift::MeanShift(math::KernelType kernel, double epsilon) {
 	MeanShift::kernel = new math::Kernel(kernel);
 	MeanShift::epsilon = epsilon;
-	MeanShift::threshold = threshold;
 }
 
 MeanShift::~MeanShift() {
@@ -25,11 +24,7 @@ void MeanShift::calc(int start, int end, double h, std::vector<math::Vector*> *r
 	for (int i = start; i < end; ++i) {
 		if (isnan(input[i].get(math::Dimension::Z)))
 			continue;
-
 		math::Vector x(input[i]);
-		//If EMG value is samller then threshold, it is ignored => Rest Position has no centers
-		if (x.get(math::Dimension::Z) < threshold)
-			continue;
 
 		double offset;
 		do {

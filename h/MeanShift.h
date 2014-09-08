@@ -14,9 +14,7 @@ namespace motion_classifier {
 		math::Kernel *kernel = NULL;
 		math::Vector *input = NULL;
 		int size;
-
 		double epsilon;
-		double threshold;
 
 		//Used for multithreading calculation
 		void calc(int start, int end, double h, std::vector<math::Vector*> *result);
@@ -33,7 +31,7 @@ namespace motion_classifier {
 		  * Shift vector, threshold defines a barrier for math::Vector. Every vector with
 		  * a z value smaller then z is ignored in the Mean Shift procedure.
 		  */
-		MeanShift(math::KernelType kernel, double epsilon = 0.05, double threshold = 30);
+		MeanShift(math::KernelType kernel, double epsilon = 0.05);
 
 		~MeanShift();
 
