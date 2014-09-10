@@ -10,7 +10,7 @@
 namespace motion_classifier {
 
 	class MSClassifier : public ClassifierImpl {
-		friend CrossCorrelation;
+		friend class MSUtilities;
 	private:
 		MeanShift *msAlgo;
 		//Bandwidth for MeanShift

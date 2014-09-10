@@ -1,18 +1,53 @@
 #include <boost/lexical_cast.hpp>
 #include <fstream>
-#include "../h/CrossCorrelation.h"
+#include "../h/MSUtilities.h"
 #include "../h/Utilities.h"
 
 #include "../h/MSClassifier.h"
 
 using namespace motion_classifier;
 
-CrossCorrelation::CrossCorrelation(MSClassifier *classifier) {
-	CrossCorrelation::classifier = classifier;
+MSUtilities::MSUtilities(MSClassifier *classifier) {
+	MSUtilities::classifier = classifier;
 	logger = Logger::getInstance();
 }
 
-double CrossCorrelation::testClassifier(std::map<Motion::Muscle, std::vector<Interval*>*>* data) {
+double MSUtilities::crossCorrelation(std::map<Motion::Muscle, std::vector<Interval*>*> *train, std::map<Motion::Muscle, std::vector<Interval*>*> *test, int count) {
+	double avg = 0;
+	for (int i = 1; i < count; ++i) {
+		std::map<Motion::Muscle, std::vector<Interval*>*> trainMap;
+		for (const auto &pair : *train) {
+			std::vector<Interval*> *trainList = new std::vector < Interval* > ;
+			for (const auto &interval : *pair.second)
+				if (interval->getGroup() != i)
+					trainList->push_back(interval);
+			trainMap.insert(std::make_pair(pair.first, trainList));
+		}
+		classifier->train(&trainMap);
+
+		std::map<Motion::Muscle, std::vector<Interval*>*> testMap;
+		for (const auto &pair : *test) {
+			std::vector<Interval*> *testList = new std::vector < Interval* > ;
+			for (const auto &interval : *pair.second)
+				if (interval->getGroup() == i)
+					testList->push_back(interval);
+			testMap.insert(std::make_pair(pair.first, testList));
+		}
+		avg += testClassifier(&testMap);
+
+		for (auto &pair : trainMap)
+			delete pair.second;
+		for (auto &pair : testMap)
+			delete pair.second;
+	}
+	avg /= count - 1;
+	//std::cout << "Average: " << avg;
+
+	return avg;
+}
+
+
+double MSUtilities::testClassifier(std::map<Motion::Muscle, std::vector<Interval*>*>* data) {
 	logger->info("Starting cross correlation...");
 
 	int totalFailed = 0, total = 0;
@@ -32,11 +67,11 @@ double CrossCorrelation::testClassifier(std::map<Motion::Muscle, std::vector<Int
 		boost::lexical_cast<std::string>(totalFailed * 1.0 / total));
 
 	double result = totalFailed * 1.0 / total;
-	std::cout << classifier->h << "\t" << classifier->m << "\t" << classifier->n << "\t" << classifier->p << "\t" << result << std::endl;
+	//std::cout << classifier->h << "\t" << classifier->m << "\t" << classifier->n << "\t" << classifier->p << "\t" << result << std::endl;
 	return result;
 }
 
-void CrossCorrelation::testElectrodeLost(DirProvider *provider, int count, int start, int end) {
+void MSUtilities::testElectrodeLost(DirProvider *provider, int count, int start, int end) {
 	std::ofstream out("C:/Tmp/lost.txt");
 	std::array<std::vector<double>, 100> result;
 	for (int i = 0; i < count; i++) {
@@ -49,7 +84,7 @@ void CrossCorrelation::testElectrodeLost(DirProvider *provider, int count, int s
 
 			double res = testClassifier(test);
 			if (i == 0)
-				result[n] = std::vector < double >() ;
+				result[n] = std::vector < double >();
 			result[n].push_back(res);
 
 			out << d << "\t" << res << std::endl;
@@ -78,13 +113,13 @@ void CrossCorrelation::testElectrodeLost(DirProvider *provider, int count, int s
 }
 
 
-void CrossCorrelation::findAllParameters(std::map<Motion::Muscle, std::vector<Interval*>*>* train, std::map < Motion::Muscle, std::vector<Interval*>*>* test, int nr) {
+void MSUtilities::findAllParameters(std::map<Motion::Muscle, std::vector<Interval*>*>* train, std::map < Motion::Muscle, std::vector<Interval*>*>* test, int nr) {
 	logger->info("Searching for optimal parameters...");
 	std::ofstream out("C:/Tmp/parameters-" + boost::lexical_cast<std::string>(nr)+".txt");
 	std::vector<Entry> entries;
 
 	int a[4] = { 1, 2, 4, 8 };
-	int b[8] = { 1, 2, 3, 4, 6, 8, 12, 24 };
+	int b[7] = { 2, 3, 4, 6, 8, 12, 24 };
 	int c[11] = { 2, 4, 5, 8, 10, 16, 20, 25, 40, 50, 80 };
 	int h[13] = { 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
 
@@ -96,17 +131,17 @@ void CrossCorrelation::findAllParameters(std::map<Motion::Muscle, std::vector<In
 		startA = 2;
 
 	for (int i = startA; i < endA; ++i) {
-		for (int j = 0; j < 8; ++j) {
+		for (int j = 0; j < 7; ++j) {
 			for (int k = 0; k < 11; ++k) {
 				classifier->m = a[i];
 				classifier->n = b[j];
 				classifier->p = c[k];
-				
-				for (int l = 0; l < 13; ++l) {
-					classifier->h = h[l];
-					classifier->train(train);
 
-					double result = testClassifier(test);
+				for (int l = 7; l < 8; ++l) {
+					classifier->h = h[l];
+
+					double result = crossCorrelation(train, test, 5);
+					std::cout << classifier->h << "\t" << classifier->m << "\t" << classifier->n << "\t" << classifier->p << "\t" << result << std::endl;
 					out << classifier->h << "\t" << classifier->m << "\t" << classifier->n << "\t" << classifier->p << "\t" << result << std::endl;
 
 					entries.push_back({ classifier->h, classifier->m, classifier->n, classifier->p, result });

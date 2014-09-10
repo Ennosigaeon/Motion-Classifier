@@ -1,4 +1,5 @@
 #include "../h/Matrix.h"
+#include <algorithm>
 
 using namespace motion_classifier;
 
@@ -94,14 +95,14 @@ void math::Matrix::assignToBucket(math::Vector &vector) {
 
 	int column = std::floor(vector.get(math::Dimension::X) / bucketSize[math::Dimension::X]);
 	int row = std::floor(vector.get(math::Dimension::Y) / bucketSize[math::Dimension::Y]);
-	int dimension = std::floor(vector.get(math::Dimension::Z) / bucketSize[math::Dimension::Z]);
+	int dimension = std::floor(std::min<double>(vector.get(math::Dimension::Z), Vector::getSpace()->getMax(math::Dimension::Z)) /
+		bucketSize[math::Dimension::Z]);
 
-	//TODO: this checks are only corrent when bucketsize == 1
-	if (column == space->getMax(math::Dimension::X))
+	if (column == space->getMax(math::Dimension::X) / bucketSize[math::Dimension::X])
 		column--;
-	if (row == space->getMax(math::Dimension::Y))
+	if (row == space->getMax(math::Dimension::Y) / bucketSize[math::Dimension::Y])
 		row--;
-	if (dimension == space->getMax(math::Dimension::Z))
+	if (dimension == space->getMax(math::Dimension::Z) / bucketSize[math::Dimension::Z])
 		dimension--;
 
 	values[row][column][dimension]++;

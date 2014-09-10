@@ -51,3 +51,11 @@ void Interval::setMeanFunction(Sample* (*pointer)(const std::vector<Sample*>& va
 const std::vector<Sample*>& Interval::getSamples() const {
 	return samples;
 }
+
+void Interval::setGroup(const int group) {
+	Interval::group = group;
+}
+
+int Interval::getGroup() const {
+	return group;
+}

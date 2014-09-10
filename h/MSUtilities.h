@@ -1,6 +1,6 @@
 
-#ifndef CROSSCORRELATION_H
-#define CROSSCORRELATION_H
+#ifndef MSUTILITIES_H
+#define MSUTILITIES_H
 
 #include "DirProvider.h"
 #include "MSClassifier.h"
@@ -17,14 +17,16 @@ namespace motion_classifier {
 	};
 
 
-	class CrossCorrelation {
+	class MSUtilities {
 
 	private:
 		Logger *logger;
 		MSClassifier *classifier;
 
 	public:
-		CrossCorrelation(MSClassifier *classifier);
+		MSUtilities(MSClassifier *classifier);
+
+		double crossCorrelation(std::map<Motion::Muscle, std::vector<Interval*>*> *train, std::map<Motion::Muscle, std::vector<Interval*>*> *test, int count);
 
 		double testClassifier(std::map<Motion::Muscle, std::vector<Interval*>*>* data);
 

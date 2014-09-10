@@ -17,6 +17,7 @@ namespace motion_classifier {
 		std::vector<Sample*> samples;
 		Sample *mean = NULL;
 		int maxNrSamples;
+		int group = -1;
 
 		static Sample* (*calcMean)(const std::vector<Sample*>& values);
 
@@ -69,6 +70,10 @@ namespace motion_classifier {
 		  * Interval.
 		  */
 		const std::vector<Sample*>& getSamples() const;
+
+		int getGroup() const;
+
+		void setGroup(const int group);
 	};
 }
 
