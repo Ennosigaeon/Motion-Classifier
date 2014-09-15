@@ -58,7 +58,8 @@ std::map<Motion::Muscle, std::vector<Interval*>*>* DirProvider::getIntervalSubse
 		auto list = new std::vector < Interval* > ;
 		for (const auto &l : *pair.second) {
 			auto it = l->begin();
-			it = std::next(it, start - 1);
+			if (start != 0)
+				it = std::next(it, start - 1);
 			for (int i = start; i < end; ++i) {
 				Sample *s = new Sample(*(**it).getMeanSample());
 
@@ -66,37 +67,11 @@ std::map<Motion::Muscle, std::vector<Interval*>*>* DirProvider::getIntervalSubse
 				for (const auto &i : lost)
 					s->getEntries()[i].set(math::Dimension::Z, NAN);
 
-				//apply shift
-				switch (shift) {
-				case LONGITUDINAL_DOWN:
-					//first, thrid, ... row
-					for (int x = 0; x < s->getNrColumns(); ++x) {
-						for (int y = 1; y < s->getNrRows(); y += 2)
-							s->getEntries()[x * s->getNrRows() + y].set(math::Dimension::Z, NAN);
-					}
-					break;
-				case LONGITUDINAL_UP:
-					//second, fourth ... row
-					if (shift == LONGITUDINAL_UP)
-						for (int x = 0; x < s->getNrColumns(); ++x)
-							for (int y = 0; y < s->getNrRows(); y += 2)
-								s->getEntries()[x * s->getNrRows() + y].set(math::Dimension::Z, NAN);
-					break;
-				case TRANSVERSAL_INWARDS:
-					//frist, third, ... column
-					for (int x = 1; x < s->getNrColumns(); x += 2)
-						for (int y = 0; y < s->getNrRows(); ++y)
-							s->getEntries()[x * s->getNrRows() + y].set(math::Dimension::Z, NAN);
-					break;
-				case TRANSVERSAL_OUTWARDS:
-					//second, fourth, ... column
-					for (int x = 0; x < s->getNrColumns(); x += 2)
-						for (int y = 0; y < s->getNrRows(); ++y)
-							s->getEntries()[x * s->getNrRows() + y].set(math::Dimension::Z, NAN);
-				}
+				applyShift1(s);
 
 				Interval *interval = new Interval;
 				interval->addSample(s);
+				interval->setGroup((**it).getGroup());
 				list->push_back(interval);
 				++it;
 			}
@@ -105,6 +80,85 @@ std::map<Motion::Muscle, std::vector<Interval*>*>* DirProvider::getIntervalSubse
 	}
 
 	return result;
+}
+
+void DirProvider::applyShift1(Sample *s) {
+	switch (shift) {
+	case LONGITUDINAL_DOWN:
+		//first, thrid, ... row
+		for (int x = 0; x < s->getNrColumns(); ++x) {
+			for (int y = 1; y < s->getNrRows(); y += 2)
+				s->getEntries()[x * s->getNrRows() + y].set(math::Dimension::Z, NAN);
+		}
+		break;
+	case LONGITUDINAL_UP:
+		//second, fourth ... row
+		if (shift == LONGITUDINAL_UP)
+			for (int x = 0; x < s->getNrColumns(); ++x)
+				for (int y = 0; y < s->getNrRows(); y += 2)
+					s->getEntries()[x * s->getNrRows() + y].set(math::Dimension::Z, NAN);
+		break;
+	case TRANSVERSAL_INWARDS:
+		//frist, third, ... column
+		for (int x = 1; x < s->getNrColumns(); x += 2)
+			for (int y = 0; y < s->getNrRows(); ++y)
+				s->getEntries()[x * s->getNrRows() + y].set(math::Dimension::Z, NAN);
+		break;
+	case TRANSVERSAL_OUTWARDS:
+		//second, fourth, ... column
+		for (int x = 0; x < s->getNrColumns(); x += 2)
+			for (int y = 0; y < s->getNrRows(); ++y)
+				s->getEntries()[x * s->getNrRows() + y].set(math::Dimension::Z, NAN);
+	}
+}
+
+void DirProvider::applyShift2(Sample *s) {
+	switch (shift) {
+	case LONGITUDINAL_DOWN:
+		//first row removed
+		for (int x = 0; x < s->getNrColumns(); ++x) {
+			for (int y = 0; y < s->getNrRows(); ++y) {
+				math::Vector *vec = &(s->getEntries()[x * s->getNrRows() + y]);
+				if (y == 0)
+					vec->set(math::Dimension::Z, NAN);
+				vec->set(math::Dimension::Y, vec->get(math::Dimension::Y) - 1);
+			}
+		}
+		break;
+	case LONGITUDINAL_UP:
+		//last row removed
+		for (int x = 0; x < s->getNrColumns(); ++x) {
+			for (int y = 0; y < s->getNrRows(); ++y) {
+				math::Vector *vec = &(s->getEntries()[x * s->getNrRows() + y]);
+				if (y == s->getNrRows() - 1)
+					vec->set(math::Dimension::Z, NAN);
+				vec->set(math::Dimension::Y, vec->get(math::Dimension::Y) + 1);
+			}
+		}
+		break;
+	case TRANSVERSAL_INWARDS:
+		//last column removed
+		for (int x = 0; x < s->getNrColumns(); ++x) {
+			for (int y = 0; y < s->getNrRows(); ++y) {
+				math::Vector *vec = &(s->getEntries()[x * s->getNrRows() + y]);
+				if (x == 0)
+					vec->set(math::Dimension::Z, NAN);
+				vec->set(math::Dimension::X, vec->get(math::Dimension::X) - 1);
+			}
+		}
+		break;
+	case TRANSVERSAL_OUTWARDS:
+		//first column removed
+		for (int x = 0; x < s->getNrColumns(); ++x) {
+			for (int y = 0; y < s->getNrRows(); ++y) {
+				math::Vector *vec = &(s->getEntries()[x * s->getNrRows() + y]);
+				if (x == s->getNrColumns() - 1)
+					vec->set(math::Dimension::Z, NAN);
+				vec->set(math::Dimension::X, vec->get(math::Dimension::X) + 1);
+			}
+		}
+		break;
+	}
 }
 
 void DirProvider::releaseIntervalSubset(std::map<Motion::Muscle, std::vector<Interval*>*>* data) {
@@ -134,6 +188,7 @@ void DirProvider::loadIntervals(int count) {
 			std::ifstream in(folder + printMotion(movement) + "-" + boost::lexical_cast<std::string>(i)+".txt");
 			while (!in.eof()) {
 				Interval *interval = new Interval;
+				interval->setGroup(i);
 				Sample *s = new Sample;
 				try {
 					in >> *s;
@@ -168,7 +223,6 @@ double DirProvider::getElectrodeLost() const {
 Shift DirProvider::getShift() const {
 	return shift;
 }
-
 
 void DirProvider::setElectrodeLost(double lost) {
 	DirProvider::electrodeLost = lost;

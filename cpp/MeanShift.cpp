@@ -67,17 +67,27 @@ std::vector<math::Vector*>* MeanShift::calculate(double h) {
 	clock_t t = clock();
 	std::vector<math::Vector*> *centers = new std::vector<math::Vector*>;
 
-	int middle = size / 2;
+	int first = size / 4;
+	int second = 2 * size / 4;
+	int third = 3 * size / 4;
 
 	std::vector<math::Vector*> centers1;
 	std::vector<math::Vector*> centers2;
-	std::thread t1(&MeanShift::calc, this, 0, middle, h, &centers1);
-	std::thread t2(&MeanShift::calc, this, middle + 1, size, h, &centers2);
+	std::vector<math::Vector*> centers3;
+	std::vector<math::Vector*> centers4;
+	std::thread t1(&MeanShift::calc, this, 0, first, h, &centers1);
+	std::thread t2(&MeanShift::calc, this, first + 1, second, h, &centers2);
+	std::thread t3(&MeanShift::calc, this, second + 1, third, h, &centers3);
+	std::thread t4(&MeanShift::calc, this, third + 1, size, h, &centers4);
 	t1.join();
 	t2.join();
+	t3.join();
+	t4.join();
 
 	centers->insert(centers->end(), centers1.begin(), centers1.end());
 	centers->insert(centers->end(), centers2.begin(), centers2.end());
+	centers->insert(centers->end(), centers3.begin(), centers3.end());
+	centers->insert(centers->end(), centers4.begin(), centers4.end());
 
 	//remove possible duplicates
 	for (auto it = centers->begin(); it != centers->end();) {

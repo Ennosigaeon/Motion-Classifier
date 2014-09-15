@@ -33,6 +33,9 @@ namespace motion_classifier {
 		double electrodeLost = 0;
 		Shift shift = Shift::NO;
 
+		void applyShift1(Sample *s);
+		void applyShift2(Sample *s);
+
 
 		std::map<Motion::Muscle, std::vector<std::vector<Interval*>*>*> intervals;
 		Motion::Muscle lastMotion = Motion::Muscle::UNKNOWN;

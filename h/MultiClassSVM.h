@@ -19,7 +19,7 @@ namespace motion_classifier {
 	class MultiClassSVM {
 	private:
 		std::vector<SupportVectorMachine*> svms;
-		std::map<Motion::Muscle, std::vector<math::Vector>> trainingsData;
+		std::map<Motion::Muscle, std::vector<math::Vector>*> trainingsData;
 		svm_parameter *param;
 
 	public:
@@ -37,7 +37,7 @@ namespace motion_classifier {
 		  * as much values as posible, because this will increase the
 		  * accuarcy.
 		  */
-		void train(const Motion::Muscle& motion, const std::vector<math::Vector>& values);
+		void train(const Motion::Muscle& motion, std::vector<math::Vector> *values);
 
 		/**
 		  * Creates all Support Vector Machines from the trainings data.
@@ -47,12 +47,14 @@ namespace motion_classifier {
 		  */
 		void calculateSVMs();
 
+		void reset();
+
 		/**
 		  * Classifies the given Variogram result and returns the result as
 		  * a Motion::Muscle. When the movement can not be classified, the
 		  * Motion::Muscle UNKNOWN will be returned.
 		  */
-		Motion::Muscle classify(std::vector<math::Vector>& values);
+		Motion::Muscle classify(std::vector<math::Vector> *values);
 	};
 }
 
