@@ -10,13 +10,13 @@ SVMClassifier::SVMClassifier(EMGProvider* emgProvider, MultiClassSVM *svm, Prope
 	SVMClassifier::svm = svm;
 	Interval::setMeanFunction(&math::getRMSMean);
 	prop = configuration;
-	variogram = &Variogram(prop->getInt("variogram.nrBins"));
+	variogram = new Variogram(prop->getInt("variogram.nrBins"));
 	logger->info("Classifier created");
 }
 
 SVMClassifier::~SVMClassifier() {
 	send(Signal::SHUTDOWN);
-	logger->info(printStatistics());
+	//logger->info(printStatistics());
 	logger->info("Classifier destroyed");
 }
 
@@ -25,13 +25,13 @@ Motion::Muscle SVMClassifier::classify(Interval *interval) {
 	Sample *mean = interval->getMeanSample();
 
 	logger->trace("calculating Variogram");
-	std::vector<math::Vector> values = variogram->calculate(mean);
+	std::vector<math::Vector> *values = variogram->calculate(mean);
 
 	logger->trace("classifying values");
 	Motion::Muscle motion = svm->classify(values);
 
 	//plots the calculated values
-	plot(mean, values);
+	//plot(mean, values);
 
 	return motion;
 }
@@ -59,16 +59,17 @@ void SVMClassifier::plot(Sample* sample, std::vector<math::Vector>& values) {
 	}
 }
 
-void SVMClassifier::train(const std::map<Motion::Muscle, std::vector<Interval*>>& values) {
-	for (std::map<Motion::Muscle, std::vector<Interval*>>::const_iterator it = values.begin(); it != values.end(); ++it) {
-		std::vector<math::Vector> res;
-		for (std::vector<Interval*>::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2) {
-			Sample *mean = (*it2)->getMeanSample();
-			std::vector<math::Vector> vec = variogram->calculate(mean);
-			res.insert(res.end(), vec.begin(), vec.end());
-			delete mean;
+void SVMClassifier::train(std::map<Motion::Muscle, std::vector<Interval*>*>* values) {
+	for (const auto &pair : *values) {
+		auto *res = new std::vector<math::Vector>;
+		for (const auto &interval : *pair.second) {
+			Sample *mean = interval->getMeanSample();
+			std::vector<math::Vector> *vec = variogram->calculate(mean);
+			res->insert(res->end(), vec->begin(), vec->end());
+
+			delete vec;
 		}
-		svm->train(it->first, res);
+		svm->train(pair.first, res);
 	}
 	svm->calculateSVMs();
 }

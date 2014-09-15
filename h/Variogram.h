@@ -24,7 +24,7 @@ namespace motion_classifier {
 		  * a two dimensional vector (the actual gap, consisting out of angle and
 		  * length) and the measured value at this position.
 		  */
-		std::vector<math::Vector> calculate(Sample* sample) const;
+		std::vector<math::Vector>* calculate(Sample* sample) const;
 	};
 }
 

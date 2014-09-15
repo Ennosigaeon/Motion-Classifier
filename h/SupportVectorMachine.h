@@ -35,7 +35,7 @@ namespace motion_classifier {
 		  * the libsvm Support Vector Machine. The values are converted into the
 		  * correct data format.
 		  */
-		void addTrainData(const Motion::Muscle& motion, std::vector<math::Vector>& values);
+		void addTrainData(const Motion::Muscle& motion, std::vector<math::Vector> *values);
 
 		/**
 		  * Calculates the Support Vector Machine from the given trainings data.
@@ -49,7 +49,7 @@ namespace motion_classifier {
 		  * Assigns the given collection of variogram values to one of
 		  * the both trained classes.
 		  */
-		Motion::Muscle classify(std::vector<math::Vector>& values);
+		Motion::Muscle classify(std::vector<math::Vector> *values);
 	};
 }
 

@@ -16,6 +16,7 @@ namespace motion_classifier {
 	  * send(const Signal&).
 	  */
 	class SVMClassifier : public ClassifierImpl {
+		friend class SVMUtilities;
 	private:
 		void plot(Sample* sample, std::vector<math::Vector>& values);
 		void loadTrainingsData();
@@ -44,7 +45,7 @@ namespace motion_classifier {
 		/**
 		  * Trains the Classifier.
 		  */
-		void train(const std::map<Motion::Muscle, std::vector<Interval*>>& values);
+		void train(std::map<Motion::Muscle, std::vector<Interval*>*>* values);
 	};
 }
 

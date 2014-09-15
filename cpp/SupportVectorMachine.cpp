@@ -15,15 +15,15 @@ SupportVectorMachine::~SupportVectorMachine() {
 	delete svm;
 }
 
-void SupportVectorMachine::addTrainData(const Motion::Muscle& motion, std::vector<math::Vector>& vector) {
+void SupportVectorMachine::addTrainData(const Motion::Muscle& motion, std::vector<math::Vector> *vector) {
 	if (classA == Motion::Muscle::UNKNOWN) {
 		classA = motion;
-		valuesA.insert(valuesA.end(), vector.begin(), vector.end());
+		valuesA.insert(valuesA.end(), vector->begin(), vector->end());
 	}
 	else {
 		if (classB == Motion::Muscle::UNKNOWN) {
 			classB = motion;
-			valuesB.insert(valuesB.end(), vector.begin(), vector.end());
+			valuesB.insert(valuesB.end(), vector->begin(), vector->end());
 		}
 	}
 }
@@ -46,11 +46,10 @@ void SupportVectorMachine::calculateSVM() {
 		label[i] = 1;
 	problem.y = label;
 
-	svm_node **nodes = new svm_node*[problem.l];
+	problem.x = new svm_node*[problem.l];
 	int i = 0;
 	for (math::Vector &vector : list)
-		nodes[i] = createNode(&vector);
-	problem.x = nodes;
+		problem.x[i++] = createNode(&vector);
 
 	//creates the svm_parameters
 	svm_check_parameter(&problem, param);
@@ -60,12 +59,12 @@ void SupportVectorMachine::calculateSVM() {
 	Logger::getInstance()->trace("Trained SVM for " + printMotion(classA) + " & " + printMotion(classB));
 }
 
-Motion::Muscle SupportVectorMachine::classify(std::vector<math::Vector>& vector) {
+Motion::Muscle SupportVectorMachine::classify(std::vector<math::Vector> *vector) {
 	int matchA = 0;
 	int matchB = 0;
 
-	for (math::Vector &vector : vector) {
-		svm_node *node = createNode(&vector);
+	for (auto &vec : *vector) {
+		svm_node *node = createNode(&vec);
 		double result = svm_predict(svm, node);
 		result == -1 ? ++matchA : ++matchB;
 		delete[] node;

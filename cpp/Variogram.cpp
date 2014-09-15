@@ -14,9 +14,9 @@ Variogram::Variogram(int nrBins) {
 	Variogram::nrBins = nrBins;
 }
 
-std::vector<math::Vector> Variogram::calculate(Sample* sample) const {
+std::vector<math::Vector>* Variogram::calculate(Sample* sample) const {
 	Logger *logger = Logger::getInstance();
-	std::vector<math::Vector> result;
+	auto *result = new std::vector<math::Vector>;
 
 	int maxX = sample->getNrColumns() / 2;
 	int maxY = sample->getNrRows() / 2;
@@ -37,14 +37,14 @@ std::vector<math::Vector> Variogram::calculate(Sample* sample) const {
 				math::Vector tmp = h;
 				tmp.setGroup(angle);
 				tmp.set(math::Dimension::Z, value);
-				result.push_back(tmp);
+				result->push_back(tmp);
 			}
 			h.setLength(h.getLength() + 1);
 		}
 		logger->trace("found " + boost::lexical_cast<std::string>(count) + " pairs for math::Angle " + printAngle(angle));
 	}
 	t = clock() - t;
-	logger->debug("Variogram calculation took " + boost::lexical_cast<std::string>(((double)t) / CLOCKS_PER_SEC * 1000) + " ms. " + boost::lexical_cast<std::string>(result.size()) + " pairs found");
+	logger->debug("Variogram calculation took " + boost::lexical_cast<std::string>(((double)t) / CLOCKS_PER_SEC * 1000) + " ms. " + boost::lexical_cast<std::string>(result->size()) + " pairs found");
 
 	return result;
 }
